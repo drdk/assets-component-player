@@ -1,0 +1,55 @@
+.dr-widget.ui-carousel {
+
+    .content {
+        overflow: hidden;
+    }
+
+    &.animating {
+        &.direction-forward .transition,
+        &.direction-backward .transition {
+            position: absolute;
+            width: 33.3%;
+        }
+        &.direction-forward .transition {
+            margin-left: -33.3%;
+        }
+        &.direction-backward .transition {
+            margin-left: 33.3%;
+        }
+    }
+
+    .stories {
+        position: relative; /* positioning context */
+        width: 100%;
+        padding: 0 100%; margin-left: -100%;
+    }
+
+    ul {
+        overflow: hidden;
+
+        /* before we group them in pages */
+        > li {
+            display: inline-block;
+            float: left;
+            width: 33%; height: 48px;
+        }
+
+    }
+
+}
+
+@media only screen and (min-width: 481px) and (max-width: 800px) {
+    .dr-widget.ui-carousel {
+        ul > li {
+            width: 50%;
+        }
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .dr-widget.ui-carousel {
+        ul > li {
+            width: 100%;
+        }
+    }
+}
