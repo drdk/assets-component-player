@@ -1,5 +1,36 @@
 .dr-widget-carousel {
 
+	position: relative;
+	padding: 0 10px;
+
+	h2 {
+		position: absolute;
+		left: -9999px;
+	}
+
+	button {
+		position: absolute;
+		top: 0; 
+		bottom: 0; 
+		z-index: 1;
+		width: 30px;
+		border: 0;
+		background-color: #e6e6e6;
+		color: transparent;
+
+		&.next { 
+			right: 10px; 
+		}
+		
+		&.previous { 
+			left: 10px;
+		}
+		
+		&:disabled { 
+			color: #fff;
+		}
+	}
+
     .content {
         overflow: hidden;
     }
@@ -19,9 +50,10 @@
     }
 
     .stories {
-        position: relative; /* positioning context */
+        position: relative;
         width: 100%;
-        padding: 0 100%; margin-left: -100%;
+        padding: 0 100%;
+		margin-left: -100%;
     }
 
     ul {
