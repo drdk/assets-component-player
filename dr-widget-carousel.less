@@ -17,6 +17,7 @@
 		border: 0;
 		background-color: #e6e6e6;
 		color: transparent;
+		cursor: pointer;
 
 		&.next { 
 			right: 10px; 
@@ -25,10 +26,23 @@
 		&.previous { 
 			left: 10px;
 		}
-		
-		&:disabled { 
-			color: #fff;
+
+		&.disabled {
+			cursor: default;
 		}
+		
+	}
+
+	[class*=dr-icon-arrow-left]:before,
+	[class*=dr-icon-arrow-right]:before {
+		font-size: 36px;
+		line-height: 100%;
+		margin-top: 10px;
+		text-indent: -5px;
+	}
+
+	[class*="dr-icon"][class*="disabled"]:before { 
+		color: #fff;
 	}
 
     .content {
@@ -56,17 +70,13 @@
 		margin-left: -100%;
     }
 
-    ul {
-        overflow: hidden;
-
-        /* before we group them in pages */
-        > li {
-            display: inline-block;
-            float: left;
-            width: 33%; height: 48px;
-        }
-
-    }
+	/* TODO: should be more generic - items could be articles... */
+	&.carousel-layout-1 .stories + * {
+		display: inline-block;
+		float: left;
+		width: 33%;
+		height: 548px;
+	}
 
 }
 
