@@ -1,4 +1,4 @@
-.dr-widget-carousel {
+[class*=dr-widget-carousel] {
 
 	position: relative;
 	padding: 0 10px;
@@ -70,15 +70,18 @@
 		margin-left: -100%;
     }
 
-	/* TODO: should be more generic - items could be articles... */
-	&.carousel-layout-1 .stories + * {
-		display: inline-block;
-		float: left;
-		width: 33%;
-		height: 548px;
-	}
 
 }
+
+/*
+.dr-widget-carousel-slideshow {}
+.dr-widget-carousel-articles {
+	display: inline-block;
+	float: left;
+	width: 33%;
+	height: 548px;
+}
+*/
 
 @media only screen and (min-width: 481px) and (max-width: 800px) {
     .dr-widget-carousel {
