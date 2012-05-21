@@ -11,8 +11,8 @@
 
 	button {
 		position: absolute;
-		top: 0; 
-		bottom: 0; 
+		top: 0;
+		bottom: 0;
 		z-index: 1;
 		width: 30px;
 		border: 0;
@@ -20,29 +20,29 @@
 		color: transparent;
 		cursor: pointer;
 
-		&.next { 
-			right: 10px; 
+		&.next {
+			right: 10px;
 		}
-		
-		&.previous { 
+
+		&.previous {
 			left: 10px;
 		}
 
 		&.disabled {
 			cursor: default;
 		}
-		
+
 	}
 
-	[class*=dr-icon-arrow-left]:before,
-	[class*=dr-icon-arrow-right]:before {
+	[class*="dr-icon-arrow-left"]:before,
+	[class*="dr-icon-arrow-right"]:before {
 		font-size: 36px;
 		line-height: 100%;
 		margin-top: 10px;
 		text-indent: -5px;
 	}
 
-	[class*="dr-icon"][class*="disabled"]:before { 
+	[class*="dr-icon"][class*="disabled"]:before {
 		color: #fff;
 	}
 
@@ -53,22 +53,22 @@
             width: 33.3%;
         }
         &.direction-forward .transition {
-            margin-left: -33.3%;
+            margin-left: -33.3% !important;
         }
         &.direction-backward .transition {
-            margin-left: 33.3%;
+            margin-left: 33.3% !important;
         }
     }
 
 	.carousel-content-wrapper {
-		overflow: hidden;
+
 	}
-    
+
 	.carousel-items {
         position: relative;
         width: 100%;
         padding: 0 100%;
-		margin-left: -100%;
+		  margin-left: -100%;
     }
 
 }
