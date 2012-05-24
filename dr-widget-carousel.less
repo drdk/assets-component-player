@@ -68,25 +68,9 @@
         position: relative;
         width: 100%;
         padding: 0 100%;
-		  margin-left: -100%;
+		margin-left: -100%;
     }
 
-}
-
-@media only screen and (min-width: 481px) and (max-width: 800px) {
-    .dr-widget-carousel {
-        > article {
-            width: 50%;
-        }
-    }
-}
-
-@media only screen and (max-width: 480px) {
-    .dr-widget-carousel {
-        > article {
-            width: 100%;
-        }
-    }
 }
 
 .dr-widget-carousel-teaser-small {
@@ -126,11 +110,19 @@
 		padding: 0 30px;
 	}
 }
-/*
-.teaser-small {
-	display: inline-block;
-	float: left;
-	width: 33%;
-	height: 548px;
+
+@media only screen and (min-width: 481px) and (max-width: 800px) {
+    .dr-widget-carousel {
+        > article {
+            width: 50%;
+        }
+    }
 }
-*/
+
+@media only screen and (max-width: 480px) {
+    .dr-widget-carousel {
+        > article {
+            width: 100%;
+        }
+    }
+}
