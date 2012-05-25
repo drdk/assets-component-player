@@ -1,7 +1,8 @@
-.dr-widget-carousel {
+[class*=dr-widget-carousel] {
 
 	position: relative;
-	padding: 0 10px;
+	overflow: hidden;
+	padding: 0;
 
 	h2 {
 		position: absolute;
@@ -10,30 +11,40 @@
 
 	button {
 		position: absolute;
-		top: 0; 
-		bottom: 0; 
+		top: 0;
+		bottom: 0;
 		z-index: 1;
 		width: 30px;
 		border: 0;
 		background-color: #e6e6e6;
 		color: transparent;
+		cursor: pointer;
 
-		&.next { 
-			right: 10px; 
+		&.next {
+			right: 10px;
 		}
-		
-		&.previous { 
+
+		&.previous {
 			left: 10px;
 		}
-		
-		&:disabled { 
-			color: #fff;
+
+		&.disabled {
+			cursor: default;
 		}
+
 	}
 
-    .content {
-        overflow: hidden;
-    }
+	[class*="dr-icon-arrow-left"]:before,
+	[class*="dr-icon-arrow-right"]:before {
+		font-size: 36px;
+		line-height: 100%;
+		margin-top: 10px;
+		text-indent: -5px;
+	}
+
+	[class*="dr-icon"][class*="disabled"]:before {
+		color: #fff;
+	}
 
     &.animating {
         &.direction-forward .transition,
@@ -42,37 +53,29 @@
             width: 33.3%;
         }
         &.direction-forward .transition {
-            margin-left: -33.3%;
+            margin-left: -33.3% !important;
         }
         &.direction-backward .transition {
-            margin-left: 33.3%;
+            margin-left: 33.3% !important;
         }
     }
 
-    .stories {
+	.carousel-content-wrapper {
+
+	}
+
+	.carousel-items {
         position: relative;
         width: 100%;
         padding: 0 100%;
 		margin-left: -100%;
     }
 
-    ul {
-        overflow: hidden;
-
-        /* before we group them in pages */
-        > li {
-            display: inline-block;
-            float: left;
-            width: 33%; height: 48px;
-        }
-
-    }
-
 }
 
 @media only screen and (min-width: 481px) and (max-width: 800px) {
     .dr-widget-carousel {
-        ul > li {
+        > article {
             width: 50%;
         }
     }
@@ -80,7 +83,61 @@
 
 @media only screen and (max-width: 480px) {
     .dr-widget-carousel {
-        ul > li {
+        > article {
+            width: 100%;
+        }
+    }
+}
+
+.dr-widget-carousel-teaser-small {
+
+	height: 65px;
+
+	> h2 {
+		position: absolute;
+		left: -9999px;
+	}
+
+	.carousel-content-wrapper {
+		padding: 0 50px;
+	}
+
+	article {
+		float: left;
+		width: 33.333333333333%;
+		padding: 10px 0 0;
+		border: none;
+
+		> h3 {
+			margin: 0;
+		}
+	}
+
+}
+
+.dr-widget-carousel-slideshow-medium {
+	height: 230px;
+
+	button {
+		top: 0;
+	}
+
+	.carousel-content-wrapper {
+		padding: 0 30px;
+	}
+}
+
+@media only screen and (min-width: 481px) and (max-width: 800px) {
+    .dr-widget-carousel {
+        > article {
+            width: 50%;
+        }
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .dr-widget-carousel {
+        > article {
             width: 100%;
         }
     }
