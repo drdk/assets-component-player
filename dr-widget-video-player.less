@@ -1,6 +1,26 @@
 .dr-widget-video-player,
 .dr-widget-video-playlist {
 	
+	&.error, .video.error {
+		padding:20px;
+		background-color: #808080;
+		color:#FFF;
+
+		p {
+			margin: 10px 0px;
+			color:#FFF;
+		}
+
+		pre {
+			padding:20px;
+			margin: 0px -20px;
+			font-family: "Courier New", Courier, monospace;
+			font-size: 12px;
+			background-color: #404040;
+			color: #808080;
+			overflow: auto;
+		}
+	}
 
 	video {
 		width: 100%;
