@@ -76,13 +76,12 @@
 
 
 .dr-widget-carousel-articles {
-    .row {
-        padding: 10px 40px;
+    .carousel-content-wrapper {
+        padding: 0 40px;
         .clearfix();
     }
     
     article {
-      margin: 0 10px;
       width: 255px;
     }
 }
@@ -90,9 +89,17 @@
 
 
 .dr-widget-carousel-slideshow .controls {
-  clear: both;
-  position: relative;
-  text-align: center;
+	clear: both;
+	position: relative;
+	text-align: center;
+
+	[class*="dr-icon-arrow-left"]:before,
+	[class*="dr-icon-arrow-right"]:before {
+		font-size: 36px;
+		line-height: 100%;
+		margin-top: 0;
+		text-indent: -5px;
+	}
 }
 
 .dr-widget-carousel-slideshow .image-wrap img {
