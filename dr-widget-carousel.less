@@ -28,19 +28,26 @@
 		&.disabled {
 			cursor: default;
 		}
-
 	}
 
-	[class*="dr-icon-arrow-left"]:before,
-	[class*="dr-icon-arrow-right"]:before {
-		font-size: 36px;
-		line-height: 100%;
-		margin-top: 10px;
-		text-indent: -3px;
-	}
+	[class*="dr-icon"] {
+		&:before {
+			position: absolute;
+			top: 50%;
+			font-size: 36px;
+			line-height: 100%;
+			margin-top: -18px;
+			text-indent: -3px;
+			color: @grey-50;
+		}
+		
+		&:hover:before {
+			color: black;
+		}
 
-	[class*="dr-icon"][class*="disabled"]:before {
-		color: white;
+		&[class*="disabled"]:before {
+			color: white;
+		}
 	}
 }
 
