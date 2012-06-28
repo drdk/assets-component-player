@@ -1,12 +1,7 @@
 [class*=dr-widget-carousel] {
-
 	position: relative;
 	overflow: hidden;
 	padding: 0;
-
-    .hide {
-        display: none;
-    }
 
 	h2 {
 		position: absolute;
@@ -17,11 +12,9 @@
 		position: absolute;
 		top: 0;
 		bottom: 0;
-		z-index: 1;
+		z-index: 10;
 		width: 30px;
-		border: 0;
-		background-color: #e6e6e6;
-		color: transparent;
+		background-color: @grey-90;
 		cursor: pointer;
 
 		&.next {
@@ -35,88 +28,152 @@
 		&.disabled {
 			cursor: default;
 		}
-
 	}
 
-	[class*="dr-icon-arrow-left"]:before,
-	[class*="dr-icon-arrow-right"]:before {
-		font-size: 36px;
-		line-height: 100%;
-		margin-top: 10px;
-		text-indent: -5px;
+	[class*="dr-icon"] {
+		&:before {
+			position: absolute;
+			top: 50%;
+			font-size: 36px;
+			line-height: 100%;
+			margin-top: -18px;
+			text-indent: -3px;
+			color: @grey-50;
+		}
+		
+		&:hover:before {
+			color: black;
+		}
+
+		&[class*="disabled"]:before {
+			color: white;
+		}
 	}
 
-	[class*="dr-icon"][class*="disabled"]:before {
-		color: #fff;
+	&[class*="-articles"] {
+		background-color: white;
+
+		.carousel-content-wrapper {
+			padding: 0 40px;
+		}
+		
+		// Default width - shows 5 articles
+		article {
+			overflow: hidden;
+			width: 153px;
+			padding-bottom: 0;
+			background: none;
+
+			.metainfo {
+				display: block;
+				margin-top: 3px;
+			}
+		}
+
+		.no-image {
+			.box-sizing(border-box);
+			margin-top: 10px;
+			padding: 15px;
+			background-color: @grey-90;
+			min-height: 110px;
+		}
+
+		// If left floated image - shows 3 articles
+		&.image-1,
+		&.image-2 {
+
+			article {
+				width: 255px;
+			}
+
+			.no-image {
+				margin-top: 0;
+				padding: 10px 0 0;
+				background-color: transparent;
+				min-height: 100%;
+
+				h3 {
+					font-size: 14px;
+					line-height: 16px;
+					margin-bottom: 0;
+				}
+			}
+		}
+
+		&.image-2 .image-wrap ~ h3,
+		&.image-2 .image-wrap ~ .metainfo {
+			padding-left: 33.33333333%;
+		}
+
+		&.image-1 .image-wrap ~ h3,
+		&.image-1 .image-wrap ~ .metainfo {
+			padding-left: 25%;
+		}
+
+		&[class*="display"][class*="-3"] {
+			
+			article {
+				width: 268px;
+			}
+		
+			.no-image {
+				min-height: 170px;
+			}
+
+			&.image-1,
+			&.image-2 {
+				.no-image {
+					min-height: 100%;
+				}
+			}
+		}
 	}
 
-    &.animating {
-        &.direction-forward .transition,
-        &.direction-backward .transition {
-            position: absolute;
-            width: 33.3%;
-        }
-        &.direction-forward .transition {
-            margin-left: -33.3% !important;
-        }
-        &.direction-backward .transition {
-            margin-left: 33.3% !important;
-        }
-    }
+	&[class*="dr-widget-carousel-slideshow"] {
+		border: none;
 
-	.carousel-content-wrapper {
+		figcaption {
+			float: left;
+			width: 70%;
+		}
 
+		.figcaption {
+			display: none;
+		}
+
+		.controls {
+			display: none;
+			position: absolute;
+			top: 100%;
+			right: 0;
+			width: 100px;
+			.font-sans-serif;
+
+			.button {
+				width: 14px;
+				background-color: transparent;
+			}
+
+			.pageIndex:after {
+				content: "/";
+				margin: 0 5px;
+			}
+
+			[class*="dr-icon"][class*="disabled"]:before {
+				color: #000;
+			}
+
+			[class*="dr-icon-arrow-left"]:before,
+			[class*="dr-icon-arrow-right"]:before {
+				margin-top: -2px;
+				font-size: 24px;
+			}
+		}
 	}
-
-	.carousel-items {
-        position: relative;
-        width: 100%;
-        padding: 0 100%;
-		margin-left: -100%;
-    }
-
 }
 
 
-
-.dr-widget-carousel-articles {
-    .carousel-content-wrapper {
-        padding: 0 40px;
-        .clearfix();
-    }
-    
-    article {
-      width: 255px;
-    }
-}
-
-
-
-.dr-widget-carousel-slideshow .controls {
-	clear: both;
-	position: relative;
-	text-align: center;
-
-	[class*="dr-icon-arrow-left"]:before,
-	[class*="dr-icon-arrow-right"]:before {
-		font-size: 36px;
-		line-height: 100%;
-		margin-top: 0;
-		text-indent: -5px;
-	}
-}
-
-.dr-widget-carousel-slideshow .image-wrap img {
-  width: 100%;
-  height: auto;
-}
-
-
-
-
-
-
-
+/*
 @media only screen and (min-width: 481px) and (max-width: 800px) {
     .dr-widget-carousel {
         > article {
@@ -142,39 +199,6 @@
 
 }
 
-.dr-widget-carousel-teaser-small {
-
-	height: 65px;
-
-	.carousel-content-wrapper {
-		padding: 0 50px;
-	}
-
-	article {
-		float: left;
-		width: 33.333333333333%;
-		padding: 10px 0 0;
-		border: none;
-
-		> h3 {
-			margin: 0;
-		}
-	}
-
-}
-
-.dr-widget-carousel-slideshow-medium {
-	height: 230px;
-
-	button {
-		top: 0;
-	}
-
-	.carousel-content-wrapper {
-		padding: 0 30px;
-	}
-}
-
 @media only screen and (min-width: 481px) and (max-width: 800px) {
     .dr-widget-carousel {
         > article {
@@ -190,3 +214,4 @@
         }
     }
 }
+*/
