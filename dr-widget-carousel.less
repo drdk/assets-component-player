@@ -142,30 +142,73 @@
 
 	&[class*="dr-widget-carousel-slideshow"] {
 		border: none;
+        padding-bottom: 10px;
+        background: url(/assets/img/border.gif) repeat-x 0 100%;
+        .clearfix;
+
+        .carousel-content-wrapper {
+            background-color: @grey-30;
+            .box-shadow(0 0 10px rgba(0,0,0,0.2));
+            
+            .image-wrap {
+                height: 100%;
+                overflow: hidden;
+                position: relative;
+                
+                img {
+                    float: none;
+                    margin: auto;
+                        
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+
+                    width: auto;
+                    height: auto;
+                    max-height: 100%;
+                    max-width: 100%;
+                    
+                    .box-shadow(0 0 10px rgba(0,0,0,0.2));
+                    
+                    &.landscape {
+                        width: 100%;
+                    }
+                    &.portrait {
+                        height: 100%;
+                    }
+                }
+            }
+        }  
 
 		figcaption {
-			float: left;
-			width: 70%;
+			display: none;
 		}
 
 		.figcaption {
-			display: none;
+			float: left;
+			width: 70%;
+            font-size: 14px;
+            color: @grey-50;
+			.font-sans-serif;
 		}
 
 		.controls {
-			display: none;
-			position: absolute;
-			top: 100%;
-			right: 0;
-			width: 100px;
+            float: right;
+            color: @grey-50;
 			.font-sans-serif;
-
+            
+            
 			.button {
-				width: 14px;
 				background-color: transparent;
+                display: inline;
+                position: relative;
 			}
-
-			.pageIndex:after {
+            .pageIndex {
+                color: black;
+            }
+			.pageLength:before {
 				content: "/";
 				margin: 0 5px;
 			}
@@ -176,8 +219,9 @@
 
 			[class*="dr-icon-arrow-left"]:before,
 			[class*="dr-icon-arrow-right"]:before {
-				margin-top: -2px;
-				font-size: 24px;
+                position: relative;
+				font-size: 21px;
+                margin: -2px 0 -1px 3px;
 			}
 		}
 	}
