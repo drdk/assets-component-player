@@ -2,27 +2,48 @@
 .dr-widget-video-playlist {
 	
 	&.error, .video.error {
-		padding:20px;
-		background-color: #808080;
-		color:#FFF;
+		
+		background-color: #000;
 
-		p {
-			margin: 10px 0px;
-			color:#FFF;
+		.floater {
+			float: left;
+			height: 50%;
+			width: 100%;
+			margin-bottom: -100px;
+		}
+		
+		.wrapper {
+			margin: 0 10%;
+			background-color: #fff;
+			border: 4px solid #808080;
+			padding: 9px 10px;
+			clear: both;
+
+			.gfx {
+				width: 36px;
+				height: 32px;
+				float: left;
+				margin-right: 16px;
+
+				&:before {
+					font-size: 32px;
+					line-height: 32px;
+					color: #808080;
+				}
+			}
+			a:link {
+				text-decoration: underline;
+			}
+			pre {
+				overflow: auto;
+				max-height: 70px;
+				padding-top: 10px;
+				font-size: 11px;
+				color: #999;
+			}
 		}
 
-		pre {
-			padding:20px;
-			margin: 0px -20px;
-			font-family: "Courier New", Courier, monospace;
-			font-size: 12px;
-			background-color: #404040;
-			color: #808080;
-			overflow: auto;
-		}
 	}
-
-	margin-bottom: 20px;
 
 	video {
 		width: 100%;
@@ -61,4 +82,58 @@
 		left: -9999px;
 	}
 
+}
+
+.dr-widget-video-playlist {
+	background: #000;
+    padding: 30px 20px 20px; 
+    overflow: hidden;
+    position: relative; 
+
+	a.selected article img {
+		outline: 3px solid red;
+	}
+
+    > h2 {
+        border: none;
+        background: white;
+        position: absolute;
+        top: 0; 
+		left: 20px;
+        font-size: 12px;
+        line-height: 1.2;
+        padding: 0 10px 5px 10px;
+    }
+
+	// the video view
+	.video-article {
+		margin-top: 10px;
+		padding: 0;
+		background: #fff;
+
+		.description {
+			padding: 10px;
+		}
+	}
+
+	// the playlist
+	li {
+		float: left;
+		margin-bottom: 10px;
+
+		h3 {
+			color: #fff;
+		}
+	}
+
+	.metainfo {
+		margin-top: 4px;
+	}
+
+	.dr-link-readmore {
+		position: absolute;
+		top: 10px;
+		right: 20px;
+		line-height: 100%;
+	}
 }
