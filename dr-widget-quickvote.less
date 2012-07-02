@@ -1,0 +1,88 @@
+﻿label,
+input[type=radio],
+input[type=submit],
+input[type=checkbox] {
+	cursor: pointer;
+}
+
+
+.dr-widget-quickvote {
+
+	h1 a,
+	h3 a {
+		font: normal 18px/1 "gibsonSemiBold", "Arial Black", sans-serif;
+		text-transform: uppercase;
+	}
+
+	h1 span,
+	h3 span {
+		font: normal 14px/1 "gibsonRegular", "Verdana", sans-serif;
+		text-transform: uppercase;
+		display: block;
+	}
+
+	li label {
+		display: inline-block;
+		padding: 5px 3px;
+		line-height: 20px;
+		font-size: 14px;
+        font-family: "gibsonSemiBold", "Arial Black", sans-serif;
+	}
+
+	> fieldset {
+		display: block;
+	}
+
+	> div {
+		display: none;
+	}
+
+	&.show-results {
+		> fieldset {
+			display: none;
+		}
+
+		> div {
+			display: block;
+		}
+
+		> p {
+			
+			a[href$="#"],
+			input[type=submit] {
+				display: none;
+			}
+
+			button {
+				display: inline-block;
+			}
+		}
+	}
+
+	> p {
+		text-align: right;
+		
+		a {
+			color: #777;
+			font: normal 14px/25px "gibsonRegular", "Verdana", sans-serif;
+			text-transform: uppercase;
+			text-decoration: underline;
+		}
+
+		input[type=submit] {
+			margin-left: 10px;
+		}
+
+		button {
+			display: none;
+		}
+
+		.dr-icon-help-boxed {
+			white-space: nowrap;
+			width: 16px;
+			overflow: hidden;   
+			float: left;
+			text-decoration: none;
+		}
+	}
+}
