@@ -14,6 +14,14 @@ input[type=checkbox] {
 		text-transform: uppercase;
 	}
 
+	.dr-icon-help-boxed {
+		white-space: nowrap;
+		width: 16px;
+		overflow: hidden;
+		float: right;
+		text-decoration: none;
+	}
+
 	h1 span,
 	h3 span {
 		font: normal 14px/1 "gibsonRegular", "Verdana", sans-serif;
@@ -45,21 +53,10 @@ input[type=checkbox] {
 		> div {
 			display: block;
 		}
-
-		> p {
-			
-			a[href$="#"],
-			input[type=submit] {
-				display: none;
-			}
-
-			button {
-				display: inline-block;
-			}
-		}
 	}
 
-	> p {
+	> fieldset > p,
+	> div > p {
 		text-align: right;
 		
 		a {
@@ -71,18 +68,6 @@ input[type=checkbox] {
 
 		input[type=submit] {
 			margin-left: 10px;
-		}
-
-		button {
-			display: none;
-		}
-
-		.dr-icon-help-boxed {
-			white-space: nowrap;
-			width: 16px;
-			overflow: hidden;   
-			float: left;
-			text-decoration: none;
 		}
 	}
 }
