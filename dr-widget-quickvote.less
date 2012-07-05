@@ -17,9 +17,14 @@ input[type=checkbox] {
 	.dr-icon-help-boxed {
 		white-space: nowrap;
 		width: 16px;
+		line-height: 16px; 
 		overflow: hidden;
 		float: right;
 		text-decoration: none;
+		
+		&:before {
+			vertical-align: top;
+		}
 	}
 
 	h1 span,
@@ -42,7 +47,33 @@ input[type=checkbox] {
 	}
 
 	> div {
+		text-align: right;
 		display: none;
+
+		li {
+			padding-top: 10px;
+
+			span {
+				font: normal 14px/1 "gibsonSemiBold", "Arial Black", sans-serif;
+				float: left;
+
+				&.percentage {
+					font-family: "gibsonRegular", "Arial", sans-serif;
+					float: none;
+				}
+			}
+
+			div {
+				height: 11px;
+				background-color: #bfbfbf;
+				background-color: rgba(0, 0, 0, 0.25);
+
+				> div {
+					background-color: #7f7f7f;
+					background-color: rgba(255, 255, 255, 0.5);
+				}
+			}
+		}
 	}
 
 	&.show-results {
