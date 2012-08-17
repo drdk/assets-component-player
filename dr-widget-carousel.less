@@ -1,18 +1,13 @@
 [class*=dr-widget-carousel] {
-	position: relative;
+	position: relative;	
 	overflow: hidden;
 	padding: 0;
-
-	h2 {
-		position: absolute;
-		left: -9999px;
-	}
     
-    .row.carousel-content-wrapper {
-        margin: 0px;
-    }
+	.carousel-body {
+		position: relative;
+	}
 
-    .carousel-content-wrapper {
+    .carousel-content-wrapper {    	
         -moz-transition: 0.3s margin-left ease-in-out;
         -webkit-transition: 0.3s margin-left ease-in-out;
         -o-transition: 0.3s margin-left ease-in-out;
@@ -41,7 +36,7 @@
 		}
 	}
 
-	[class*="dr-icon"] {
+	[class*="dr-icon-arrow"] {
 		&:before {
 			position: absolute;
 			top: 50%;
@@ -61,24 +56,48 @@
 		}
 	}
 
+	.pager {
+		.font-sans-serif;
+		color: @grey-50;
+		position: absolute;
+		top: -28px;
+		right: 20px;
+	}
+
+	.pageLength:before {
+		content: "/";
+		margin: 0 5px;
+	}
+
 	&[class*="-articles"] {
 		background-color: white;
 
 		.carousel-content-wrapper {
-			padding: 0 40px;
+			padding: 10px 40px;
 		}
 		
 		// Default width - shows 5 articles
 		article {
 			overflow: hidden;
-			width: 153px;
-			padding-bottom: 0;
+			width: 152px;
 			background: none;
+
+			.image-wrap {
+				img {
+					width: 100%;
+					height: auto;
+				}
+			}
 
 			.metainfo {
 				display: block;
 				margin-top: 3px;
 			}
+
+			&.pseudo {
+				padding-bottom: 80%;
+			}
+
 		}
 
 		.no-image {
@@ -146,6 +165,18 @@
         background: url(/assets/img/border.gif) repeat-x 0 100%;
         .clearfix;
 
+        &.no-ctrlgrp {
+        	padding-bottom: 0;
+
+        	.carousel-body {
+        		padding: 20px 50px;
+        		padding-bottom: 10px;
+
+			}
+
+
+		}
+
         .carousel-content-wrapper {
             background-color: @grey-30;
             .box-shadow(0 0 10px rgba(0,0,0,0.2));
@@ -187,8 +218,6 @@
 		}
 
 		.figcaption {
-			float: left;
-			width: 70%;
             font-size: 14px;
             color: @grey-50;
 			.font-sans-serif;
@@ -197,21 +226,25 @@
 		.controls {
             float: right;
             color: @grey-50;
-			.font-sans-serif;
-            
+
+            .figcaption {
+				float: left;
+				width: 70%;
+            }
             
 			.button {
 				background-color: transparent;
                 display: inline;
                 position: relative;
 			}
+
+			.pager {
+				position: static;
+			}
+
             .pageIndex {
                 color: black;
             }
-			.pageLength:before {
-				content: "/";
-				margin: 0 5px;
-			}
 
 			[class*="dr-icon"][class*="disabled"]:before {
 				color: #000;
@@ -224,6 +257,7 @@
                 margin: -2px 0 -1px 3px;
 			}
 		}
+
 	}
 }
 
