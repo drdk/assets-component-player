@@ -1,0 +1,197 @@
+﻿
+
+
+
+
+
+.dr-widget-1212 {
+	padding-bottom:10px;
+	h2 {margin-bottom:10px;}
+	.content-wrapper.disclaimer-check .checkbox {
+		background-position:0 -100px;
+	}
+
+	.content-wrapper {
+		.checkbox {
+			padding-left:30px;
+			margin:10px 0;
+			display:block;
+			background:transparent url(/assets/img/checkbox.gif) 0 0 no-repeat;
+			font-weight:bold;
+			line-height:24px;
+		}
+		.complete { background: transparent url(/assets/img/widgets/1212/complete.gif) no-repeat scroll center; }
+		.files {
+			padding:10px 0;
+			h3 {padding-bottom:10px;}
+			.file {
+				.font-sans-serif-semibold();
+				position:relative;
+				background-color:#E5E5E5;
+				border-bottom:1px solid #b5b5b5;
+				margin-bottom:10px;
+				padding:10px;
+				.progressbar_container {
+					height:4px;
+					overflow:hidden;
+					background-color:#fff;
+					margin:4px 0;
+					.progressbar {
+						background-color:#333;
+					}
+				}
+				.remove {
+					position:absolute;
+					top:10px;right:10px;
+					width:20px;height:18px;
+					background: transparent url(/assets/img/widgets/1212/btn_remove.gif) 0 0 no-repeat;
+					span {display:none}
+				}
+				em {
+					.font-sans-serif();
+					position:absolute;
+					top:10px;right:50px;		
+				}
+			}
+			.file.complete {
+				display:none;
+			}
+			.billeder { }
+		}
+		.form {
+			background-color:#e5e5e5;
+			padding:20px 20px 0 20px;
+			margin-bottom:20px;
+			width:100%;overflow:auto;
+			.colRight {float:left;width:50%;}
+			.colLeft {float:left;width:50%;}
+			.fieldset {
+				position:relative;
+
+				label {
+					.font-sans-serif();
+					position:absolute;
+					top:11px;left:12px;
+					color:#666666;
+				}
+				input , textarea{
+					.font-sans-serif();
+					width: 250px;
+					height: 32px;
+					margin: 0 0 20px 0;
+					padding: 3px 0 3px 7px;
+					font: normal 14px/18px sans-serif;
+					color: #000000;
+					border: 1px solid #949494 ;
+					box-shadow: inset 0 3px 6px rgba(184, 184, 184, 0.46);
+					outline: none;
+				}
+				input.error {
+					border: 1px solid #CD4125 ;
+				}
+			}
+			.fieldset.message textarea  {
+				height: 212px;
+			}
+		}
+	}
+	.buttons-wrapper.uploadReady {
+		.upload-swiff {background-color:#7f7f7f;}
+		.uploadFile {background-color:#df0d8e;}
+	}
+	.buttons-wrapper {
+		width:100%;
+		position:relative;
+		a {
+			margin-left:20px;
+
+			display:inline-block;
+			float:right;
+			.font-sans-serif();
+			background-color:#7f7f7f;
+			color:#fff;
+			-moz-border-radius: 2px;
+			border-radius: 2px;
+			display:inline-block;
+			font-size:14px;
+			line-height:30px;
+			text-transform:uppercase;
+			padding:0 10px;
+			cursor:pointer;
+			text-decoration:none;
+			span {
+				font-size:14px;
+				line-height:30px;
+			}
+		}
+		a.disabled {background-color:#bcbcbc;color:#eaeaea}
+		a:hover {background-color:#3f3f3f}
+		a.disabled:hover {background-color:#bcbcbc;color:#eaeaea}
+		.computer {}
+		.upload-swiff {
+			float:right;
+			display:inline-block;
+			margin-left:20px;
+			background:transparent url(/assets/img/widgets/1212/bg_chose.gif) 0 0 no-repeat;
+			width:120px;
+			height:30px;
+			-moz-border-radius: 2px;
+			border-radius: 2px;
+		}
+		.upload-swiff:hover {
+			/*background-position:0 -50px;*/
+		}
+		.upload-swiff.moreFiles {
+			background-position:0 -100px;
+		}
+		.upload-swiff.moreFiles:hover {
+			background-position:0 -150px;
+		}
+		a.info {margin-left:0px;background-color:transparent;color:#000;text-decoration:underline;}
+		.upload-swiff.morefiles {position:0 -100px;}
+		.upload { }
+		.info {position:absolute;left:0;maargin-left:0}
+		.annuller {}
+		.submitForm {background-color:#df0d8e;}
+	}
+
+
+	.upload-info-wrapper {
+		h3 {
+			.font-sans-serif-semibold();
+			padding-top:10px;
+		}
+		.dr-icon-play-boxed:before {
+			background-color:rgba(0, 0, 0, 1);
+		}
+		li {
+			padding-top:10px;
+			span {
+				font-size:12px;
+			}
+		}
+	}
+}
+
+
+// Scaling features START
+.span-4 {
+	.dr-widget-1212 {
+		.form {
+			.colRight {float:left;width:100%;}
+			.colLeft {float:left;width:100%;}
+		}
+		.buttons-wrapper.uploadReady {
+			height:90px;
+			background:transparent url("/assets/img/border.gif") repeat-x 0 50%;
+			.upload-swiff {
+				position:absolute;
+				top:0;right:0;
+			}
+			.annuller {margin-top:60px}
+			.uploadFile {margin-top:60px}
+		}
+	}
+}
+
+// Scaling features END	
