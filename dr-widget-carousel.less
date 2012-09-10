@@ -188,6 +188,13 @@
                 overflow: hidden;
                 position: relative;
                 
+                &.landscape img {
+                    	width: 100%;
+                }
+                &.portrait img {
+                    height: 100%;
+                }
+
                 img {
                     float: none;
                     margin: auto;
@@ -204,13 +211,6 @@
                     max-width: 100%;
                     
                     .box-shadow(0 0 10px rgba(0,0,0,0.2));
-                    
-                    &.landscape {
-                        width: 100%;
-                    }
-                    &.portrait {
-                        height: 100%;
-                    }
                 }
             }
         }  
