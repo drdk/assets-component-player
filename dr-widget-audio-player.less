@@ -66,16 +66,19 @@
         color: #fff;
     }
 
-    .volume-selector div {
+    .volume-selector label {
         display: inline-block;
         width: 3px;
         height: 16px;
         margin: 7px 2px;
-        background-color: @grey-40;
-    }
-
-    .volume-selector div.active {
         background-color: @grey-80;
+    }
+    .volume-selector input {
+        position: absolute;
+        left: -9999px;
+    }
+    .volume-selector input:checked ~ label {
+        background-color: @grey-40;
     }
     
 	
