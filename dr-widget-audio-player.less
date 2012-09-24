@@ -1,0 +1,48 @@
+.dr-widget-audio-player {
+
+    position: relative;
+    background-color: #000;
+    height: 30px;
+
+    a {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        overflow: hidden;
+    }
+    a:before {
+        text-indent: 0;
+    }
+
+    .progressbar {
+        background-color: @grey-50;
+        position: absolute;
+        top: 5px;
+        left: 30px;
+        right: 200px;
+        height: 20px;
+    }
+
+    .meter {
+        background-color: cyan;
+        height: 100%;
+        width: 50% !important;
+    }
+
+    .text span:first-child {
+        display: none;
+    }
+
+    .text span:last-child {
+        position: absolute;
+        right: -50px;
+        color: @grey-50;
+    }
+
+
+    .volume-selector {
+        width: 70px;
+    }
+    
+	
+}
