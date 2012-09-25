@@ -56,11 +56,6 @@
 		width: 100%;
 		position: relative;
 
-
-		img {
-			margin-bottom: 0px !important;
-		}
-
 		.icon-wrap {
 
 			position:absolute;
@@ -109,42 +104,33 @@
 
 }
 
-.dr-widget-video-playlist {
+section.dr-widget-video-playlist {
 	background: #000;
     padding: 30px 20px 20px; 
     overflow: hidden;
     position: relative; 
 
-	a.selected article img {
+	a.selected img {
 		outline: 3px solid red;
 	}
 
-    > h2 {
-        border: none;
-        background: white;
-        position: absolute;
-        top: 0; 
-		left: 20px;
-        font-size: 12px;
-        line-height: 1.2;
-        padding: 0 10px 5px 10px;
-    }
-
 	// the video view
-	.video-article {
-		margin-top: 10px;
+	article.video-article {
 		padding: 0;
-		background: #fff;
+		background-color: #fff;
 
 		.description {
 			padding: 10px;
+			color: black;
 		}
 	}
 
 	// the playlist
-	li {
-		float: left;
-		margin-bottom: 10px;
+	.playlist-item {
+		
+		img {
+			margin-bottom: 5px;
+		}
 
 		h3 {
 			color: #fff;
