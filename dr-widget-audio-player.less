@@ -24,26 +24,28 @@
         left: 60px;
         right: 130px;
         height: 10px;
-    }
 
-    .meter {
-        background-color: cyan;
-        height: 100%;
-    }
+        .meter {
+            background-color: cyan;
+            height: 100%;
+        }
 
-    .text span:first-child {
-        display: none;
-    }
+        .text {
+            span:first-child {
+                display: none;
+            }
 
-    .text span:last-child {
-        position: absolute;
-        top: -6px;
-        right: -50px;
-        color: @grey-60;
-        width: 44px;
-        height: 30px;
-        text-align: center;
-        display: inline-block;
+            span:last-child {
+                position: absolute;
+                top: -6px;
+                right: -50px;
+                color: @grey-60;
+                width: 44px;
+                height: 30px;
+                text-align: center;
+                display: inline-block;
+            }
+        }
     }
 
 
@@ -54,32 +56,40 @@
         top: 0;
         height: 30px;
         border-left: 1px solid @grey-30;
-    }
 
-    .volume-selector .dr-icon-audio-medium {
-        width: 12px;
-        overflow: hidden;
-        margin: 4px 5px 0 9px;
-        float: left;
-    }
-    .volume-selector .dr-icon-audio-medium:before {
-        color: #fff;
-    }
+        label {
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            margin: 7px 0px;
+            border-left: 2px solid @grey-10;
+            border-right: 2px solid @grey-10;
+            background-color: @grey-80;
+        }
 
-    .volume-selector label {
-        display: inline-block;
-        width: 3px;
-        height: 16px;
-        margin: 7px 2px;
-        background-color: @grey-80;
+        input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        input:checked ~ label {
+            background-color: @grey-40;
+        }
+
+        [class*=dr-icon] {
+            width: 12px;
+            overflow: hidden;
+            margin: 3px 5px 0 9px;
+            background-color: @grey-10;
+            float: left;
+            height: 24px;
+            border: none;
+        }
+        [class*=dr-icon]:before {
+            color: #fff;
+        }
+        &.muted [class*=dr-icon]:before {
+            color: @grey-40;
+        }
     }
-    .volume-selector input {
-        position: absolute;
-        left: -9999px;
-    }
-    .volume-selector input:checked ~ label {
-        background-color: @grey-40;
-    }
-    
-	
 }
