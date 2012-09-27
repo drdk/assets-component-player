@@ -1,8 +1,8 @@
 .dr-widget-audio-player {
 
     position: relative;
-    background-color: @grey-10;
     height: 30px;
+    background-color: @grey-10;
     border: 1px solid @grey-30;
 
     a {
@@ -18,44 +18,64 @@
     }
 
     .progressbar {
-        background-color: @grey-50;
         position: absolute;
         top: 10px;
-        left: 60px;
         right: 130px;
+        left: 60px;
         height: 10px;
-        margin: 0;
         padding: 0;
+        margin: 0;
+        background-color: @grey-50;
 
         .meter {
-            background-color: cyan;
             height: 100%;
+            background-color: cyan;
         }
 
         .text {
             span:first-child {
+                position: absolute;
+                bottom: 20px;
+                left: -25px;
                 display: none;
+                width: 50px;
+                padding: 5px;
+                text-align: center;
+                background-color: #FFF;
+                border-radius: 2px;
+                box-shadow: 0 5px 10px #000;
+
+                &:after {
+                    position: absolute;
+                    bottom: -20px;
+                    left: 20px;
+                    width: 0;
+                    height: 0;
+                    border: 10px solid #000;
+                    border-color: #FFF rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
+                    content: "";
+                }
             }
 
             span:last-child {
                 position: absolute;
                 top: -6px;
                 right: -50px;
-                color: @grey-60;
+                display: inline-block;
                 width: 44px;
                 height: 30px;
+                color: @grey-60;
                 text-align: center;
-                display: inline-block;
             }
         }
     }
 
 
     .volume-selector {
-        width: 71px;
         position: absolute;
-        right: 0;
         top: 0;
+        right: 0;
+        width: 71px;
         height: 30px;
         border-left: 1px solid @grey-30;
 
@@ -63,10 +83,10 @@
             display: inline-block;
             width: 3px;
             height: 16px;
-            margin: 7px 0px;
-            border-left: 2px solid @grey-10;
-            border-right: 2px solid @grey-10;
+            margin: 7px 0;
             background-color: @grey-80;
+            border-right: 2px solid @grey-10;
+            border-left: 2px solid @grey-10;
         }
 
         input {
@@ -79,12 +99,12 @@
         }
 
         [class*=dr-icon] {
-            width: 12px;
-            overflow: hidden;
-            margin: 3px 5px 0 9px;
-            background-color: @grey-10;
             float: left;
+            width: 12px;
             height: 24px;
+            margin: 3px 5px 0 9px;
+            overflow: hidden;
+            background-color: @grey-10;
             border: none;
         }
         [class*=dr-icon]:before {
