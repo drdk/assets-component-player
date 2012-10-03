@@ -21,10 +21,20 @@
         position: absolute;
     }
 
+    &.loading {
+
+        //TODO: Add a fancy loading indicator
+        background: #EEEEEE url(/assets/img/loading.gif) center no-repeat;
+
+        .progressbar, .volume-selector, a {
+            display: none;
+        }
+    }
+
     .progressbar {
         position: absolute;
         top: 10px;
-        right: 130px;
+        right: 155px;
         left: 60px;
         height: 10px;
         padding: 0;
@@ -40,9 +50,9 @@
             span:first-child {
                 position: absolute;
                 bottom: 20px;
-                left: -25px;
+                left: -35px;
                 display: none;
-                width: 50px;
+                width: 70px;
                 padding: 5px;
                 text-align: center;
                 background-color: #FFF;
@@ -52,7 +62,7 @@
                 &:after {
                     position: absolute;
                     bottom: -20px;
-                    left: 20px;
+                    left: 30px;
                     width: 0;
                     height: 0;
                     border: 10px solid #000;
