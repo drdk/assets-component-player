@@ -5,7 +5,7 @@
     background-color: @grey-10;
     border: 1px solid @grey-30;
 
-    a {
+    a[class*="dr-icon-p"] {
         display: inline-block;
         width: 50px;
         height: 30px;
@@ -27,7 +27,7 @@
         background: #EEEEEE url(/assets/img/loading.gif) center no-repeat;
         border: 1px solid #EEEEEE;
 
-        .progressbar, .volume-selector, a {
+        .progressbar, .volume-selector, a[class*="dr-icon-p"] {
             display: none;
         }
     }
@@ -35,7 +35,7 @@
     .progressbar {
         position: absolute;
         top: 10px;
-        right: 140px;
+        right: 125px;
         left: 60px;
         height: 10px;
         padding: 0;
@@ -45,7 +45,7 @@
         .meter {
             height: 100%;
             width: 0%;
-            background-color: cyan;
+            background-color: #149EA8;
         }
 
         .text {
@@ -83,9 +83,9 @@
             span:last-child {
                 position: absolute;
                 top: -6px;
-                right: -58px;
+                right: -45px;
                 display: inline-block;
-                width: 50px;
+                width: 35px;
                 height: 15px;
                 color: @grey-60;
                 text-align: center;
@@ -141,4 +141,107 @@
             color: @grey-40;
         }
     }
+
+    &.hours {
+
+        .progressbar {
+
+            right: 140px;
+
+            span:last-child {
+
+                width: 50px;
+                right: -58px;
+            }
+        }
+    }
+
+    [class*="dr-infobox"] {
+
+        margin: 10px 10px 0 10px;
+        padding: 10px;
+        background-color: #FFF;
+        box-shadow: 0 0 10px #000;
+
+        h1 {
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        h1[class*="dr-icon"]:before {
+            float: left;
+            vertical-align: text-top;
+            margin-right: 10px;
+        }
+        h1[class*="dr-icon"] ~ * {
+            margin-left: 40px;
+        }
+        p {
+            font-size: 14px;
+            padding: 0;
+        }
+        a.dr-icon-close-boxed {
+            margin-right: 0;
+            margin-top: 0;
+            &:before {
+                text-indent: 0;
+            }
+        }
+    }
+
+
+    &.buffering {
+
+        .progressbar {
+
+            //TODO: add fallback for IE
+
+            background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(0, 0, 0, 0.25)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(0, 0, 0, 0.25)), color-stop(0.75, rgba(0, 0, 0, 0.25)), color-stop(0.75, transparent), to(transparent));
+            background-image: -webkit-linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            background-image: -moz-linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            background-image: -o-linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            background-image: linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            
+            -webkit-background-size: 20px 20px;
+            -moz-background-size: 20px 20px;
+            -o-background-size: 20px 20px;
+            background-size: 20px 20px;
+            
+            -webkit-animation: progress-bar-stripes 0.5s linear infinite;
+            -moz-animation: progress-bar-stripes 0.5s linear infinite;
+            -ms-animation: progress-bar-stripes 0.5s linear infinite;
+            -o-animation: progress-bar-stripes 0.5s linear infinite;
+            animation: progress-bar-stripes 0.5s linear infinite;
+
+
+            .meter {
+
+                opacity: 0.7;
+            }
+        }
+    }
+}
+
+
+@-webkit-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+
+@-moz-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+
+@-ms-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+
+@-o-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+@keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
 }
