@@ -66,8 +66,8 @@
 			.dr-icon-play-inverted-large {
 
 				position: relative;
-				left:-16px;
-				top:-16px;
+				left: -16px;
+				top: -32px;
 			}
 		}
 
@@ -106,39 +106,43 @@
 
 section.dr-widget-video-playlist {
 	background: #000;
-    padding: 30px 20px 20px; 
-    overflow: hidden;
-    position: relative; 
 
-	a.selected img {
+	a.selected .image-wrap {
 		outline: 3px solid red;
 	}
 
 	// the video view
-	article.video-article {
-		padding: 0;
-		background-color: #fff;
+	.video-article {
 
-		.description {
-			padding: 10px;
-			color: black;
+		figcaption {
+			padding: 10px 0;
+			font-size: 18px;
+			color: white;
+			.font-sans-serif-semibold;
 		}
 	}
 
 	// the playlist
 	.playlist-item {
-		
+		color: #fff;
+
 		img {
 			margin-bottom: 5px;
 		}
 
-		h3 {
-			color: #fff;
+		i {
+			font-style: normal;
+			.font-sans-serif-semibold;
+			word-wrap: break-word;
 		}
-	}
 
-	.metainfo {
-		margin-top: 4px;
+		&:hover ~ {
+			text-decoration: none;
+		}
+
+		.metainfo {
+			margin-top: 4px;
+		}
 	}
 
 	.dr-link-readmore {
