@@ -1,0 +1,282 @@
+.dr-widget-audio-player, .dr-widget-audio-playlist .audio {
+
+    position: relative;
+    height: 30px;
+    background-color: @grey-10;
+    border: 1px solid @grey-30;
+
+    a[class*="dr-icon-p"] {
+        display: inline-block;
+        width: 50px;
+        height: 30px;
+        overflow: hidden;
+        border-right: 1px solid @grey-30;
+    }
+    a:before {
+        color: #fff;
+        text-indent: 8px;
+    }
+
+    audio {
+        position: absolute;
+    }
+
+    &.loading {
+
+        //TODO: Add a fancy loading indicator
+        background: #EEEEEE url(/assets/img/loading.gif) center no-repeat;
+        border: 1px solid #EEEEEE;
+
+        .progressbar, .volume-selector, a[class*="dr-icon-p"] {
+            display: none;
+        }
+    }
+
+    .progressbar {
+        position: absolute;
+        top: 10px;
+        right: 125px;
+        left: 60px;
+        height: 10px;
+        padding: 0;
+        margin: 0;
+        background-color: @grey-50;
+
+        .meter {
+            height: 100%;
+            width: 0%;
+            background-color: #149EA8;
+        }
+
+        .text {
+
+            span {
+                padding: 3px 0;
+                font-family: 'gibsonRegular','Arial',sans-serif;
+                font-size: 12px;
+            }
+
+            span:first-child {
+                display: none;
+            }
+
+            span.position {
+                position: absolute;
+                bottom: 20px;
+                left: -35px;
+                display: none;
+                width: 50px;
+                padding: 5px;
+                text-align: center;
+                color: #000;
+                background-color: #FFF;
+                border-radius: 2px;
+                box-shadow: 0 5px 10px #000;
+
+                &:after {
+                    position: absolute;
+                    bottom: -20px;
+                    left: 20px;
+                    width: 0;
+                    height: 0;
+                    border: 10px solid #000;
+                    border-color: #FFF rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
+                    content: "";
+                }
+            }
+
+            span:last-child {
+                position: absolute;
+                top: -6px;
+                right: -45px;
+                display: inline-block;
+                width: 35px;
+                height: 15px;
+                color: @grey-60;
+                text-align: center;
+            }
+        }
+
+        &:last-child {
+            right: 70px;
+        }
+    }
+
+
+    .volume-selector {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 71px;
+        height: 30px;
+        border-left: 1px solid @grey-30;
+
+        label {
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            margin: 7px 0;
+            background-color: @grey-80;
+            border-right: 2px solid @grey-10;
+            border-left: 2px solid @grey-10;
+        }
+
+        input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        input:checked ~ label {
+            background-color: @grey-40;
+        }
+
+        [class*=dr-icon] {
+            float: left;
+            width: 12px;
+            height: 24px;
+            margin: 3px 5px 0 9px;
+            overflow: hidden;
+            background-color: @grey-10;
+            border: none;
+        }
+        [class*=dr-icon]:before {
+            color: #fff;
+        }
+        &.muted [class*=dr-icon]:before {
+            color: @grey-40;
+        }
+    }
+
+    &.hours {
+
+        .progressbar {
+
+            right: 140px;
+
+            span:last-child {
+
+                width: 50px;
+                right: -58px;
+            }
+        }
+    }
+
+    [class*="dr-infobox"] {
+
+        margin: 10px 10px 0 10px;
+        padding: 10px;
+        background-color: #FFF;
+        box-shadow: 0 0 10px #000;
+
+        h1 {
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        h1[class*="dr-icon"]:before {
+            float: left;
+            vertical-align: text-top;
+            margin-right: 10px;
+        }
+        h1[class*="dr-icon"] ~ * {
+            margin-left: 40px;
+        }
+        p {
+            font-size: 14px;
+            padding: 0;
+        }
+        a.dr-icon-close-boxed {
+            margin-right: 0;
+            margin-top: 0;
+            &:before {
+                text-indent: 0;
+            }
+        }
+    }
+
+    // 40px contols when touch is available:
+    &.touch {    
+
+        height: 40px;
+
+        a[class*="dr-icon-p"] {
+            height: 40px;
+        }
+
+        a:before {
+            line-height: 37px;
+        }
+
+        .progressbar {
+            top: 15px;
+        }
+
+        .volume-selector {
+            height: 40px;
+
+            label {
+                margin-top: 12px;
+            }
+
+            [class*=dr-icon] {
+                margin-top: 8px;
+            }
+        }
+    }
+
+
+    &.buffering {
+
+        .progressbar {
+
+            //TODO: add fallback for IE
+
+            background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(0, 0, 0, 0.25)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(0, 0, 0, 0.25)), color-stop(0.75, rgba(0, 0, 0, 0.25)), color-stop(0.75, transparent), to(transparent));
+            background-image: -webkit-linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            background-image: -moz-linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            background-image: -o-linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            background-image: linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
+            
+            -webkit-background-size: 20px 20px;
+            -moz-background-size: 20px 20px;
+            -o-background-size: 20px 20px;
+            background-size: 20px 20px;
+            
+            -webkit-animation: progress-bar-stripes 0.5s linear infinite;
+            -moz-animation: progress-bar-stripes 0.5s linear infinite;
+            -ms-animation: progress-bar-stripes 0.5s linear infinite;
+            -o-animation: progress-bar-stripes 0.5s linear infinite;
+            animation: progress-bar-stripes 0.5s linear infinite;
+
+
+            .meter {
+
+                opacity: 0.7;
+            }
+        }
+    }
+}
+
+
+@-webkit-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+
+@-moz-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+
+@-ms-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+
+@-o-keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
+@keyframes progress-bar-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 20px 0; }
+}
