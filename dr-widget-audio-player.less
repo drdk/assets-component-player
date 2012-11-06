@@ -5,6 +5,7 @@
     background-color: @grey-10;
     border: 1px solid @grey-30;
 
+    /* dr-icon-p matches both play and pause */
     a[class*="dr-icon-p"] {
         display: inline-block;
         width: 50px;
@@ -12,9 +13,30 @@
         overflow: hidden;
         border-right: 1px solid @grey-30;
     }
+
     a:before {
         color: #fff;
         text-indent: 8px;
+    }
+
+    
+    .skip-buttons {
+        display: inline-block;
+        border-right: 1px solid @grey-30;
+        a {
+            display: inline-block;
+            width: 26px;
+            height: 25px;
+            overflow: hidden;
+        }
+        a:before {
+            color: @grey-50;
+            text-indent: 6px;
+        }
+
+        & + .progressbar {
+            left: 112px;
+        }
     }
 
     audio {
