@@ -12,6 +12,7 @@
         height: 30px;
         overflow: hidden;
         border-right: 1px solid @grey-30;
+        
     }
 
     a:before {
@@ -23,10 +24,17 @@
     .skip-buttons {
         display: inline-block;
         border-right: 1px solid @grey-30;
+        position: absolute;
+        height: 30px;
+        padding-top: 4px;
+        -webkit-box-sizing: border-box;
+	    -moz-box-sizing: border-box;
+	    box-sizing: border-box;
+        
         a {
             display: inline-block;
             width: 26px;
-            height: 25px;
+            height: 14px;
             overflow: hidden;
         }
         a:before {
