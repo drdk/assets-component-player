@@ -110,7 +110,7 @@
                     width: 0;
                     height: 0;
                     border: 10px solid #000;
-                    border-color: #FFF rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
+                    border-color: #FFF transparent transparent;
                     content: "";
                 }
             }
@@ -287,6 +287,27 @@
     }
 }
 
+.ie8 .progressbar span.position {
+
+    border: 1px solid black;
+    z-index: auto;
+
+    &:after {
+        z-index: 1;
+    }
+
+    &:before {
+        position: absolute;
+        bottom: -24px;
+        left: 18px;
+        width: 0;
+        height: 0;
+        border: 12px solid #000;
+        border-color: #000 transparent transparent;
+        content: "";
+        z-index: -1;
+    }
+}
 
 @-webkit-keyframes progress-bar-stripes {
   from { background-position: 0 0; }
