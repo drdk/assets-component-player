@@ -127,11 +127,9 @@
             }
         }
 
-        /*
         &:last-child {
-            right: 70px;
+            right: 52px;
         }
-        */
     }
 
 
@@ -192,7 +190,12 @@
                 width: 50px;
                 right: -58px;
             }
+            
+            &:last-child {
+                right: 70px;
+            }
         }
+
     }
 
     [class*="dr-infobox"] {
@@ -261,8 +264,6 @@
     &.buffering {
 
         .progressbar {
-
-            //TODO: add fallback for IE
 
             background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(0, 0, 0, 0.25)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(0, 0, 0, 0.25)), color-stop(0.75, rgba(0, 0, 0, 0.25)), color-stop(0.75, transparent), to(transparent));
             background-image: -webkit-linear-gradient(-45deg, rgba(0, 0, 0, 0.25) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.25) 75%, transparent 75%, transparent);
