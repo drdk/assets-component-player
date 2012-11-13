@@ -26,20 +26,20 @@
         border-right: 1px solid @grey-30;
         position: absolute;
         height: 30px;
-        padding-top: 4px;
-        -webkit-box-sizing: border-box;
-	    -moz-box-sizing: border-box;
-	    box-sizing: border-box;
-        
+
         a {
+            overflow: hidden;
             display: inline-block;
             width: 26px;
-            height: 14px;
-            overflow: hidden;
+            height: 30px;
         }
         a:before {
             color: @grey-50;
             text-indent: 6px;
+            display: inline-block;
+            width: 26px;
+            height: 30px;
+            padding-top: 7px;
         }
 
         & + .progressbar {
@@ -235,8 +235,15 @@
 
         height: 40px;
 
-        a[class*="dr-icon-p"] {
+        a[class*="dr-icon"], .skip-buttons {
             height: 40px;
+        }
+
+        .skip-buttons a:before {
+            height: 40px;
+            text-indent: 3px;
+            padding-top: 2px;
+            font-size: 22px;
         }
 
         a:before {
