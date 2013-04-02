@@ -6,7 +6,7 @@
     border: 1px solid @grey-30;
 
     /* dr-icon-p matches both play and pause */
-    a[class*="dr-icon-p"] {
+    a[class*="dr-icon-p"], a[class*="dr-icon-stop"] {
         display: inline-block;
         width: 50px;
         height: 30px;
@@ -57,7 +57,7 @@
         background: #EEEEEE url(/assets/img/loading.gif) center no-repeat;
         border: 1px solid #EEEEEE;
 
-        .progressbar, .volume-selector, .skip-buttons, a[class*="dr-icon-p"] {
+        .progressbar, .volume-selector, .skip-buttons, a[class*="dr-icon-p"], a[class*="dr-icon-stop"] {
             display: none;
         }
     }
