@@ -6,16 +6,17 @@
     border: 1px solid @grey-30;
 
     /* dr-icon-p matches both play and pause */
-    a[class*="dr-icon-p"], a[class*="dr-icon-stop"] {
+    button[class*="dr-icon-p"], button[class*="dr-icon-stop"] {
         display: inline-block;
         width: 50px;
         height: 30px;
         overflow: hidden;
         border-right: 1px solid @grey-30;
+        padding: 0 10px;
         
     }
 
-    a:before {
+    button:before {
         color: #fff;
         text-indent: 8px;
     }
@@ -27,13 +28,14 @@
         position: absolute;
         height: 30px;
 
-        a {
+        button {
             overflow: hidden;
             display: inline-block;
             width: 26px;
             height: 30px;
+            padding: 0 7px;
         }
-        a:before {
+        button:before {
             color: @grey-50;
             text-indent: 6px;
             display: inline-block;
@@ -57,7 +59,7 @@
         background: #EEEEEE url(../../img/loading.gif) center no-repeat;
         border: 1px solid #EEEEEE;
 
-        .progressbar, .volume-selector, .skip-buttons, a[class*="dr-icon-p"], a[class*="dr-icon-stop"] {
+        .progressbar, .volume-selector, .skip-buttons, button[class*="dr-icon-p"], button[class*="dr-icon-stop"] {
             display: none;
         }
     }
@@ -198,6 +200,11 @@
             background-color: @grey-80;
             border-right: 2px solid @grey-10;
             border-left: 2px solid @grey-10;
+            text-indent: -9999px;
+        }
+
+        .dr-icon-audio-medium {
+            text-indent: 0;
         }
 
         input {
@@ -288,7 +295,7 @@
             height: 40px;
         }
 
-        .skip-buttons a:before {
+        .skip-buttons button:before {
             height: 40px;
             text-indent: 3px;
             padding-top: 2px;
@@ -296,7 +303,7 @@
             line-height: 36px;
         }
 
-        a:before {
+        button:before {
             line-height: 40px;
         }
 
@@ -351,6 +358,10 @@
             }
         }
     }
+}
+
+.DRInvisibleAudioPlayer {
+    top: -9999px;
 }
 
 .ie8 .progressbar span.position {
