@@ -54,9 +54,16 @@
 	.image-wrap {
 
 		padding-right: 0px;
-		margin-bottom: 0px;
+		margin-bottom: 32px;
 		width: 100%;
 		position: relative;
+
+		&.ratio-16-9.flash-wrap {
+			margin-bottom: 0px;
+		}
+		&.ratio-16-9.flash-wrap:after {
+			padding-top: 32px;
+		}
 
 		.icon-wrap {
 
@@ -71,6 +78,11 @@
 				left: -16px;
 				top: -32px;
 			}
+		}
+
+		embed, object, video {
+			position: absolute;
+			z-index: 2;
 		}
 
 		.dummy-controls {
