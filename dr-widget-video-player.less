@@ -60,13 +60,14 @@
 
 		&.ratio-16-9.flash-wrap {
 			margin-bottom: 0px;
+			height: 100%;
+			width: 100%;
 		}
 		&.ratio-16-9.flash-wrap:after {
 			padding-top: 32px;
 		}
 
 		.icon-wrap {
-
 			position:absolute;
 			top: 50%;
 			left: 50%;
@@ -121,6 +122,12 @@
 		left: -9999px;
 	}
 
+}
+
+// I hate IE8! Stupid hack to position play arrow properly.
+.ie8 .player-container .image-wrap .icon-wrap {
+	top: 25%;
+	left: 25%;
 }
 
 .dr-widget-video-playlist,
