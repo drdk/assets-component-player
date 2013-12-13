@@ -173,20 +173,22 @@
         	.carousel-body {
         		padding: 20px 50px;
         		padding-bottom: 10px;
-
 			}
-
-
 		}
 
         .carousel-content-wrapper {
+        	margin-bottom: 20px;
             background-color: @grey-95;
             .box-shadow(0 0 10px rgba(0,0,0,0.2));
-            
-            .image-wrap {
+
+            > * {
                 height: 100%;
                 overflow: hidden;
                 position: relative;
+                margin: 0;
+            }
+
+            .image-wrap {
                 
                 &.landscape img {
                     	width: 100%;
@@ -262,47 +264,3 @@
 
 	}
 }
-
-
-/*
-@media only screen and (min-width: 481px) and (max-width: 800px) {
-    .dr-widget-carousel {
-        > article {
-            width: 50%;
-        }
-    }
-}
-
-@media only screen and (max-width: 480px) {
-    .dr-widget-carousel {
-        > article {
-            width: 100%;
-        }
-    }
-
-    [class*=dr-widget-carousel] .row > .col {
-        float: left;
-    }
-        
-    .dr-widget-carousel-slideshow .image-wrap {
-        padding: 0;
-    }
-
-}
-
-@media only screen and (min-width: 481px) and (max-width: 800px) {
-    .dr-widget-carousel {
-        > article {
-            width: 50%;
-        }
-    }
-}
-
-@media only screen and (max-width: 480px) {
-    .dr-widget-carousel {
-        > article {
-            width: 100%;
-        }
-    }
-}
-*/
