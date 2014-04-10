@@ -75,7 +75,7 @@
         border-width: 10px 0;
         border-color: @grey-10;
         top: 0px;
-        right: 125px;
+        right: 60px;
         left: 60px;
         height: 10px;
         padding: 0;
@@ -158,14 +158,10 @@
 
     }
 
-    &.has-settings .progressbar {
-        right: 160px;
-    }
-
     .settings {
         position: absolute;
         top: 0;
-        right: 80px;
+        right: 8px;
         height: 30px;
         width: 30px;
         border-left: 1px solid #4d4d4d;
@@ -206,6 +202,27 @@
             }
         }
     }
+
+    &.has-settings {
+        .progressbar {
+            right: 95px;
+        }
+    }
+    &.has-volume {
+        .progressbar {
+            right: 125px;
+        }
+    }
+
+    &.has-settings.has-volume {
+        .progressbar {
+            right: 160px;
+        }
+        .settings {
+            right: 80px;
+        }
+    }
+
 
     .pressPlay {
         position: absolute;
