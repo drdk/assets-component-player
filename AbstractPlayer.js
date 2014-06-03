@@ -1,0 +1,438 @@
+/* jshint -W110 */
+/* global define: true */
+
+define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementation"], function (MediaClass, HashTimeCodeImplementation) {
+    "use strict";
+
+    var AbstractPlayer = function() {
+        MediaClass.call(this);
+        this.resourceResult = null;
+        this.programcardResult = null;
+        this.hasDuration = null;
+        this.hashTimeCodeInstance = null;
+        this._forceSeekIntervalId = null;
+
+        this.setOptions({
+            appData: {
+                gemius: {
+                    drIdentifier: "019_drdk-",
+                    identifier: "p9AwR.N.S86s_NjaJKdww7b.fdp8ky90ZnrKpgLHOUn.s7",
+                    hitcollector: "http://sdk.hit.gemius.pl",
+                    channelName: "drdk"
+                },
+                linkType: "Streaming",
+                fileType: "mp3"
+            },
+            videoData: {
+                materialIdentifier: "unknown"
+            },
+            enableHashTimeCode: false
+        });
+
+        //TODO: store instance
+
+        this.mediaPlayerId = ++AbstractPlayer.$mediaPlayerId;
+
+        if (this.options.enableHashTimeCode) {
+            this.hashTimeCodeInstance = new HashTimeCodeImplementation(this);
+        }
+
+        console.log("AbstractPlayer constructor");
+    };
+    MediaClass.inheritance(AbstractPlayer, MediaClass);
+
+    // static:
+    AbstractPlayer.$mediaPlayerId = 0;
+ 
+    // public methods:
+
+    AbstractPlayer.prototype.ensureResource = function (resourceReady, scope) {
+        console.log('AbstractPlayer.ensureResource ' + this.hasResource());
+        if (this.hasResource()) {
+            if (scope) {
+                resourceReady.call(scope);
+            } else {
+                resourceReady();
+            }
+        } else {
+            var url = this.options.videoData.resource;
+            this.fireEvent("resourceLoading");
+            if (this.options.platform) {
+                if (url.indexOf("?") !== -1) {
+                    url = url + "&type=" + this.options.platform;
+                } else {
+                    url = url + "?type=" + this.options.platform;
+                }
+            }
+            //debug replace:
+            if (document.location.host != "www.dr.dk") {
+                url = url.replace("www.dr.dk", document.location.host);
+            }
+            this.json(url, function(result){
+                if (result.Data) {
+                    this.programcardResult = result.Data[0];
+                } else {
+                    this.resourceResult = result;
+                }
+                this.onDurationChange();
+                if (scope) {
+                    resourceReady.call(scope);
+                } else {
+                    resourceReady();
+                }
+                this.fireEvent("resourceReady");
+            }, function (status) {
+                //this.displayError("defaultMsg", "State: " + status + " " + url);
+                console.log(status);
+            }, this);
+        }
+    };
+    AbstractPlayer.prototype.ensureLiveStreams = function (liveStreamsReady, scope) {
+        if (this.options.videoData.channels) {
+            if (scope) {
+                liveStreamsReady.call(scope);
+            } else {
+                liveStreamsReady();
+            }
+        } else {
+            var url = this.options.appData.urls.liveStreams;
+            this.fireEvent("resourceLoading");
+            this.json(url, function (result) {
+                this.options.videoData.channels = [];
+                for (var i=0; i<result.Data.length; i++) {
+                    var c = result.Data[i];
+                    if (c.StreamingServers) {
+                        var logo = "";
+                        if (c.SourceUrl && this.options.appData.urls.channelLogoUrl) {
+                            var m = c.SourceUrl.match(/\/(\w{3})\/?$/i);
+                            if (m) {
+                                logo = m[1].toLowerCase();
+                                logo = logo === "tvu" ? "drn" : logo;
+                                logo = this.options.appData.urls.channelLogoUrl.replace("{id}", logo);
+                            }
+                        }
+                        var channel = {
+                            "name": c.Title,
+                            "slug": c.Slug,
+                            "url": c.Url,
+                            "logo": logo,
+                            "servers": []
+                        };
+                        for (var j = 0; j < c.StreamingServers.length; j++) {
+                            var s = c.StreamingServers[j];
+                            var server = {
+                                "server": s.Server,
+                                "qualities": [],
+                                "linkType": s.LinkType,
+                                "dynamicUserQualityChange": s.DynamicUserQualityChange || false
+                            };
+                            for (var k = 0; k < s.Qualities.length; k++) {
+                                var q = s.Qualities[k];
+                                var quality = {
+                                    "kbps": q.Kbps,
+                                    "streams": []
+                                };
+                                for (var l = 0; l < q.Streams.length; l++) {
+                                    var st = q.Streams[l];
+                                    quality.streams.push(st.Stream);
+                                }
+                                server.qualities.push(quality);
+                            }
+                            channel.servers.push(server);
+                        }
+                        this.options.videoData.channels.push(channel);
+                    }
+                }
+                if (scope) {
+                    liveStreamsReady.call(scope);
+                } else {
+                    liveStreamsReady();
+                }
+                this.fireEvent("resourceReady");
+            }, function (status) {
+                console.error("error loading live streams " + status + " " + url);
+            }, this);
+        }
+    };
+    AbstractPlayer.prototype.findClosestQuality = function (streams, kbps, linkType) {
+        var i, stream, selecedStream, type, HLSStream, HDSStream;
+        type = linkType || this.options.appData.linkType;
+        for (i = 0; i < streams.length; i = i + 1) {
+            stream = streams[i];
+            if ( stream.linkType && stream.linkType.toLowerCase() === "hls") {
+                HLSStream = stream;
+            }
+            if ( stream.linkType && stream.linkType.toLowerCase() === "hds") {
+                HDSStream = stream;
+            }
+        }
+        selecedStream = this.selectStream(streams, kbps, type);
+        if ( (type.toLowerCase() === "ios" || type.toLowerCase() === "android") && HLSStream ) {
+            selecedStream = HLSStream;
+        } else if ( (type.toLowerCase() === "streaming" ) && HDSStream ) {
+            selecedStream = HDSStream;
+        }
+        if (!selecedStream) {
+            selecedStream = this.selectStream(streams, kbps, "download");
+        }
+        if (!selecedStream) {
+            console.log("Unable to find stream " + type + " " + this.options.appData.fileType);
+            throw new Error("Unable to find stream " + type + " " + this.options.appData.fileType);
+        }
+        return selecedStream;
+    };
+    AbstractPlayer.prototype.selectStream = function(streams, kbps, type) {
+        var stream, currentKbps, currentDist, returnStream;
+        var dist = -1;
+        for (var i = 0; i < streams.length; i = i + 1) {
+            stream = streams[i];
+            if ((!stream.linkType || stream.linkType.toLowerCase() === type.toLowerCase()) && (!stream.fileType || stream.fileType == this.options.appData.fileType)) {
+                currentKbps = (stream.kbps ? stream.kbps : stream.bitrateKbps);
+                currentDist = Math.abs(currentKbps - kbps);
+                if (dist === -1 || currentDist < dist) {
+                    dist = currentDist;
+                    returnStream = stream;
+                }
+            }
+        }
+        return returnStream;
+    };
+    AbstractPlayer.prototype.getQuerystring = function (key, default_) {
+        if (default_===null) default_="";
+        key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+        var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
+        var qs = regex.exec(window.location.href);
+        if(qs === null) {
+            return default_;
+        } else {
+            return qs[1];
+        }
+    };
+    AbstractPlayer.prototype.buildPreview = function () {};
+    AbstractPlayer.prototype.play = function () { };
+    AbstractPlayer.prototype.pause = function () { };
+    AbstractPlayer.prototype.stop = function () { };
+    AbstractPlayer.prototype.progress = function () {
+        return this.position() / this.duration();
+    };
+    AbstractPlayer.prototype.position = function () {
+        return 0;
+    };
+    AbstractPlayer.prototype.currentTimeCode = function () {
+        return this.timeCodeConverter.secondsToTimeCode(this.position());
+    };
+    AbstractPlayer.prototype.duration = function () {
+        if (this.resourceResult) {
+            return this.resourceResult.durationInMilliseconds / 1000;
+        } else if (this.programcardResult) {
+            var resource;
+            for (var i =0; i < this.programcardResult.Assets.length; i++) {
+                var item = this.programcardResult.Assets[i];
+                if (item.Kind === "VideoResource" || item.Kind === "AudioResource") {
+                    resource = item;
+                }
+            }
+            if (!resource) {
+                return 0;
+            }
+            return resource.DurationInMilliseconds / 1000;
+        } else {
+            return 0;
+        }
+    };
+    AbstractPlayer.prototype.productionNumber = function () {
+        if (this.resourceResult) {
+            return this.resourceResult.productionNumber;
+        } else if (this.programcardResult) {
+            return this.programcardResult.ProductionNumber;
+        } else if (this.options.videoData.productionNumber) {
+            return this.options.videoData.productionNumber;
+        } else {
+            return "00000000000";
+        }
+    };
+    AbstractPlayer.prototype.hasResource = function () {
+        return (this.resourceResult !== null || this.programcardResult !== null);
+    };
+    AbstractPlayer.prototype.links = function () {
+        if (this.resourceResult) {
+            return this.resourceResult.links;
+        } else if (this.programcardResult) {
+            var resource;
+            for (var i = 0; i < this.programcardResult.Assets.length; i++) {
+                var item = this.programcardResult.Assets[i];
+                if (item.Kind === "VideoResource" || item.Kind === "AudioResource") {
+                    resource = item;
+                }
+            }
+            var result = [];
+            for (var j = 0; j < resource.Links.length; j++) {
+                var link = resource.Links[j];
+                result.push({
+                    uri: link.Uri,
+                    linkType: link.Target,
+                    fileType: link.FileFormat,
+                    bitrateKbps: link.Bitrate,
+                    width: link.Width,
+                    height: link.Height
+                });
+            }
+            return result;
+            
+        }
+        return [];
+    };
+    AbstractPlayer.prototype.getPosterImage = function () {
+        // use custom image, if defined
+        if (this.options.videoData.image) {
+            return this.options.videoData.image;
+        }
+        // use image from resource and resize
+        var w, h, resourceImage;
+        if (this.resourceResult && this.resourceResult.images && this.resourceResult.images.length > 0) {
+            resourceImage = this.resourceResult.images[0].src;
+            // w = this.options.element.offsetWidth;
+            // h = Math.floor(this.options.element.offsetWidth / 16 * 9);
+            return resourceImage;
+        } else if (this.programcardResult) {
+            for (var i = 0; i < this.programcardResult.Assets.length; i++) {
+                var item = this.programcardResult.Assets[i];
+                if (item.Kind === "Image") {
+                    return item.Uri;
+                }
+            }
+            return "";
+        }
+        // use original image, if defined
+        if (this.originalPosterImage !== null) {
+            return this.originalPosterImage;
+        } else {
+            return this.options.appData.urls.defaultImage || "";
+        }
+    };
+    AbstractPlayer.prototype.forgetModel = function () {
+            this.resourceResult = null;
+            this.programcardResult = null;
+    };
+    AbstractPlayer.prototype.resourceName = function () {
+        if (this.resourceResult) {
+            return this.resourceResult.name;
+        } else if (this.programcardResult) {
+            return this.programcardResult.Title;
+        }
+        return "";
+    };
+    AbstractPlayer.prototype.resourceId = function () {
+        if (this.resourceResult) {
+            return this.resourceResult.resourceId;
+        } else if (this.programcardResult) {
+            return this.programcardResult._ResourceId;
+        }
+        return 0;
+    };
+    AbstractPlayer.prototype.onDurationChange = function () {
+        var dur = this.duration();
+        if (dur && dur > 0 && dur !== Infinity) {
+            this.hasDuration = true;
+            this.fireEvent('durationChange');
+        }
+    };
+    AbstractPlayer.prototype.onPlay = function () {
+        this.fireEvent('play');
+    };
+    AbstractPlayer.prototype.onPause = function () {
+        if (!this._forceSeekIntervalId) {
+            this.fireEvent('pause');
+        }
+    };
+    AbstractPlayer.prototype.onProgressChange = function () {
+        this.fireEvent('progressChange');
+    };
+    AbstractPlayer.prototype.onBuffering = function (position) {
+        this.fireEvent('buffering', position);
+    };
+    AbstractPlayer.prototype.onBufferingComplete = function (position) {
+        this.fireEvent('bufferingComplete', position);
+    };
+    AbstractPlayer.prototype.onBeforeSeek = function () {
+        console.log('AbstractPlayer:onBeforeSeek');
+        this.fireEvent('beforeSeek', position);
+    };
+    AbstractPlayer.prototype.onAfterSeek = function () {
+        this.fireEvent('afterSeek', position);
+    };
+    AbstractPlayer.prototype.onComplete = function () {
+        this.fireEvent('complete');
+    };
+    AbstractPlayer.prototype.changeChannel = function () {
+        this.fireEvent('changeChannel', channelId);
+        this.channelHasChanged = true;
+    };
+    AbstractPlayer.prototype.changeContent = function (programSLUG, programSerieSlug) {
+        this.fireEvent('changeContent', {'programSLUG': programSLUG, 'programSerieSlug': programSerieSlug});
+        this.contentHasChanged = true;
+    };
+    AbstractPlayer.prototype.clearContent = function () {
+        this.fireEvent('clearContent');
+        try {
+            if (this.options.element.getChildren().length() > 0) {
+                this.options.element.getChildren().destroy();
+            }
+        } catch (e) {
+            this.options.element.innerHTML = ''; //IE friendly disposing of flash player
+        }
+    };
+    AbstractPlayer.prototype.logError = function (errorCode) {
+        if (this.options.logging && this.options.logging.errorLogUrl !== null) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("GET",this.options.logging.errorLogUrl, true);
+            xmlhttp.setRequestHeader("Cache-Control", "no-cache");
+            xmlhttp.setRequestHeader("Accept", "*/*");
+            xmlhttp.setRequestHeader("Server", "geo.dr.dk");
+            xmlhttp.send('error=' + errorCode + '&url=' + escape(document.location));
+        }
+    };
+    AbstractPlayer.prototype.displayError = function (errorCode) {
+        /*jshint devel:true */
+        if (window.console && console.log) { console.log("Error: " + errorCode); }
+    };
+    AbstractPlayer.prototype.seekToTimeCode = function (timeCode) {
+        if (window.console && console.log) { console.log("seekToTimeCode is deprecated, use seek() instead"); }
+        this.seek(timeCode);
+    };
+    AbstractPlayer.prototype.seek = function (value) {
+        if (this._forceSeekIntervalId) {
+            this._forceSeekComplete();
+        }
+        this._forceSeekIntervalId = this._forceSeek.periodical(100, this, value);
+        this._forceSeek(value);
+    };
+    AbstractPlayer.prototype._forceSeek = function (value) {
+        var seconds, distance, pos, seekResult;
+        seekResult = this._seek(value);
+        if (typeof(value) === 'string') {
+            seconds = this.timeCodeConverter.timeCodeToSeconds(value);
+        } else {
+            seconds = value * this.duration();
+        }
+        pos = this.position();
+        distance = Math.abs(seconds - pos);
+        if (distance < 0.1 || seekResult || !value) {
+            this._forceSeekComplete();
+        }
+
+    };
+    AbstractPlayer.prototype._forceSeekComplete = function () {
+        clearTimeout(this._forceSeekIntervalId);
+        this._forceSeekIntervalId = null;
+    };
+    AbstractPlayer.prototype.queryGeofilter = function () {
+        this.json('http://geo.dr.dk/DR/DR.CheckIP.IsDanish/', this.handleGeoResponse, null, this);
+    };
+    AbstractPlayer.prototype.handleGeoResponse = function (isInDenmark) {
+         console.log('handleGeoResponse() not implemented. Must be overridden in sub class ' + isInDenmark);
+    };
+    
+
+    return AbstractPlayer;
+});
