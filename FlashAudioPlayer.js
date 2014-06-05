@@ -1,6 +1,8 @@
-/*jshint mootools:true,browser:true,devel:true */
-define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"], function (MediaClass, AudioPlayer) {
-    "use strict";
+/* jshint devel: true */
+/* global define: true */
+
+define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player', 'dr-media-flash-object'], function (MediaClass, AudioPlayer, FlashObject) {
+    'use strict';
 
     function FlashAudioPlayer (options) {
         
@@ -26,33 +28,33 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
         if (!window.DR.NetRadio) {
             window.DR.NetRadio = {};
         }
-        this.eventCatcherId = "eventCatcher_" + this.mediaPlayerId.toString();
+        this.eventCatcherId = 'eventCatcher_' + this.mediaPlayerId.toString();
         window.DR.NetRadio[this.eventCatcherId] = this.eventCatcher.bind(this); //TODO: bind
 
-        console.log("FlashAudioPlayer constructor");
+        console.log('FlashAudioPlayer constructor');
     }
 
     MediaClass.inheritance(FlashAudioPlayer, AudioPlayer);
 
     FlashAudioPlayer.prototype.build = function () {
         console.log('FlashAudioPlayer.build');
-        if (Browser.Plugins.Flash.version < 10) {
+        if (FlashObject.getFlashMajorVersion() < 10) {
             this.displayError('obsolete_flash_player');
             return;
         }
 
         this._ensureStream = this.options.videoData.videoType === 'ondemand' ?  this.ensureResource : this.ensureLiveStreams;
         this._ensureStream(this.postBuild, this);
-        AudioPlayer.prototype.build.call(this)
+        AudioPlayer.prototype.build.call(this);
     };
     FlashAudioPlayer.prototype.getQuerystring = function (key, default_) {
-        if (default_==null) default_="";
+        if (default_===null) default_='';
 
-        key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-        var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
+        key = key.replace(/[\[]/,'\\\[').replace(/[\]]/,'\\\]');
+        var regex = new RegExp('[\\?&]'+key+'=([^&#]*)');
         var qs = regex.exec(window.location.href);
 
-        if(qs == null)
+        if(qs === null)
             return default_;
         else
             return qs[1];
@@ -66,7 +68,7 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
 
             var swfUrl = '/assets/swf/DRInvisibleAudioPlayer.swf';
             
-            this.swiff = new Swiff(swfUrl, { //TODO: Swiff
+            this.swiff = new FlashObject(swfUrl, { //TODO: Swiff
                 container: swiffContainer,
                 params: {
                     allowscriptaccess: 'sameDomain',
@@ -74,7 +76,7 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
                     bgcolor: '#ffffff'
                 },
                 vars: {
-                    eventCatcherFunction: "window.DR.NetRadio." + this.eventCatcherId,
+                    eventCatcherFunction: 'window.DR.NetRadio.' + this.eventCatcherId,
                     autoPlay: this.options.appData.autoPlay
                 }
             });
@@ -84,41 +86,41 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
         console.log('FlashAudioPlayer.eventCatcher:' + event.type + ' ' + event.playState);
         switch (event.type) {
 
-            case "versionEvent":
+            case 'versionEvent':
                 //flash player is ready
                 this.setVolume(this.currentVolume || 0.7);
                 this.setBroadcastData();
                 this.ready();
                 break;
 
-            case "progressEvent":
+            case 'progressEvent':
                 this.lastProgressEvent = event;
                 this.onProgressChange();
                 break;
 
-            case "complete":
+            case 'complete':
                 this.onComplete();
                 break;
 
-            case "playStateChange":
-                if (event.playState === "playing") {
+            case 'playStateChange':
+                if (event.playState === 'playing') {
                     this.isPlaying = true;
                     this.onPlay();
-                } else if (event.playState === "paused") {
+                } else if (event.playState === 'paused') {
                     this.isPlaying = false;
                     this.onPause();
-                } else if (event.playState === "stopped") {
+                } else if (event.playState === 'stopped') {
                     this.flashStreamInitalized = false;
                     this.isPlaying = false;
                     this.onStop();
                 }
                 break;
 
-            case "bufferProgressEvent":
-                // console.log("buffer: " + event.progress);
+            case 'bufferProgressEvent':
+                // console.log('buffer: ' + event.progress);
                 break;
 
-            case "bufferingChange":
+            case 'bufferingChange':
                 if (event.buffering) {
                     this.options.element.addClass('buffering');
                     this.onBuffering(this.position());
@@ -128,7 +130,7 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
                 }
                 break;
 
-            case "seekingChange":
+            case 'seekingChange':
                 if (event.seeking) {
                     this.onBeforeSeek(this.lastProgressEvent.currentTime);
                 } else {
@@ -139,7 +141,7 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
                 }
                 break;
 
-            case "mediaError":
+            case 'mediaError':
                 if (event.error && event.error.detail)
                     console.log(event.error.detail);
 
@@ -147,25 +149,17 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
                 break;
 
             default:
-                 if (window.console && console.log) { console.log("unknown event: ", event.type); }
+                 if (window.console && console.log) { console.log('unknown event: ', event.type); }
                 break;
         }
     };
     FlashAudioPlayer.prototype.setBroadcastData = function () {
         if (this.options.videoData.videoType === 'live') {
-            try {
-                Swiff.remote(this.swiff.object, 'flash_setVideoData', this.options.videoData);
-            } catch (err) {
-                console.log("Error calling 'flash_setVideoData'");
-            }
+            this.swiffRemote('flash_setVideoData', this.options.videoData);
         } else if (this.programcardResult !== null) {
             var pc = this.programcardResult;
             pc.videoType = this.options.videoData.videoType;
-            try {
-                Swiff.remote(this.swiff.object, 'flash_setProgramCard', this.programcardResult);
-            } catch (err) {
-                console.log("Error calling 'flash_setProgramCard'");
-            }
+            this.swiffRemote('flash_setProgramCard', this.programcardResult);
         }
     };
     FlashAudioPlayer.prototype.setNewBitrate = function (bitrate) {
@@ -183,6 +177,13 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
         this.flashStreamInitalized = false; // tell flash to load new file
         this.play();
     };
+    FlashAudioPlayer.prototype.swiffRemote = function () {
+        if (this.swiff) {
+            return this.swiff.remote.apply(this.swiff, arguments);
+        } else {
+            console.error('FlashObject not created!', arguments);
+        }
+    };
     FlashAudioPlayer.prototype.play = function () {
         console.log('FlashAudioPlayer.play flashStreamInitalized: ' + this.flashStreamInitalized);
 
@@ -196,20 +197,20 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
                     console.log('invalid stream: ' + stream + ' ::: ABORTING!');
                 }
                 
-                Swiff.remote(this.swiff.object, 'flash_play', stream);
+                this.swiffRemote('flash_play', stream);
                 this.flashStreamInitalized = true;
             }, this);
         } else {
             if (!this.isPlaying) {
-                Swiff.remote(this.swiff.object, 'flash_pause'); //toggle pause
+                this.swiffRemote('flash_pause'); //toggle pause
             }
         }
     };
     FlashAudioPlayer.prototype.pause = function () {
-        Swiff.remote(this.swiff.object, 'flash_pause');
+        this.swiffRemote('flash_pause');
     };
     FlashAudioPlayer.prototype.stop = function () {
-        Swiff.remote(this.swiff.object, 'flash_stop');
+        this.swiffRemote('flash_stop');
     };
     FlashAudioPlayer.prototype.position = function () {
         if (this.lastProgressEvent) {
@@ -223,7 +224,7 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
     };
     FlashAudioPlayer.prototype.setVolume = function (vol) {
         this.currentVolume = vol;
-        if (this.swiff) Swiff.remote(this.swiff.object, 'flash_setVolume', vol);
+        this.swiffRemote('flash_setVolume', vol);
         this.fireEvent('volumechange');
     };
     FlashAudioPlayer.prototype._seek = function (value) {
@@ -234,12 +235,8 @@ define("dr-media-flash-audio-player", ["dr-media-class", "dr-media-audio-player"
             seconds = value * this.duration();
         }
         if (this.isPlaying) {
-            try {
-                Swiff.remote(this.swiff.object, 'flash_seekTo', seconds);
-                return true;
-            } catch (error) {
-                return false;
-            }
+            this.swiffRemote('flash_seekTo', seconds);
+            return true;
         }
         return false;
     };

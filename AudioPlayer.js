@@ -1,21 +1,23 @@
-/*jshint mootools:true,browser:true,devel:true */
-define("dr-media-audio-player",
-["dr-media-class", "dr-media-abstract-player", "dr-lazyloader",
-    "audio-control-error-message", "audio-control-settings-button", "audio-control-play-button-overlay", "audio-control-play-button",
-    "audio-control-progressbar", "audio-control-volumeselector", "audio-control-skip-buttons"],
+/* jshint devel: true */
+/* global define: true, require: true */
+
+define('dr-media-audio-player',
+['dr-media-class', 'dr-media-abstract-player', 'dr-lazyloader',
+    'audio-control-error-message', 'audio-control-settings-button', 'audio-control-play-button-overlay', 'audio-control-play-button',
+    'audio-control-progressbar', 'audio-control-volumeselector', 'audio-control-skip-buttons'],
 function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl) {
-    "use strict";
+    'use strict';
 
     /*
     if (!window.console) { window.console = {}; }
     if (console.log) { console._log = console.log; }
     console.log = function (msg) {
-        var el = document.getElement("#HEST_log");
+        var el = document.getElement('#HEST_log');
         if (!el) {
-            el = new Element("pre", { id: "HEST_log", styles: { backgroundColor: "#ccf", fontSize: "12px" }});
-            el.inject(document.getElement(".dr-ui-paging-tabs"), "top");
+            el = new Element('pre', { id: 'HEST_log', styles: { backgroundColor: '#ccf', fontSize: '12px' }});
+            el.inject(document.getElement('.dr-ui-paging-tabs'), 'top');
         }
-        el.set("text", el.get("text") + "\n" + msg);
+        el.set('text', el.get('text') + '\n' + msg);
         if (console._log) {
             console._log.apply(console, arguments);
         }
@@ -26,23 +28,23 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         AbstractPlayer.call(this);
 
         this.setOptions({
-            mediaType: "audio",
+            mediaType: 'audio',
             videoData: {},
             appData: {
                 defaultQuality: -1,
                 gemius: {
-                    identifier: "ApianyLnm8kTV5nad0MB0cTYzQCZuM9wIVf5SZ5x.rH.n7<"
+                    identifier: 'ApianyLnm8kTV5nad0MB0cTYzQCZuM9wIVf5SZ5x.rH.n7<'
                 },
                 errorMessages: {
-                    access_denied: "Denne lydfil er af ophavsretsmæssige årsager beskyttet mod visning udenfor Danmark. Hvis du befinder dig i Danmark og mener du har fået denne besked ved en fejl, kontakt os da på brugerhenvendelsessiden",
-                    not_found: "Programmet du søger findes desværre ikke.",
-                    connection_failed: "Der er desværre sket en fejl. Læs om driftstatus og kontakt til DR på brugerhenvendelsessiden",
-                    timeout: "Afspilleren har været inaktiv for længe. Genindlæs siden, så kan du se videoen igen.",
-                    defaultMsg: "Der er desværre sket en fejl. Vi kigger på sagen, så prøv igen senere!"
+                    access_denied: 'Denne lydfil er af ophavsretsmæssige årsager beskyttet mod visning udenfor Danmark. Hvis du befinder dig i Danmark og mener du har fået denne besked ved en fejl, kontakt os da på brugerhenvendelsessiden',
+                    not_found: 'Programmet du søger findes desværre ikke.',
+                    connection_failed: 'Der er desværre sket en fejl. Læs om driftstatus og kontakt til DR på brugerhenvendelsessiden',
+                    timeout: 'Afspilleren har været inaktiv for længe. Genindlæs siden, så kan du se videoen igen.',
+                    defaultMsg: 'Der er desværre sket en fejl. Vi kigger på sagen, så prøv igen senere!'
                 },
                 urls: {
-                    liveStreams: "/radio/external/channels?mediaType=radio",
-                    channelLogoUrl: "/assets/img/logos/dr-logo-{id}-small.png"
+                    liveStreams: '/radio/external/channels?mediaType=radio',
+                    channelLogoUrl: '/assets/img/logos/dr-logo-{id}-small.png'
                 }
             }
         });
@@ -58,9 +60,9 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
             this.setOptions(options);
         }
 
-        this.isTouch = ("ontouchmove" in window);
+        this.isTouch = ('ontouchmove' in window);
         if (this.isTouch) {
-            this.options.element.addClass("touch"); //TODO: addClass
+            this.options.element.addClass('touch'); //TODO: addClass
         }
         var data = this.load();
         if (data && data.bitrate) {
@@ -69,16 +71,16 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         }
 
         // bind methods
-        ["play", "pause", "stop", "progress", "position", "duration"].forEach(function (fn) { //TODO: forEach
+        ['play', 'pause', 'stop', 'progress', 'position', 'duration'].forEach(function (fn) { //TODO: forEach
             this[fn] = this[fn].bind(this); //TODO: bind
         }, this);
 
-        this.addEvent("resourceReady", this.setDurationClass.bind(this)); //TODO: bind
+        this.addEvent('resourceReady', this.setDurationClass.bind(this)); //TODO: bind
 
         this.build();
 
-        console.log("AudioPlayer constructor " + options);
-    };
+        console.log('AudioPlayer constructor ' + options);
+    }
     MediaClass.inheritance(AudioPlayer, AbstractPlayer);
 
     AudioPlayer.prototype.load = function () {
@@ -134,7 +136,7 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
 
         this.options.element.addClass('loading');
 
-        if(this.options.videoData.videoType === "live") {
+        if(this.options.videoData.videoType === 'live') {
             this.initializeLiveProgressbar();
         }
 
@@ -149,10 +151,10 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         this.options.appData.defaultQuality = bitrate;
         var data = { bitrate: bitrate };
 
-        document.cookie = "audio-player-bitrate=" + encodeURIComponent(JSON.stringify(data)) + ";expires=" + expires.toUTCString() + ";path=/;domain=.dr.dk";
+        document.cookie = 'audio-player-bitrate=' + encodeURIComponent(JSON.stringify(data)) + ';expires=' + expires.toUTCString() + ';path=/;domain=.dr.dk';
     };
     AudioPlayer.prototype.ready = function () {
-        console.log("AudioPlayer.ready");
+        console.log('AudioPlayer.ready');
         this.options.element.removeClass('loading');
         if (this.options.appData.autoPlay) {
             this.play();
@@ -173,22 +175,22 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         }
         this.saveBitrate(bitrate);
         this.fireEvent('dr-widget-audio-player-bitrate-selected');
-        if (this.options.videoData.videoType === "ondemand") {
+        if (this.options.videoData.videoType === 'ondemand') {
             this.targetTimeCode = this.currentTimeCode();
         }
     };
     AudioPlayer.prototype.getStream = function (quality) {
-        var server, channel, item;
-        if (this.options.videoData.videoType === "live") {
+        var item;
+        if (this.options.videoData.videoType === 'live') {
             item = this.findClosestQuality(this.getChannel().servers, quality);
             this.setBitratesAvailable(this.getBitratesFromLiveStream(item));
             var selectedStream = this.getStreamByBitrate(quality);
             if (selectedStream) {
                 return selectedStream.uri;
             } else {
-                return item.server + "/" + item.qualities[0].streams[0];
+                return item.server + '/' + item.qualities[0].streams[0];
             }
-        } else if (this.options.videoData.videoType === "ondemand") {
+        } else if (this.options.videoData.videoType === 'ondemand') {
             item = this.findClosestQuality(this.links(), quality);
             if (item.linkType.toLowerCase() === 'hds') {
                 this.setBitratesAvailable(this.getBitratesFromODStream(item));
@@ -200,7 +202,7 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         }
     };
     AudioPlayer.prototype.getBitratesFromODStream = function (stream) {
-            // create bitrates array with default "all bitrates" option
+            // create bitrates array with default 'all bitrates' option
             var bitrates = [{
                 bitrate: -1, 
                 uri: stream.uri
@@ -210,8 +212,8 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
             var last = parts.pop();
             var bitrateObj;
             // Sort bitrates to ascending order
-            parts.sort(function(a,b){return a-b});
-            for(i = 0; i < parts.length; i++) {
+            parts.sort(function(a,b){return a-b; });
+            for(var i = 0; i < parts.length; i++) {
                 bitrateObj = {
                     bitrate: parts[i], 
                     uri: first + ',' + parts[i] + ',' + last
@@ -228,11 +230,11 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         var bitrateObj;
         var quality;
         var bitrates = [];
-        for(i = 0; i < stream.qualities.length; i++) {
+        for(var i = 0; i < stream.qualities.length; i++) {
             quality = stream.qualities[i];
 
             // Do not add quality if there is no stream for the quality
-            if (quality.streams.length == 0)
+            if (quality.streams.length === 0)
                 continue;
 
             bitrateObj = {
@@ -244,14 +246,14 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         }
         return bitrates;
     };
-    AudioPlayer.prototype.getStreamByBitrate = function () {
+    AudioPlayer.prototype.getStreamByBitrate = function (bitrate) {
         if (!this.bitratesAvailable || this.bitratesAvailable.length === 0) {
             console.log('Error: No bitrates available');
             return null;
         }
-        var i, closest;
+        var i, closest = null;
         for(i = 0; i < this.bitratesAvailable.length; i++) {
-            if (closest == null || Math.abs(this.bitratesAvailable[i].bitrate - bitrate) < Math.abs(closest.bitrate - bitrate)) {
+            if (closest === null || Math.abs(this.bitratesAvailable[i].bitrate - bitrate) < Math.abs(closest.bitrate - bitrate)) {
                 closest = this.bitratesAvailable[i];
             }
         }
@@ -267,7 +269,7 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         this.build();
     };
     AudioPlayer.prototype.initializeLiveProgressbar = function () {
-        require(["dr-widget-live-element"], function (LiveElement) {
+        require(['dr-widget-live-element'], function (LiveElement) {
             this.liveProgressBar = new LiveElement(this.options.element);
             window.liveprogress = this.liveProgressBar.domElement;
             this.liveProgressBar.domElement.addEvent('update', this.update.bind(this));
@@ -284,7 +286,7 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
     };
     AudioPlayer.prototype.registerSkipProvider = function (provider) {
         this.skipProvider = provider;
-        if(this.options.videoData.videoType !== "live") {
+        if(this.options.videoData.videoType !== 'live') {
             var buttons = new SkipButtonsControl(this);
             var container = this.options.element;
             $(buttons).inject(container.getElement('.progressbar'), 'before');
