@@ -78,44 +78,29 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
 
         build = function () {
 
-
-// TODO:  Mangler this.originalPosterImage
-//            if ( (this.options.element.getElementsByTagName('img')[0] !== null)&&(this.options.element.getElementsByTagName('img')[0].getAttribute('src').length > 0) ) {
-//                this.originalPosterImage = this.options.element.getElementsByTagName('img')[0].getAttribute('src');
-//            }
-
-
             this.clearContent();
             imagePath = this.getPosterImage();
             
-            var markup = document.createElement('a',{'href':'#', 'title':'Afspil video', 'class':'image-wrap ratio-16-9', 'aria-role':'button'} );
+            var markup = DomHelper.newElement('a', {'href':'#', 'title':'Afspil video', 'class':'image-wrap', 'aria-role':'button'} );
             markup.innerHTML = ''+
-                '<noscript data-src="'+imagePath+'""></noscript>' +
+                '<img src="'+imagePath+'" />' +
                 '<div class="dummy-controls"><div class="play dr-icon-play"></div></div>' +
                 '<div class="icon-wrap"><div class="dr-icon-play-inverted-large"></div></div>' +
                 '';
             this.options.element.appendChild(markup);
 
-            markup.addEventListener('click', function (event) {
-                event.stop();
-
-                //Fire click event
+            var player = this;
+            DomHelper.on(markup, 'click', function (event) {
+                DomHelper.cancelEvent(event);
                 if (typeof _gaq !== 'undefined') {
                     _gaq.push(['_trackEvent', 'global-assets-video-player', 'click', 'play']);
                 }
-
-                this.options.appData.autoPlay = true;
-                this.build();
-            } .bind(this), false);
-
+                player.options.appData.autoPlay = true;
+                player.build();
+            });
 
             this.options.appData.controlsHeight = 32;
             this.updateElementHeight();
-
-            /*
-            TODO lazyload
-            window.fireEvent('dr-dom-inserted', [new Elements([markup]), ['dr-lazyloader']]);
-            */
         };
 
         switch (this.options.videoData.videoType) {
