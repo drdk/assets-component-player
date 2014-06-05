@@ -1,8 +1,11 @@
 /* jshint devel: true */
-/* global define: true */
+/* global define: true, _gaq: true */
 
-define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "dr-widget-media-dom-helper", "dr-media-hash-implementation"], function (MediaClass, AbstractPlayer, DomHelper, HashTimeCodeImplementation) {
-    "use strict";
+/**
+ * TODO: Build accessability controls
+ **/
+define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', 'dr-widget-media-dom-helper', 'dr-media-hash-implementation'], function (MediaClass, AbstractPlayer, DomHelper, HashTimeCodeImplementation) {
+    'use strict';
 
     function VideoPlayer (options) {
 
@@ -48,14 +51,14 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
         }
 
         if (window) {
-            var supportsOrientationChange = "onorientationchange" in window,
-            orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
+            var supportsOrientationChange = 'onorientationchange' in window,
+            orientationEvent = supportsOrientationChange ? 'orientationchange' : 'resize';
             if (options.platform == 'ios' || options.platform == 'android') {
                 window.addEventListener(orientationEvent, this.updateElementHeight.bind(this));
             }
         }
 
-    };
+    }
 
     MediaClass.inheritance(VideoPlayer, AbstractPlayer);
 
@@ -86,12 +89,12 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
             imagePath = this.getPosterImage();
             
             var markup = document.createElement('a',{'href':'#', 'title':'Afspil video', 'class':'image-wrap ratio-16-9', 'aria-role':'button'} );
-            markup.innerHTML = ""+
-                "<noscript data-src='"+imagePath+"'></noscript>" +
-                "<div class='dummy-controls'><div class='play dr-icon-play'></div></div>" +
-                "<div class='icon-wrap'><div class='dr-icon-play-inverted-large'></div></div>" +
-                "";
-            this.options.element[0].appendChild(markup);
+            markup.innerHTML = ''+
+                '<noscript data-src="'+imagePath+'""></noscript>' +
+                '<div class="dummy-controls"><div class="play dr-icon-play"></div></div>' +
+                '<div class="icon-wrap"><div class="dr-icon-play-inverted-large"></div></div>' +
+                '';
+            this.options.element.appendChild(markup);
 
             markup.addEventListener('click', function (event) {
                 event.stop();
@@ -111,7 +114,7 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
 
             /*
             TODO lazyload
-            window.fireEvent("dr-dom-inserted", [new Elements([markup]), ["dr-lazyloader"]]);
+            window.fireEvent('dr-dom-inserted', [new Elements([markup]), ['dr-lazyloader']]);
             */
         };
 
@@ -151,14 +154,14 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
     VideoPlayer.prototype.displayError = function (errorCode, info, logOutput, errorDetails) {
         
         this.logOutput = logOutput;
-        var container, paragraph, floater, log;
+        var container, paragraph, floater;
 
         container = this.options.element;
         DomHelper.addClass(container, 'error');
 
         this.clearContent();
 
-        var headerText = this.options.appData.errorMessages['header'];
+        var headerText = this.options.appData.errorMessages.header;
 
         if (errorCode === 'access_denied') {
             errorCode = this.options.videoData.videoType === 'live' ? 'access_denied_live' : 'access_denied_od';
@@ -200,8 +203,8 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
         if (!this.isValidErrorDownloadBrowser())
             return errorContainer;
 
-        if(errorCode != "obsolete_flash_player") { // Don't show error log if error is caused by obsolete flash version / no flash
-            var detailsElement = this.buildErrorDetails(errorDetails, info, errorCode)
+        if(errorCode != 'obsolete_flash_player') { // Don't show error log if error is caused by obsolete flash version / no flash
+            var detailsElement = this.buildErrorDetails(errorDetails, info, errorCode);
             if (detailsElement && detailsElement !== null) {
                 errorContainer.appendChild(detailsElement);
             }
@@ -210,7 +213,7 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
         return errorContainer;
     };
     VideoPlayer.prototype.isValidErrorDownloadBrowser = function () {
-        if(navigator.appName.indexOf("Internet Explorer")!=-1){     //yeah, he's using IE
+        if(navigator.appName.indexOf('Internet Explorer')!=-1){     //yeah, he's using IE
             return false;
         } else if (window.navigator.appVersion.match(/Chrome\/(.*?) /)) {
             return true;

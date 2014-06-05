@@ -1,8 +1,8 @@
 /* jshint devel: true */
-/* global define: true */
+/* global define: true, escape: true */
 
-define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
-    "use strict";
+define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
+    'use strict';
 
     var AbstractPlayer = function() {
         MediaClass.call(this);
@@ -18,19 +18,19 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
         this.setOptions({
             appData: {
                 gemius: {
-                    drIdentifier: "019_drdk-",
-                    identifier: "p9AwR.N.S86s_NjaJKdww7b.fdp8ky90ZnrKpgLHOUn.s7",
-                    hitcollector: "http://sdk.hit.gemius.pl",
-                    channelName: "drdk"
+                    drIdentifier: '019_drdk-',
+                    identifier: 'p9AwR.N.S86s_NjaJKdww7b.fdp8ky90ZnrKpgLHOUn.s7',
+                    hitcollector: 'http://sdk.hit.gemius.pl',
+                    channelName: 'drdk'
                 },
                 urls: {
-                    geoHandlerUrl: "/DR/DR.CheckIP.IsDanish/"
+                    geoHandlerUrl: '/DR/DR.CheckIP.IsDanish/'
                 },
-                linkType: "Streaming",
-                fileType: "mp3"
+                linkType: 'Streaming',
+                fileType: 'mp3'
             },
             videoData: {
-                materialIdentifier: "unknown"
+                materialIdentifier: 'unknown'
             },
             enableHashTimeCode: false
         });
@@ -59,18 +59,18 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
             }
         } else {
             var url = this.options.videoData.resource;
-            this.fireEvent("resourceLoading");
+            this.fireEvent('resourceLoading');
             if (this.options.platform) {
-                if (url.indexOf("?") !== -1) {
-                    url = url + "&type=" + this.options.platform;
+                if (url.indexOf('?') !== -1) {
+                    url = url + '&type=' + this.options.platform;
                 } else {
-                    url = url + "?type=" + this.options.platform;
+                    url = url + '?type=' + this.options.platform;
                 }
             }
             //debug replace:
-            if (document.location.host != "www.dr.dk") {
-                url = url.replace("www.dr.dk", document.location.host);
-                url = url.replace("/mu/programcard", "/tv/api/programcard");
+            if (document.location.host != 'www.dr.dk') {
+                url = url.replace('www.dr.dk', document.location.host);
+                url = url.replace('/mu/programcard', '/tv/api/programcard');
             }
             this.json(url, function(result){
                 if (result.Data) {
@@ -86,9 +86,9 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
                 } else {
                     resourceReady();
                 }
-                this.fireEvent("resourceReady");
+                this.fireEvent('resourceReady');
             }, function (status) {
-                this.displayError("defaultMsg", "State: " + status + " " + url);
+                this.displayError('defaultMsg', 'State: ' + status + ' ' + url);
                 // console.log(status);
             }, this);
         }
@@ -102,43 +102,43 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
             }
         } else {
             var url = this.options.appData.urls.liveStreams;
-            this.fireEvent("resourceLoading");
+            this.fireEvent('resourceLoading');
             this.json(url, function (result) {
                 this.options.videoData.channels = [];
                 for (var i=0; i<result.length; i++) {
 
                     var c = result[i];
                     if (c.StreamingServers) {
-                        var logo = "";
+                        var logo = '';
                         if (c.SourceUrl && this.options.appData.urls.channelLogoUrl) {
                             var m = c.SourceUrl.match(/\/(\w{3})\/?$/i);
                             if (m) {
                                 logo = m[1].toLowerCase();
-                                logo = logo === "tvu" ? "drn" : logo;
-                                logo = this.options.appData.urls.channelLogoUrl.replace("{id}", logo);
+                                logo = logo === 'tvu' ? 'drn' : logo;
+                                logo = this.options.appData.urls.channelLogoUrl.replace('{id}', logo);
                             }
                         }
                         var channel = {
-                            "name": c.Title,
-                            "slug": c.Slug,
-                            "url": c.Url,
-                            "logo": logo,
-                            "servers": [],
-                            "webChannel": c.WebChannel === true
+                            'name': c.Title,
+                            'slug': c.Slug,
+                            'url': c.Url,
+                            'logo': logo,
+                            'servers': [],
+                            'webChannel': c.WebChannel === true
                         };
                         for (var j = 0; j < c.StreamingServers.length; j++) {
                             var s = c.StreamingServers[j];
                             var server = {
-                                "server": s.Server,
-                                "qualities": [],
-                                "linkType": s.LinkType,
-                                "dynamicUserQualityChange": s.DynamicUserQualityChange || false
+                                'server': s.Server,
+                                'qualities': [],
+                                'linkType': s.LinkType,
+                                'dynamicUserQualityChange': s.DynamicUserQualityChange || false
                             };
                             for (var k = 0; k < s.Qualities.length; k++) {
                                 var q = s.Qualities[k];
                                 var quality = {
-                                    "kbps": q.Kbps,
-                                    "streams": []
+                                    'kbps': q.Kbps,
+                                    'streams': []
                                 };
                                 for (var l = 0; l < q.Streams.length; l++) {
                                     var st = q.Streams[l];
@@ -156,9 +156,9 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
                 } else {
                     liveStreamsReady();
                 }
-                this.fireEvent("resourceReady");
+                this.fireEvent('resourceReady');
             }, function (status) {
-                console.error("error loading live streams " + status + " " + url);
+                console.error('error loading live streams ' + status + ' ' + url);
             }, this);
         }
     };
@@ -167,25 +167,25 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
         type = linkType || this.options.appData.linkType;
         for (i = 0; i < streams.length; i = i + 1) {
             stream = streams[i];
-            if ( stream.linkType && stream.linkType.toLowerCase() === "hls") {
+            if ( stream.linkType && stream.linkType.toLowerCase() === 'hls') {
                 HLSStream = stream;
             }
-            if ( stream.linkType && stream.linkType.toLowerCase() === "hds") {
+            if ( stream.linkType && stream.linkType.toLowerCase() === 'hds') {
                 HDSStream = stream;
             }
         }
         selecedStream = this.selectStream(streams, kbps, type);
-        if ( (type.toLowerCase() === "ios" || type.toLowerCase() === "android") && HLSStream ) {
+        if ( (type.toLowerCase() === 'ios' || type.toLowerCase() === 'android') && HLSStream ) {
             selecedStream = HLSStream;
-        } else if ( (type.toLowerCase() === "streaming" ) && HDSStream ) {
+        } else if ( (type.toLowerCase() === 'streaming' ) && HDSStream ) {
             selecedStream = HDSStream;
         }
         if (!selecedStream) {
-            selecedStream = this.selectStream(streams, kbps, "download");
+            selecedStream = this.selectStream(streams, kbps, 'download');
         }
         if (!selecedStream) {
-            console.log("Unable to find stream " + type + " " + this.options.appData.fileType);
-            throw new Error("Unable to find stream " + type + " " + this.options.appData.fileType);
+            console.log('Unable to find stream ' + type + ' ' + this.options.appData.fileType);
+            throw new Error('Unable to find stream ' + type + ' ' + this.options.appData.fileType);
         }
         return selecedStream;
     };
@@ -206,9 +206,9 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
         return returnStream;
     };
     AbstractPlayer.prototype.getQuerystring = function (key, default_) {
-        if (default_===null) default_="";
-        key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-        var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
+        if (default_===null) default_='';
+        key = key.replace(/[\[]/,'\\\[').replace(/[\]]/,'\\\]');
+        var regex = new RegExp('[\\?&]'+key+'=([^&#]*)');
         var qs = regex.exec(window.location.href);
         if(qs === null) {
             return default_;
@@ -238,7 +238,7 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
             var resource;
             for (var i =0; i < this.programcardResult.Assets.length; i++) {
                 var item = this.programcardResult.Assets[i];
-                if (item.Kind === "VideoResource" || item.Kind === "AudioResource") {
+                if (item.Kind === 'VideoResource' || item.Kind === 'AudioResource') {
                     resource = item;
                 }
             }
@@ -260,7 +260,7 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
         } else if (this.options.videoData.productionNumber) {
             return this.options.videoData.productionNumber;
         } else {
-            return "00000000000";
+            return '00000000000';
         }
     };
     AbstractPlayer.prototype.resourceSlug = function () {
@@ -270,7 +270,7 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
         } else if (this.resourceResult && this.resourceResult.name) {
             var slug = this.resourceResult.name.toLowerCase();
             slug = slug.replace(/[^\-a-zA-Z0-9,&\s]+/ig, '');
-            slug = slug.replace(/[\s|\-|\_]+/gi, "-");
+            slug = slug.replace(/[\s|\-|\_]+/gi, '-');
             return slug.substr(0, 40);
         } else if (this.options.videoData.episodeSlug) {
             return this.options.videoData.episodeSlug;
@@ -307,23 +307,23 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
             var resource;
             for (var i = 0; i < this.programcardResult.Assets.length; i++) {
                 var item = this.programcardResult.Assets[i];
-                if (item.Kind === "VideoResource" || item.Kind === "AudioResource") {
+                if (item.Kind === 'VideoResource' || item.Kind === 'AudioResource') {
                     resource = item;
                 }
             }
-            var result = [];
-            for (var j = 0; j < resource.Links.length; j++) {
-                var link = resource.Links[j];
-                result.push({
-                    uri: link.Uri,
-                    linkType: link.Target,
-                    fileType: link.FileFormat,
-                    bitrateKbps: link.Bitrate,
-                    width: link.Width,
-                    height: link.Height
+            var programcardLinks = [];
+            for (var k = 0; k < resource.Links.length; k++) {
+                var programcardLink = resource.Links[k];
+                programcardLinks.push({
+                    uri: programcardLink.Uri,
+                    linkType: programcardLink.Target,
+                    fileType: programcardLink.FileFormat,
+                    bitrateKbps: programcardLink.Bitrate,
+                    width: programcardLink.Width,
+                    height: programcardLink.Height
                 });
             }
-            return result;
+            return programcardLinks;
             
         }
         return [];
@@ -334,7 +334,7 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
             return this.options.videoData.image;
         }
         // use image from resource and resize
-        var w, h, resourceImage;
+        var resourceImage;
         if (this.resourceResult && this.resourceResult.images && this.resourceResult.images.length > 0) {
             resourceImage = this.resourceResult.images[0].src;
             // w = this.options.element.offsetWidth;
@@ -343,22 +343,25 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
         } else if (this.programcardResult) {
             for (var i = 0; i < this.programcardResult.Assets.length; i++) {
                 var item = this.programcardResult.Assets[i];
-                if (item.Kind === "Image") {
+                if (item.Kind === 'Image') {
                     return item.Uri;
                 }
             }
-            return "";
+            return '';
         }
         // use original image, if defined
         if (this.originalPosterImage !== null) {
             return this.originalPosterImage;
         } else {
-            return this.options.appData.urls.defaultImage || "";
+            return this.options.appData.urls.defaultImage || '';
         }
     };
     AbstractPlayer.prototype.forgetModel = function () {
             this.resourceResult = null;
             this.programcardResult = null;
+    };
+    AbstractPlayer.prototype.updateOptions = function (options) {
+        this.setOptions(options);
     };
     AbstractPlayer.prototype.resourceName = function () {
         if (this.resourceResult) {
@@ -366,7 +369,7 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
         } else if (this.programcardResult) {
             return this.programcardResult.Title;
         }
-        return "";
+        return '';
     };
     AbstractPlayer.prototype.resourceId = function () {
         if (this.resourceResult) {
@@ -428,19 +431,19 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
     AbstractPlayer.prototype.logError = function (errorCode) {
         if (this.options.logging && this.options.logging.errorLogUrl !== null) {
             var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("GET",this.options.logging.errorLogUrl, true);
-            xmlhttp.setRequestHeader("Cache-Control", "no-cache");
-            xmlhttp.setRequestHeader("Accept", "*/*");
-            xmlhttp.setRequestHeader("Server", "geo.dr.dk");
+            xmlhttp.open('GET',this.options.logging.errorLogUrl, true);
+            xmlhttp.setRequestHeader('Cache-Control', 'no-cache');
+            xmlhttp.setRequestHeader('Accept', '*/*');
+            xmlhttp.setRequestHeader('Server', 'geo.dr.dk');
             xmlhttp.send('error=' + errorCode + '&url=' + escape(document.location));
         }
     };
     AbstractPlayer.prototype.displayError = function (errorCode) {
         /*jshint devel:true */
-        if (window.console && console.log) { console.log("Error: " + errorCode); }
+        if (window.console && console.log) { console.log('Error: ' + errorCode); }
     };
     AbstractPlayer.prototype.seekToTimeCode = function (timeCode) {
-        if (window.console && console.log) { console.log("seekToTimeCode is deprecated, use seek() instead"); }
+        if (window.console && console.log) { console.log('seekToTimeCode is deprecated, use seek() instead'); }
         this.seek(timeCode);
     };
     AbstractPlayer.prototype.seek = function (value) {
@@ -476,7 +479,7 @@ define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
          console.log('handleGeoResponse() not implemented. Must be overridden in sub class ' + isInDenmark);
     };
     AbstractPlayer.prototype.handleGeoResponseFail = function (status) {
-        this.displayError("defaultMsg", "Failed to load IP check ("+status+")");
+        this.displayError('defaultMsg', 'Failed to load IP check ('+status+')');
     };
 
     return AbstractPlayer;

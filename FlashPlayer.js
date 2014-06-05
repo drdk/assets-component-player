@@ -1,6 +1,9 @@
 /* jshint devel: true */
 /* global define: true, ActiveXObject: true */
 
+/**
+ * TODO: dont use DR namespace for swf path
+ **/
 define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player', 'dr-media-flash-object', 'dr-widget-media-dom-helper'], function (MediaClass, VideoPlayer, FlashObject, DomHelper) {
     'use strict';
 
@@ -33,19 +36,6 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
 
     MediaClass.inheritance(FlashPlayer, VideoPlayer);
 
-    FlashPlayer.prototype.getQuerystring = function (key, default_) {
-        if (default_===null) default_='';
-
-        key = key.replace(/[\[]/,'\\\[').replace(/[\]]/,'\\\]');
-        var regex = new RegExp('[\\?&]'+key+'=([^&#]*)');
-        var qs = regex.exec(window.location.href);
-
-        if(qs === null)
-            return default_;
-        else
-            return qs[1];
-
-    };
     FlashPlayer.prototype.build = function () {
         console.log('FlashPlayer.build');
 
@@ -104,7 +94,7 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
                 if(navigator.mimeTypes['application/x-shockwave-flash'].enabledPlugin){
                     return (navigator.plugins['Shockwave Flash 2.0'] || navigator.plugins['Shockwave Flash']).description.replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
                 }
-            } catch(e) {}
+            } catch(error) { console.error('Unable to detect flash player version'); }
         }
 
         return '0,0,0';
@@ -135,11 +125,12 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
         if (!HLSpath)
             return;
 
-        var HlsPathMessage = new Element('a', {
-            html : 'Direkte sti til stream',
+        var streamLink = DomHelper.newElement('a', {
+            text : 'Direkte sti til stream',
             href : HLSpath
+        });
+        errorContainer.appendChild(streamLink);
 
-        }).inject(errorContainer);
     };
     FlashPlayer.prototype.postBuild = function () {
         this.containerHtmlCache = this.options.element.innerHTML;
@@ -159,9 +150,9 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
         var swfUrl = '';
         
         if (this.getQuerystring('testplayer', '') == 'true') {
-            swfUrl = DR.TV.basePath + '/assets/swf/program-player-test.swf' + queryString;
+            swfUrl = '/assets/swf/program-player-test.swf' + queryString;
         } else {
-            swfUrl = DR.TV.basePath + '/assets/swf/program-player.swf' + queryString;
+            swfUrl = '/assets/swf/program-player.swf' + queryString;
         }
         
         var self = this;

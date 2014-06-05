@@ -1,20 +1,21 @@
 /* jshint devel: true */
 /* global define: true */
 
-define("dr-media-player-factory", [
-    "dr-widget-media-dom-helper",
-    "dr-media-flash-video-player",
-    "dr-media-html5-video-player",
-    "dr-media-flash-audio-player",
-    "dr-media-html5-audio-player",
-    "dr-media-gemius-implementation",
-    "dr-media-psdb-utilities",
-    "dr-media-conviva-implementation",
-    "dr-media-sola-implementation",
-    "dr-media-springstreams-implementation"
+define('dr-media-player-factory', [
+    'dr-widget-media-dom-helper',
+    'dr-media-abstract-player',
+    'dr-media-flash-video-player',
+    'dr-media-html5-video-player',
+    'dr-media-flash-audio-player',
+    'dr-media-html5-audio-player',
+    'dr-media-gemius-implementation',
+    'dr-media-psdb-utilities',
+    'dr-media-conviva-implementation',
+    'dr-media-sola-implementation',
+    'dr-media-springstreams-implementation'
     
-], function ( DomHelper, FlashPlayer, Html5Player, FlashAudioPlayer, Html5AudioPlayer, GemiusImplementation, PsdbUtilities, ConvivaImplementation, SolaImplementation, SpringstreamsImplementation ) {
-    "use strict";
+], function ( DomHelper, AbstractPlayer, FlashPlayer, Html5Player, FlashAudioPlayer, Html5AudioPlayer, GemiusImplementation, PsdbUtilities, ConvivaImplementation, SolaImplementation, SpringstreamsImplementation ) {
+    'use strict';
 
     /*jshint browser:true, mootools:true*/
 
@@ -34,23 +35,11 @@ define("dr-media-player-factory", [
         return (a.volume !== 1);
     }
 
-    function getQuerystring(key, default_) {
-        if (default_==null) default_="";
-
-        key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-        var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
-        var qs = regex.exec(window.location.href);
-
-        if(qs == null)
-            return default_;
-        else
-            return qs[1];
-    }
-
     var PlayerFactory = {
         getPlayer: function (options) {
             
             var player, gemius, psdbUtilities, conviva,sola, springStreams;
+            var getQuerystring = AbstractPlayer.prototype.getQuerystring;
 
             if (options.type && options.type === 'audio') {
 
@@ -58,7 +47,7 @@ define("dr-media-player-factory", [
 
                 if (DomHelper.Browser.Platform.ios || getQuerystring('forceios') == 'true') {
                     //enable HLS streams for iPhone/iPad
-                    options.appData.linkType = "Ios";
+                    options.appData.linkType = 'Ios';
                     options.platform = DomHelper.Browser.Platform.name;
                 }
 
@@ -78,7 +67,7 @@ define("dr-media-player-factory", [
 
                 if (DomHelper.Browser.Platform.ios || DomHelper.Browser.Platform.android || (getQuerystring('forceandroid') == 'true') || (getQuerystring('forceios') == 'true') ) {
                     options.platform = 'all';
-                    options.appData.linkType = "ios";
+                    options.appData.linkType = 'ios';
 
                      if (getQuerystring('forceios') == 'true') {
                             options.appData.linkType = 'Ios';  
@@ -124,7 +113,7 @@ define("dr-media-player-factory", [
 });
 
 /* Legacy support */
-define("dr-widget-video-player-factory", ["dr-media-player-factory"], function(PlayerFactory) {
-    "use strict";
+define('dr-widget-video-player-factory', ['dr-media-player-factory'], function(PlayerFactory) {
+    'use strict';
     return PlayerFactory;
 });

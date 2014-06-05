@@ -5,7 +5,7 @@ define('dr-media-class', [], function () {
     'use strict';
 
     /**
-     * Merge two objects. "other" takes precedence.
+     * Merge two objects. 'other' takes precedence.
      * Arrays gets concated, trythy get copied, objects gets merged with the previous rules.
      */
     function mergeObject(existing, other) {
@@ -46,7 +46,7 @@ define('dr-media-class', [], function () {
                 }
             }
         }
-    };
+    }
 
     /**
     * Merges two arrays and return a array with unique items
@@ -61,7 +61,7 @@ define('dr-media-class', [], function () {
         }
 
         return a;
-    };
+    }
 
     var MediaClass = function() {
         this.listeners = {};
@@ -125,7 +125,7 @@ define('dr-media-class', [], function () {
                     min = min % 60;
                 }
 
-                return (hours > 0 || forceHours ? (hours < 10 ? "0" + hours : hours) + ":" : "") + (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec);
+                return (hours > 0 || forceHours ? (hours < 10 ? '0' + hours : hours) + ':' : '') + (min < 10 ? '0' + min : min) + ':' + (sec < 10 ? '0' + sec : sec);
             },
 
             /**
