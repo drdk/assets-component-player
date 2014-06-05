@@ -1,16 +1,19 @@
-/* jshint -W110 */
+/* jshint devel: true */
 /* global define: true */
 
-define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementation"], function (MediaClass, HashTimeCodeImplementation) {
+define("dr-media-abstract-player", ["dr-media-class"], function (MediaClass) {
     "use strict";
 
     var AbstractPlayer = function() {
         MediaClass.call(this);
         this.resourceResult = null;
         this.programcardResult = null;
+        this.assetsLinksResult = null;
         this.hasDuration = null;
         this.hashTimeCodeInstance = null;
         this._forceSeekIntervalId = null;
+
+        console.log('AbstractPlayer.contructor');
 
         this.setOptions({
             appData: {
@@ -19,6 +22,9 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
                     identifier: "p9AwR.N.S86s_NjaJKdww7b.fdp8ky90ZnrKpgLHOUn.s7",
                     hitcollector: "http://sdk.hit.gemius.pl",
                     channelName: "drdk"
+                },
+                urls: {
+                    geoHandlerUrl: "/DR/DR.CheckIP.IsDanish/"
                 },
                 linkType: "Streaming",
                 fileType: "mp3"
@@ -29,15 +35,13 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
             enableHashTimeCode: false
         });
 
-        //TODO: store instance
+        //TODO: store instance on dom element
 
         this.mediaPlayerId = ++AbstractPlayer.$mediaPlayerId;
 
-        if (this.options.enableHashTimeCode) {
-            this.hashTimeCodeInstance = new HashTimeCodeImplementation(this);
-        }
-
-        console.log("AbstractPlayer constructor");
+        window.DR = window.DR || {};
+        window.DR.TV = window.DR.TV || {};
+        window.DR.TV.playerInstance = this;
     };
     MediaClass.inheritance(AbstractPlayer, MediaClass);
 
@@ -47,7 +51,6 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
     // public methods:
 
     AbstractPlayer.prototype.ensureResource = function (resourceReady, scope) {
-        console.log('AbstractPlayer.ensureResource ' + this.hasResource());
         if (this.hasResource()) {
             if (scope) {
                 resourceReady.call(scope);
@@ -67,10 +70,13 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
             //debug replace:
             if (document.location.host != "www.dr.dk") {
                 url = url.replace("www.dr.dk", document.location.host);
+                url = url.replace("/mu/programcard", "/tv/api/programcard");
             }
             this.json(url, function(result){
                 if (result.Data) {
                     this.programcardResult = result.Data[0];
+                } else if (result.Links) {
+                    this.assetsLinksResult = result.Links;
                 } else {
                     this.resourceResult = result;
                 }
@@ -82,8 +88,8 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
                 }
                 this.fireEvent("resourceReady");
             }, function (status) {
-                //this.displayError("defaultMsg", "State: " + status + " " + url);
-                console.log(status);
+                this.displayError("defaultMsg", "State: " + status + " " + url);
+                // console.log(status);
             }, this);
         }
     };
@@ -99,8 +105,9 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
             this.fireEvent("resourceLoading");
             this.json(url, function (result) {
                 this.options.videoData.channels = [];
-                for (var i=0; i<result.Data.length; i++) {
-                    var c = result.Data[i];
+                for (var i=0; i<result.length; i++) {
+
+                    var c = result[i];
                     if (c.StreamingServers) {
                         var logo = "";
                         if (c.SourceUrl && this.options.appData.urls.channelLogoUrl) {
@@ -116,7 +123,8 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
                             "slug": c.Slug,
                             "url": c.Url,
                             "logo": logo,
-                            "servers": []
+                            "servers": [],
+                            "webChannel": c.WebChannel === true
                         };
                         for (var j = 0; j < c.StreamingServers.length; j++) {
                             var s = c.StreamingServers[j];
@@ -224,7 +232,9 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
     AbstractPlayer.prototype.duration = function () {
         if (this.resourceResult) {
             return this.resourceResult.durationInMilliseconds / 1000;
-        } else if (this.programcardResult) {
+        } else if (this.assetsLinksResult) {
+            return this.options.videoData.durationInMilliseconds / 1000;
+        } else if (this.programcardResult && this.programcardResult.Assets) {
             var resource;
             for (var i =0; i < this.programcardResult.Assets.length; i++) {
                 var item = this.programcardResult.Assets[i];
@@ -243,7 +253,9 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
     AbstractPlayer.prototype.productionNumber = function () {
         if (this.resourceResult) {
             return this.resourceResult.productionNumber;
-        } else if (this.programcardResult) {
+        } else if (this.assetsLinksResult) {
+            return this.options.videoData.productionNumber;
+        } else if (this.programcardResult && this.programcardResult.ProductionNumber) {
             return this.programcardResult.ProductionNumber;
         } else if (this.options.videoData.productionNumber) {
             return this.options.videoData.productionNumber;
@@ -251,12 +263,46 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
             return "00000000000";
         }
     };
+    AbstractPlayer.prototype.resourceSlug = function () {
+        // create slug for old getResource handler
+        if (this.programcardResult) {
+            return this.programcardResult.Slug;
+        } else if (this.resourceResult && this.resourceResult.name) {
+            var slug = this.resourceResult.name.toLowerCase();
+            slug = slug.replace(/[^\-a-zA-Z0-9,&\s]+/ig, '');
+            slug = slug.replace(/[\s|\-|\_]+/gi, "-");
+            return slug.substr(0, 40);
+        } else if (this.options.videoData.episodeSlug) {
+            return this.options.videoData.episodeSlug;
+        } else if (this.productionNumber() !== '00000000000') {
+            return this.productionNumber();
+        } else if (this.resourceResult && this.resourceResult.resourceId) {
+            return 'resourceId:' + this.resourceResult.resourceId;
+        } else {
+            return '';
+        }
+    };
     AbstractPlayer.prototype.hasResource = function () {
-        return (this.resourceResult !== null || this.programcardResult !== null);
+        return (this.resourceResult !== null || this.programcardResult !== null || this.assetsLinksResult !== null);
     };
     AbstractPlayer.prototype.links = function () {
         if (this.resourceResult) {
             return this.resourceResult.links;
+        } else if (this.assetsLinksResult) {
+            var result = [];
+            for (var j = 0; j < this.assetsLinksResult.Links.length; j++) {
+                var link = this.assetsLinksResult.Links[j];
+                result.push({
+                    uri: link.Uri,
+                    linkType: link.Target,
+                    fileType: link.FileFormat,
+                    bitrateKbps: link.Bitrate,
+                    width: link.Width,
+                    height: link.Height
+                });
+            }
+            return result;
+
         } else if (this.programcardResult) {
             var resource;
             for (var i = 0; i < this.programcardResult.Assets.length; i++) {
@@ -354,33 +400,30 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
     AbstractPlayer.prototype.onBufferingComplete = function (position) {
         this.fireEvent('bufferingComplete', position);
     };
-    AbstractPlayer.prototype.onBeforeSeek = function () {
-        console.log('AbstractPlayer:onBeforeSeek');
+    AbstractPlayer.prototype.onBeforeSeek = function (position) {
         this.fireEvent('beforeSeek', position);
     };
-    AbstractPlayer.prototype.onAfterSeek = function () {
+    AbstractPlayer.prototype.onAfterSeek = function (position) {
         this.fireEvent('afterSeek', position);
     };
     AbstractPlayer.prototype.onComplete = function () {
         this.fireEvent('complete');
     };
-    AbstractPlayer.prototype.changeChannel = function () {
+    AbstractPlayer.prototype.changeChannel = function (channelId) {
         this.fireEvent('changeChannel', channelId);
         this.channelHasChanged = true;
     };
     AbstractPlayer.prototype.changeContent = function (programSLUG, programSerieSlug) {
-        this.fireEvent('changeContent', {'programSLUG': programSLUG, 'programSerieSlug': programSerieSlug});
+        this.fireEvent('changeContent', {'programSLUG':programSLUG, 'programSerieSlug':programSerieSlug});
         this.contentHasChanged = true;
     };
     AbstractPlayer.prototype.clearContent = function () {
         this.fireEvent('clearContent');
-        try {
-            if (this.options.element.getChildren().length() > 0) {
-                this.options.element.getChildren().destroy();
-            }
-        } catch (e) {
-            this.options.element.innerHTML = ''; //IE friendly disposing of flash player
-        }
+
+        if (!this.options.element)
+                return;
+
+        this.options.element.innerHTML = ''; //IE friendly disposing of flash player
     };
     AbstractPlayer.prototype.logError = function (errorCode) {
         if (this.options.logging && this.options.logging.errorLogUrl !== null) {
@@ -404,21 +447,21 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
         if (this._forceSeekIntervalId) {
             this._forceSeekComplete();
         }
-        this._forceSeekIntervalId = this._forceSeek.periodical(100, this, value);
-        this._forceSeek(value);
+        this._forceSeekIntervalId = setInterval(this._forceSeek, 1000, this, value);
+        this._forceSeek(this, value);
     };
-    AbstractPlayer.prototype._forceSeek = function (value) {
+    AbstractPlayer.prototype._forceSeek = function (player, value) {
         var seconds, distance, pos, seekResult;
-        seekResult = this._seek(value);
+        seekResult = player._seek(value);
         if (typeof(value) === 'string') {
-            seconds = this.timeCodeConverter.timeCodeToSeconds(value);
+            seconds = player.timeCodeConverter.timeCodeToSeconds(value);
         } else {
-            seconds = value * this.duration();
+            seconds = value * player.duration();
         }
-        pos = this.position();
+        pos = player.position();
         distance = Math.abs(seconds - pos);
         if (distance < 0.1 || seekResult || !value) {
-            this._forceSeekComplete();
+            player._forceSeekComplete();
         }
 
     };
@@ -427,12 +470,14 @@ define("dr-media-abstract-player", ["dr-media-class", "dr-media-hash-implementat
         this._forceSeekIntervalId = null;
     };
     AbstractPlayer.prototype.queryGeofilter = function () {
-        this.json('http://geo.dr.dk/DR/DR.CheckIP.IsDanish/', this.handleGeoResponse, null, this);
+        this.json(this.options.appData.urls.geoHandlerUrl, this.handleGeoResponse, this.handleGeoResponseFail, this);
     };
     AbstractPlayer.prototype.handleGeoResponse = function (isInDenmark) {
          console.log('handleGeoResponse() not implemented. Must be overridden in sub class ' + isInDenmark);
     };
-    
+    AbstractPlayer.prototype.handleGeoResponseFail = function (status) {
+        this.displayError("defaultMsg", "Failed to load IP check ("+status+")");
+    };
 
     return AbstractPlayer;
 });

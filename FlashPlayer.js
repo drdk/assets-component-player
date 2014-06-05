@@ -1,41 +1,43 @@
-/* jshint -W110 */
-/* global define: true */
+/* jshint devel: true */
+/* global define: true, ActiveXObject: true */
 
-define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player", "dr-media-flash-object"], function (MediaClass, VideoPlayer, FlashObject) {
-    "use strict";
+define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player', 'dr-media-flash-object', 'dr-widget-media-dom-helper'], function (MediaClass, VideoPlayer, FlashObject, DomHelper) {
+    'use strict';
 
     function FlashPlayer (options) {
+        
         VideoPlayer.call(this, options);
 
         this.setOptions({
             'appData': {
                 'errorMessages': {
                     'obsolete_flash_player': 'Du skal have <a href="http://get.adobe.com/flashplayer/">Adobe Flash Player 10 eller nyere</a> installeret for at se denne video.'
-
                 },
                 bufferSettings: {
                     dynamicStreamBufferTime: 3,
                     staticStreamBufferTime: 3
-                }
+                },
+                enableHashTimeCode: false
             }
         });
 
         if (options) {
             this.setOptions(options);
         }
-
         this.buildPreview();
 
-        console.log("FlashPlayer constructor");
+        if (this.options.appData.isPopup) {
+            this.initializePopup();
+        }
     }
 
     MediaClass.inheritance(FlashPlayer, VideoPlayer);
 
     FlashPlayer.prototype.getQuerystring = function (key, default_) {
-        if (default_===null) default_="";
+        if (default_===null) default_='';
 
-        key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-        var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
+        key = key.replace(/[\[]/,'\\\[').replace(/[\]]/,'\\\]');
+        var regex = new RegExp('[\\?&]'+key+'=([^&#]*)');
         var qs = regex.exec(window.location.href);
 
         if(qs === null)
@@ -45,10 +47,11 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
 
     };
     FlashPlayer.prototype.build = function () {
-        console.log("FlashPlayer.build");
-        if (Browser.Plugins.Flash.version < 10) {
+        console.log('FlashPlayer.build');
+
+        if (FlashPlayer.isFlashOutdated()) {
             // if this is a live stream we need to load the live data first, to be able to give the user an HLS stream
-            if (this.options.videoData.videoType === "live") {
+            if (this.options.videoData.videoType === 'live') {
                 this.ensureLiveStreams(this.showFlashErrorMessage, this);
             } else {
                 this.showFlashErrorMessage();
@@ -63,27 +66,70 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
         }
         VideoPlayer.prototype.build.call(this);
     };
+    FlashPlayer.isFlashOutdated =  function() {
+        return FlashPlayer.getFlashMajorVersion() < 10 || (FlashPlayer.getFlashMajorVersion() == 10 && FlashPlayer.getFlashMinorVersion() < 2);
+    };
+    FlashPlayer.getFlashMajorVersion = function() {
+        var fullVersion = FlashPlayer.getFlashFullVersion();
+        return fullVersion.split(',')[0];
+    };
+    FlashPlayer.getFlashMinorVersion = function() {
+        var fullVersion = FlashPlayer.getFlashFullVersion();
+
+        if (fullVersion.split(',').length > 1) {
+            return fullVersion.split(',')[1];
+        }
+
+        return '0';
+    };
+    FlashPlayer.getFlashFullVersion = function() {
+        // ie
+        try {
+            try {
+                // avoid fp6 minor version lookup issues
+                // see: http://blog.deconcept.com/2006/01/11/getvariable-setvariable-crash-internet-explorer-flash-6/
+                var axo = new ActiveXObject('ShockwaveFlash.ShockwaveFlash.6');
+                try {
+                    axo.AllowScriptAccess = 'always';
+                } catch(e) {
+                    return '6,0,0';
+                }
+            } catch(e) {
+            }
+
+            return new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version').replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
+            // other browsers
+        } catch(e) {
+            try {
+                if(navigator.mimeTypes['application/x-shockwave-flash'].enabledPlugin){
+                    return (navigator.plugins['Shockwave Flash 2.0'] || navigator.plugins['Shockwave Flash']).description.replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
+                }
+            } catch(e) {}
+        }
+
+        return '0,0,0';
+    };
     FlashPlayer.prototype.showFlashErrorMessage = function () {
         this.displayError('obsolete_flash_player');
         var links = this.links();
-        var HLSpath = "";
-        var errorContainer = this.options.element.getElement('.wrapper');
+        var HLSpath = '';
+        var link;
+        var errorContainer = this.options.element.querySelector('.wrapper');
 
-        if (this.options.videoData.videoType === "live") {
+        if (this.options.videoData.videoType === 'live') {
             if (!this.getChannel())
                 return;
-
-            this.getChannel().servers.each(function(link) {
-                if(link.linkType.toLowerCase() == "hls" && link.qualities.length > 0 && link.qualities[0].streams.length > 0) {
+            for (link in this.getChannel().servers) {
+                if(link.linkType.toLowerCase() == 'hls' && link.qualities.length > 0 && link.qualities[0].streams.length > 0) {
                     HLSpath = link.server + '/' + link.qualities[0].streams[0];
                 }
-            });
+            }
         } else {
-            links.each(function(link) {
-                if(link.linkType.toLowerCase() == "hls") {
+            for (link in links) {
+                if(link.linkType.toLowerCase() == 'hls') {
                     HLSpath = link.uri;
-                }
-            });
+                }                
+            }
         }
 
         if (!HLSpath)
@@ -96,8 +142,7 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
         }).inject(errorContainer);
     };
     FlashPlayer.prototype.postBuild = function () {
-        console.log("FlashPlayer.postBuild");
-        this.containerHtmlCache = this.options.element.get('html');
+        this.containerHtmlCache = this.options.element.innerHTML;
 
         var splittedHref = window.location.href.split('#!/');
         if (splittedHref.length > 1 && splittedHref[1].length > 1) {
@@ -106,23 +151,25 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
         }
 
         this.clearContent();
-        var flashWrapper = new Element('div', {'class':'image-wrap ratio-16-9 flash-wrap'}).inject(this.options.element);
+        var flashWrapper = DomHelper.newElement('div', {'class':'image-wrap ratio-16-9 flash-wrap'});
+        this.options.element.appendChild(flashWrapper);
 
         // IE8 JS cannot communicate with swiff obj if using cached swf. So with IE8 we always want to avoid used the cached version.
-        var queryString = Browser.ie8 ? '?cachekill=' + Date.now() : '?cachekill=20131003';
+        var queryString = DomHelper.Browser.ie8 ? '?cachekill=' + Date.now() : '?cachekill=20131003';
         var swfUrl = '';
         
         if (this.getQuerystring('testplayer', '') == 'true') {
-            swfUrl = '/assets/swf/program-player-test.swf' + queryString;
+            swfUrl = DR.TV.basePath + '/assets/swf/program-player-test.swf' + queryString;
         } else {
-            swfUrl = '/assets/swf/program-player.swf' + queryString;
+            swfUrl = DR.TV.basePath + '/assets/swf/program-player.swf' + queryString;
         }
         
+        var self = this;
         this.swiff = new FlashObject(swfUrl, {
             container: flashWrapper,
             height: '100%',
             width: '100%',
-            version: "11.0.0",
+            version: '11.0.0',
             params: {
                 bgcolor: '#000000',
                 AllowScriptAccess: 'sameDomain',
@@ -130,27 +177,27 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
                 wMode: 'direct'
             },
             vars: {
-                appData: JSON.encode(this.options.appData),
-                videoData: JSON.encode(this.options.videoData),
-                programcardResult: JSON.encode(this.programcardResult)
+                appData: JSON.stringify(this.options.appData),
+                videoData: JSON.stringify(this.options.videoData),
+                programcardResult: JSON.stringify(this.programcardResult)
             },
             callBacks: {
-                as_play: this.onPlay.bind(this),
-                as_pause: this.onPause.bind(this),
-                as_buffering: this.onBuffering.bind(this),
-                as_buffering_complete: this.onBufferingComplete.bind(this),
-                as_seekBefore: this.onBeforeSeek.bind(this),
-                as_seekComplete: this.onAfterSeek.bind(this),
-                as_complete: this.onComplete.bind(this),
-                as_display_error: this.displayError.bind(this),
-                as_changeChannel: this.changeChannel.bind(this),
-                as_durationChange: this.onDurationChange.bind(this),
-                as_setFullscreen: (function (value) {
-                    this.options.appData.isFullscreen = value;
-                }).bind(this),
-                as_changeODContent: this.changeContent.bind(this),
-                as_popUp: this.handlePopupRequest.bind(this),
-                as_queryGeofilter: this.queryGeofilter.bind(this)
+                as_play: function(){ self.onPlay.apply(self, arguments); }, //this.onPlay,
+                as_pause: function(){ self.onPause.apply(self, arguments); },
+                as_buffering: function(){ self.onBuffering.apply(self, arguments); },
+                as_buffering_complete: function(){ self.onBufferingComplete.apply(self, arguments); },
+                as_seekBefore: function(){ self.onBeforeSeek.apply(self, arguments); },
+                as_seekComplete: function(){ self.onAfterSeek.apply(self, arguments); },
+                as_complete: function(){ self.onComplete.apply(self, arguments); },
+                as_display_error: function(){ self.displayError.apply(self, arguments); },
+                as_changeChannel: function(){ self.changeChannel.apply(self, arguments); },
+                as_durationChange: function(){ self.onDurationChange.apply(self, arguments); },
+                as_setFullscreen: function (value) {
+                    self.options.appData.isFullscreen = value;
+                },
+                as_changeODContent: function(){ self.changeContent.apply(self, arguments); },
+                as_popUp: function(){ self.handlePopupRequest.apply(self, arguments); },
+                as_queryGeofilter: function(){ self.queryGeofilter.apply(self, arguments); }
             }
         });
         
@@ -162,38 +209,37 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
             }
         }
 
-        // DR Login modal events:
-        document.body.addEvents({
-            'modal_open': this.onHtmlModalOpen.bind(this),
-            'modal_close': this.onHtmlModalClose.bind(this)
-        });
+        function onHtmlModalOpen () {
+            clearTimeout(self.showPlayerTimer);
+            if (self.swiff !== null) {
+                try { //IE8 throws exception
+                        self.pause();
+                } catch (e) {} 
+                self.detach();
+            }
+        }
+        function onHtmlModalClose () {
+            self.showPlayerTimer = self.reattach.delay(100, self);
+        }
+
+        DomHelper.on(document.body, 'modal_open', onHtmlModalOpen);
+        DomHelper.on(document.body, 'modal_close', onHtmlModalClose);
+
         // AddThis modal events:
         if (window.addthis) {
-            window.addthis.addEventListener('addthis.menu.open', this.onHtmlModalOpen.bind(this));
-            window.addthis.addEventListener('addthis.menu.close', this.onHtmlModalClose.bind(this));
+            window.addthis.addEventListener('addthis.menu.open', onHtmlModalOpen);
+            window.addthis.addEventListener('addthis.menu.close', onHtmlModalClose);
         }
         this.options.appData.controlsHeight = 32;
         this.updateElementHeight();
         this.buildAccessabilityControls();
     };
-    FlashPlayer.prototype.onHtmlModalOpen = function () {
-        clearTimeout(this.showPlayerTimer);
-        if (this.swiff !== null) {
-            try { //IE8 throws exception
-                    this.pause();
-            } catch (e) {} 
-            this.detach();
-        }
-    };
     FlashPlayer.prototype.swiffRemote = function () {
         if (this.swiff) {
             return this.swiff.remote.apply(this.swiff, arguments);
         } else {
-            console.error('FlashObject not created!');
+            console.error('FlashObject not created!', arguments);
         }
-    };
-    FlashPlayer.prototype.onHtmlModalClose = function () {
-        this.showPlayerTimer = this.reattach.delay(100, this);
     };
     FlashPlayer.prototype.play = function () {
         return this.swiffRemote('js_play');
@@ -202,7 +248,9 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
         return this.swiffRemote('js_pause');
     };
     FlashPlayer.prototype.position = function () {
-        return this.swiffRemote('js_position');
+        try {
+            return this.swiffRemote('js_position');
+        } catch (e) { return 0; }
     };
     FlashPlayer.prototype._seek = function (value) {
         try {
@@ -233,10 +281,12 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
             this.build();
         }
         var container = this.options.element;
-        if (container.hasClass('detached')) {
-            container.removeClass('detached');
+        if (DomHelper.hasClass(container, 'detached')) {
+            DomHelper.removeClass(container, 'detached');
         }
-        container.removeEvent('click', this.bindedClick);
+        if (this.bindedDetachedClickHandler) {
+            DomHelper.off(container, 'click', this.bindedDetachedClickHandler);
+        }
         this.fireEvent('reattached');
     };
     FlashPlayer.prototype.handlePopupRequest = function () {
@@ -248,7 +298,7 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
             window.close();
         } else {
             var url;
-            if (this.options.videoData.videoType === "live") {
+            if (this.options.videoData.videoType === 'live') {
                 url = this.options.appData.urls.popupUrl;
             } else {
                 url = this.options.appData.urls.popupUrl + '#!/' + this.currentTimeCode();
@@ -257,32 +307,33 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
             this.popup = window.open(url, 'popupPlayer', 'height=478,width=830,resizable=yes,scrollbars=no');
         }
     };
+    FlashPlayer.prototype.detachedClickHandler = function () {
+        if (this.popup) {
+            this.popup.close();
+        }
+        this.reattach();
+    };
     FlashPlayer.prototype.detach = function (isPopup) {
         var container, contentContainer;
         container = this.options.element;
         this.clearContent();
         if (isPopup) {
-            this.bindedClick = this.detachedContainerClick.bind(this);
-            container.addEvent('click', this.bindedClick);
-            container.addClass('detached');
+            this.bindedDetachedClickHandler = (function(_this){
+                return function () { _this.detachedClickHandler.call(_this); };
+            })(this);
+            DomHelper.on(container, 'click', this.bindedDetachedClickHandler);
+            DomHelper.addClass(container, 'detached');
 
-            contentContainer = new Element('div', { 'class': 'wrapper' });
-            contentContainer.adopt(new Element('h1', {
+            contentContainer = DomHelper.newElement('div', { 'class': 'wrapper' });
+            contentContainer.appendChild(DomHelper.newElement('h1', {
                 text: 'Luk popup!'
             }));
 
-            container.grab(new Element('div', { 'class': 'floater' }));
-            container.grab(contentContainer);
+            container.appendChild(DomHelper.newElement('div', { 'class': 'floater' }));
+            container.appendChild(contentContainer);
         }
         this.swiff = null;
         this.fireEvent('detached');
-    };
-    FlashPlayer.prototype.detachedContainerClick = function (event) {
-        if (this.popup !== null) {
-            this.popup.close();
-        } else {
-            this.reattach();
-        }
     };
     FlashPlayer.prototype.buildErrorDetails = function (errorDetails, info, errorCode) {
         if (!errorDetails)
@@ -318,15 +369,14 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
             this.logOutput = text + '\r\n' + this.logOutput;
         }
 
-        var downloadLinkElement = new Element('a', { html:'Hent fejlbeskrivelse' } );
-        downloadLinkElement.setProperty('download', this.getLogFileName());
-        downloadLinkElement.set('href', this.makeTextFile(this.logOutput));
+        var downloadLinkElement = DomHelper.newElement('a', { text:'Hent fejlbeskrivelse' } );
+        downloadLinkElement.setAttribute('download', this.getLogFileName());
+        downloadLinkElement.setAttribute('href', this.makeTextFile(this.logOutput));
 
         return downloadLinkElement;
     };
     FlashPlayer.prototype.makeTextFile = function (text) {
-        this.logTextFile = "data:text/plain," + encodeURIComponent(text);
-
+        this.logTextFile = 'data:text/plain,' + encodeURIComponent(text);
         return this.logTextFile;
     };
     FlashPlayer.prototype.getLogFileName = function () {
@@ -355,6 +405,26 @@ define("dr-media-flash-video-player", ["dr-media-class", "dr-media-video-player"
         } else {
             this.displayError('access_denied');
         }
+    };
+
+    FlashPlayer.prototype.initializePopup = function () {
+        if (window.opener !== null && window.opener.DR.TV.playerInstance !== null) {
+            window.opener.DR.TV.playerInstance.popupLoaded.call(window.opener.DR.TV.playerInstance);
+            DomHelper.on(window, 'unload', function () {
+                window.opener.DR.TV.playerInstance.popupUnloaded.call(window.opener.DR.TV.playerInstance, window.DR.TV.playerInstance.currentTimeCode());
+            });
+        }
+    };
+    FlashPlayer.prototype.popupLoaded = function () {
+        this.detach(true);
+    };
+    FlashPlayer.prototype.popupUnloaded = function (timecode) {
+        if(timecode){
+            var url=window.location.href.split('#!/')[0];
+            url=url+'#!/'+timecode;
+            window.location.replace(url);
+        }
+        this.reattach();
     };
 
 

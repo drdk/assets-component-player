@@ -1,13 +1,14 @@
-/* jshint -W110 */
+/* jshint devel: true */
 /* global define: true, _gaq: true */
 
-define("dr-media-html5-video-player", ["dr-media-video-player"], function (VideoPlayer) {
+define("dr-media-html5-video-player", ["dr-media-video-player", "dr-media-class", "dr-widget-media-dom-helper"], function (VideoPlayer, MediaClass, DomHelper) {
     "use strict";
 
 
     function Html5Player (options) {
-        VideoPlayer.call(this);
 
+        VideoPlayer.call(this, options);
+        
         this.setOptions({
             appData: {
                 defaultQuality: 250,
@@ -20,31 +21,36 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
             this.setOptions(options);
         }
 
+
         this.buildPreview();
+
     }
+    MediaClass.inheritance(Html5Player, VideoPlayer);
     
     Html5Player.prototype.updateOptions = function (options) {
         this.options.appData.autoPlay = true;
-        this.parent(options);
+        VideoPlayer.prototype.updateOptions.call(this, options);
         this.build();
     };
 
-    Html5Player.prototypebuildPreview = function () {
+    Html5Player.prototype.buildPreview = function () {
         //override AbstractPlayer.buildPreview:
         this.updateElementHeight();
         this.build();
     };
     
-    Html5Player.prototypebuild = function () {
+    Html5Player.prototype.build = function () {
         if (this.options.videoData.videoType === "ondemand") {
-            this.ensureResource(this.postBuild.bind(this));
+            this.ensureResource(this.postBuild, this);
         } else {
-            this.ensureLiveStreams(this.postBuild.bind(this));
+            this.ensureLiveStreams(this.postBuild, this);
         }
-        this.parent();
+        //this.parent();
+        VideoPlayer.prototype.build.call(this);
+
     };
 
-    Html5Player.prototypeinitializeEvents = function () {
+    Html5Player.prototype.initializeEvents = function () {
         this.videoElement.addEventListener("play", this.onPlay.bind(this), false);
         this.videoElement.addEventListener("pause", this.onPause.bind(this), false);
         this.videoElement.addEventListener("seeking", this.onBeforeSeek.bind(this), false);
@@ -56,6 +62,20 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
         this.videoElement.addEventListener("loadedmetadata", this.onMetaDataLoaded.bind(this), false);
     };
 
+
+    Html5Player.prototype.onBuffering = function () {
+        this.fireEvent('buffering', this.position());
+    };
+    Html5Player.prototype.onBufferingComplete = function () {
+        this.fireEvent('bufferingComplete', this.position());
+    };
+    Html5Player.prototype.onBeforeSeek = function () {
+        this.fireEvent('beforeSeek', this.position());
+    };
+    Html5Player.prototype.onAfterSeek = function () {
+        this.fireEvent('afterSeek', this.position());
+    };
+
     Html5Player.prototype.onMetaDataLoaded = function () {
         //Fire click event
         if (typeof _gaq !== "undefined") {
@@ -64,7 +84,7 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
     };
 
     Html5Player.prototype.postBuild = function () {
-        var src = this.getStream(this.options.appData.defaultQuality),poster;
+        var src = this.getStream(this.options.appData.defaultQuality), poster;
         if (src === null || src.length === 0) {
             // MU will return a program card with no resource links if the user is not in DK
             if (this.links().length === 0) {
@@ -81,46 +101,49 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
         } else {
             poster = this.getPosterImage();
         }
-        this.videoElement = new Element("video", {
+        this.videoElement = DomHelper.newElement("video", {
             "controls": "controls",
             "poster": poster,
             "preload": "none"
         });
 
-        this.videoElement.adopt(src.map(function (s){
-            return new Element("source", {
-                "src":s.stream,
-                "data-kbps":s.kbps
-            });
-        }));
+        for (var i=0; i < src.length; i++) {
+            var s = src[i],
+                e = DomHelper.newElement("source", {
+                    "src":s.stream,
+                    "data-kbps":s.kbps
+                });
+            this.videoElement.appendChild(e);
+        }
 
         //add error handling to last source element
-        var numSources = this.videoElement.getElements("source").length;
+        var numSources = this.videoElement.querySelectorAll("source").length;
         for (var i = 0; i < numSources; i++) {
-            var sourceElement = this.videoElement.getElements("source")[i];
+            var sourceElement = this.videoElement.querySelectorAll("source")[i];
 
             if (i == numSources - 1) {
+                var player = this;
                 sourceElement.onerror = (function(event) {
-                    //this.displayError("defaultMsg");
-                    this.queryGeofilter();
-                }).bind(this);
+                    player.queryGeofilter();
+                });
             }
         }
 
-        this.options.element.getChildren().destroy();
-        // this.videoElement.inject(this.options.element);
-        this.options.element.adopt(
-            new Element("div", {"class":"image-wrap ratio-16-9 video-wrap"}).adopt(
-                this.videoElement
-            )
-        );
+        this.options.element.innerHTML = "";
+        
+        //Planck: We don't need this wrapper for the HTML5 player
+        //var wrap = DomHelper.newElement("div", {"class":"image-wrap ratio-16-9 video-wrap"});
+        //wrap.appendChild(this.videoElement);
+        //this.options.element.appendChild(wrap);
+        this.options.element.appendChild(this.videoElement);
+
         this.initializeEvents();
         this.buildAccessabilityControls();
         this.addErrorHandling();
 
         if (this.options.appData.autoPlay) {
-            this.videoElement.set("autoplay", "autoplay");
-            this.play.delay(300, this);
+            this.videoElement.setAttribute("autoplay", "autoplay");
+            setTimeout(this.play.bind(this), 100); //ES5 bind is ok here, since IE8 will never initialize Html5Player
         }
     };
 
@@ -138,6 +161,10 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
 
     Html5Player.prototype.addErrorHandling = function () {
         this.videoElement.addEventListener("error", (function(e) {
+            if (!e.target.error) {
+                this.displayError("defaultMsg");
+                return;
+            }
             switch(e.target.error.code) {
                 case e.target.error.MEDIA_ERR_ABORTED:
                     this.displayError("defaultMsg", "MEDIA_ERR_ABORTED: The fetching process for the media resource was aborted by the user agent at the users request");
@@ -176,13 +203,10 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
     };
     Html5Player.prototype.onPause = function (event) {
         if (!this.ignoreNextPauseEvent) {
-            this.parent(event);
+            VideoPlayer.prototype.onPause.call(this, event);
+
         }
         this.ignoreNextPauseEvent = false;
-    };
-    Html5Player.prototype.onPlay = function () {
-
-        this.parent();
     };
 
     Html5Player.prototype.onTimeUpdate = function (event) {
@@ -192,7 +216,7 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
                     this.videoElement.currentTime = this.seekWhenReady;
                     this.seekWhenReady = null;
                 }
-            } catch (error) { }
+            } catch (error) { console.error(error); }
         }
     };
 
@@ -216,17 +240,17 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
         if (this.options.videoData.videoType === "live") {
             var servers = [];
 
-            servers = streams.servers.filter(function (s) {
+            servers = streams.servers.filter(function (s) { //TODO: filter
                 return s.linkType.toLowerCase() === "hls";
             });
 
             // If no HLS servers were found, move on to check for IOS servers
             if (servers.length === 0) {
-                servers = streams.servers.filter(function (s) {
+                servers = streams.servers.filter(function (s) { //TODO: filter
                     return s.linkType.toLowerCase() === "ios";
                 });
                 
-                var rtspServer = streams.servers.filter(function (s) {
+                var rtspServer = streams.servers.filter(function (s) { //TODO: filter
                     return s.linkType.toLowerCase() === "android";
                 })[0];
 
@@ -237,19 +261,19 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
 
             var qualities = [];
             for (var i=0; i < servers.length; i++) {
-                var stream = this.parent(servers[i].qualities, quality);
+                var stream = VideoPlayer.prototype.findClosestQuality.call(this, servers[i].qualities, quality);
                 qualities.push({stream: servers[i].server + "/" + stream.streams[0], kbps: stream.kbps});
             }
 
             return qualities;
         } else {
-            var hls = streams.filter(function (item){
+            var hls = streams.filter(function (item){ //TODO: fitler
                 return (item.linkType.toLowerCase() === "hls");
             });
-            var ios = streams.filter(function (item){
+            var ios = streams.filter(function (item){ //TODO: fitler
                 return (item.linkType === "Ios");
             });
-            var rtsp = streams.filter(function (item){
+            var rtsp = streams.filter(function (item){ //TODO: fitler
                 return (item.linkType === "Android");
             });
 
@@ -257,16 +281,16 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
             var stream;
 
             if (hls && hls.length > 0) {
-                stream = this.parent(hls, quality, "Ios");
+                stream = VideoPlayer.prototype.findClosestQuality.call(this, hls, quality, "Ios");
                 streams.push({stream: stream.uri, kbps: stream.bitrateKbps});
             } else {
                 // only add these if there were no hls streams
                 if (ios && ios.length > 0) {
-                    stream = this.parent(ios, quality, "Ios");
+                    stream = VideoPlayer.prototype.findClosestQuality.call(this, ios, quality, "Ios");
                     streams.push({stream: stream.uri, kbps: stream.bitrateKbps});
                 }
                 if (rtsp && rtsp.length > 0) {
-                    stream = this.parent(rtsp, quality, "Android");
+                    stream = VideoPlayer.prototype.findClosestQuality.call(this, rtsp, quality, "Android");
                     streams.push({stream: stream.uri, kbps: stream.bitrateKbps});
                 }
             }
@@ -279,14 +303,19 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
      * @return {Number} kbps
      */
     Html5Player.prototype.getCurrntBitrate = function () {
-        var result = this.videoElement.getChildren().filter(function (source){
-            return (source.get("src") === this.videoElement.currentSrc);
-        }.bind(this));
+        var result = [];
+        for (var i = 0; i < this.videoElement.children.length; i++) {
+            if (this.videoElement.children[i].getAttribute('src') === this.videoElement.currentSrc) {
+                result.push(this.videoElement.children[i]);
+            }
+        }
         if (result.length > 0) {
             var current = result[0];
             if (current) {
-                return current.get("data-kbps") || 0;
+                return current.getAttribute("data-kbps") || 0;
             }
+        } else {
+            return 0;
         }
 
     };
@@ -310,8 +339,8 @@ define("dr-media-html5-video-player", ["dr-media-video-player"], function (Video
         return 0;
     };
     Html5Player.prototype.duration = function () {
-         if (this.parent() !== 0) {
-            return this.parent();
+         if (VideoPlayer.prototype.duration.call(this) !== 0) {
+            return VideoPlayer.prototype.duration.call(this);
         } else if (this.videoElement) {
             return this.videoElement.duration;
         }

@@ -1,5 +1,5 @@
-/*jshint browser:true,devel:false*/
-/*global define */
+/* jshint devel: true */
+/* global define: true */
 
 define('dr-media-class', [], function () {
     'use strict';
@@ -18,7 +18,7 @@ define('dr-media-class', [], function () {
                 if (isArray(existing[prop])) { //TODO: isArray not supported in IE8
                     // array:
                     if (isArray(other[prop])) {
-                        existing[prop] = existing[prop].concat(other[prop]);
+                        existing[prop] = arrayUnique(existing[prop].concat(other[prop]));
                     } else {
                         //existing is array, but other is not...
                         throw 'Error merging array with non-array';
@@ -46,7 +46,22 @@ define('dr-media-class', [], function () {
                 }
             }
         }
-    }
+    };
+
+    /**
+    * Merges two arrays and return a array with unique items
+    */
+    function arrayUnique(array) {
+        var a = array.concat();
+        for(var i=0; i<a.length; ++i) {
+            for(var j=i+1; j<a.length; ++j) {
+                if(a[i] === a[j])
+                    a.splice(j--, 1);
+            }
+        }
+
+        return a;
+    };
 
     var MediaClass = function() {
         this.listeners = {};
@@ -145,15 +160,24 @@ define('dr-media-class', [], function () {
         }
         this.listeners[eventType].push({eh:eventHandler, s:scope});
     };
-    MediaClass.prototype.fireEvent = function (eventType, payload, eventLoop) {
-        var loop = eventLoop || true;
+    MediaClass.prototype.fireEvent = function (eventType, payload) {
         if (this.listeners[eventType]) {
             for (var i=0; i < this.listeners[eventType].length; i++) {
                 var handler = this.listeners[eventType][i];
-                var wrapper = function () {
-                    handler.eh.call(handler.s, payload);
-                };
-                if (loop) { setTimeout(wrapper, 0); } else { wrapper(); }
+                handler.eh.call(handler.s, payload);
+            }
+        }
+    };
+    MediaClass.prototype.removeEvent = function (eventType, eventHandler) {
+        var pos = -1;
+        if (this.listeners[eventType]) {
+            for (var i = 0; i < this.listeners[eventType].length; i++) {
+                if (eventHandler === this.listeners[eventType][i].eh) {
+                    pos = i; break;
+                }
+            }
+            if (pos > -1) {
+                this.listeners[eventType].splice(pos, 1);
             }
         }
     };
@@ -161,29 +185,27 @@ define('dr-media-class', [], function () {
         mergeObject(this.options, options);
     };
     MediaClass.prototype.json = function(url, successHandler, errorHandler, scope) {
-        console.log("MediaClass.json " + url);
-		var request = new XMLHttpRequest();
-		request.open('GET', url, true);
-		request.onreadystatechange = function() {
-			if (this.readyState === 4){
-                console.log("MediaClass.json ready " + this.readyState);
-				if (this.status >= 200 && this.status < 400){
-					var data = JSON.parse(this.responseText);
-					successHandler.call(scope, data);
-				} else {
-					errorHandler.call(scope, this.status);
-				}
-			}
-		};
-		request.send();
-		request = null;
-	};
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.onreadystatechange = function() {
+            if (this.readyState === 4){
+                if (this.status >= 200 && this.status < 400){
+                    var data = JSON.parse(this.responseText);
+                    successHandler.call(scope, data);
+                } else if (errorHandler) {
+                    errorHandler.call(scope, this.status);
+                }
+            }
+        };
+        request.send();
+        request = null;
+    };
 
-	MediaClass.inheritance = function (Child, Parent) {
+    MediaClass.inheritance = function (Child, Parent) {
         function F() {}
         F.prototype = Parent.prototype;
         Child.prototype = new F();
     };
 
-	return MediaClass;
+    return MediaClass;
 });

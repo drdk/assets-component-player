@@ -1,4 +1,7 @@
-define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "dr-lazyloader"], function (MediaClass, AbstractPlayer, LazyLoader) {
+/* jshint devel: true */
+/* global define: true */
+
+define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "dr-widget-media-dom-helper", "dr-media-hash-implementation"], function (MediaClass, AbstractPlayer, DomHelper, HashTimeCodeImplementation) {
     "use strict";
 
     function VideoPlayer (options) {
@@ -25,13 +28,12 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
                 controlsHeight: 0,
                 isFullscreen: false,
                 maintainContainerAspect: true,
-                fuillscreenChannelChooserEnabled: false,
                 popupEnabled: false,
                 fullscreenEnabled: true,
                 urls: {
                     cmsImagesPath: '/cmsimages/dynimage.drxml?file={0}&w={1}&h={2}&scaleafter=crop',
                     defaultImage: '/assets/img/video-player-default-image.png',
-                    liveStreams: '/tv/external/channels?mediaType=tv',
+                    liveStreams: '/mu-online/api/1.0/channel/all-active-dr-tv-channels',
                     channelLogoUrl: '/assets/img/logos/dr-logo-{id}-small.png'
                 }
             }
@@ -39,6 +41,10 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
 
         if (options) {
             this.setOptions(options);
+        }
+
+        if (this.options.enableHashTimeCode) {
+            this.hashTimeCodeInstance = new HashTimeCodeImplementation(this);
         }
 
         if (window) {
@@ -49,41 +55,45 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
             }
         }
 
-        console.log("VideoPlayer constructor");
-    }
+    };
+
     MediaClass.inheritance(VideoPlayer, AbstractPlayer);
 
     VideoPlayer.prototype.updateElementHeight = function () {
         if (this.options.appData.maintainContainerAspect) {
-            this.options.element.setStyle('height', (this.options.element.offsetWidth / 16 * 9) + this.options.appData.controlsHeight);
+            this.options.element.style.height = (this.options.element.offsetWidth / 16 * 9) + this.options.appData.controlsHeight;
         }
     };
+
     VideoPlayer.prototype.buildPreview = function () {
-        console.log("VideoPlayer.buildPreview");
         var imagePath, build;
+        
         if (this.options.appData.autoPlay) {
             this.build();
             return;
         }
+
         build = function () {
-            if ( (this.options.element.getElement('img') !== null)&&(this.options.element.getElement('img').get('src').length > 0) ) {
-                this.originalPosterImage = this.options.element.getElement('img').get('src');
-            }
+
+
+// TODO:  Mangler this.originalPosterImage
+//            if ( (this.options.element.getElementsByTagName('img')[0] !== null)&&(this.options.element.getElementsByTagName('img')[0].getAttribute('src').length > 0) ) {
+//                this.originalPosterImage = this.options.element.getElementsByTagName('img')[0].getAttribute('src');
+//            }
+
+
             this.clearContent();
             imagePath = this.getPosterImage();
-            var markup = new Element('a', {'href':'#', 'title':'Afspil video', 'class':'image-wrap ratio-16-9', 'aria-role':'button'}).adopt(
-                new Element('noscript', {'data-src':imagePath}).adopt(
-                    //new Element('img', {'src':imagePath}) //crashes IE8
-                ),
-                new Element('div', { 'class': 'dummy-controls' }).adopt(
-                    new Element('div', { 'class': 'play dr-icon-play' })
-                ),
-                new Element('div', { 'class': 'icon-wrap' }).adopt(
-                    new Element('span', { 'class': 'dr-icon-play-inverted-large' })
-                )
-            );
-            this.options.element.adopt(markup);
-            markup.addEvent('click', function (event) {
+            
+            var markup = document.createElement('a',{'href':'#', 'title':'Afspil video', 'class':'image-wrap ratio-16-9', 'aria-role':'button'} );
+            markup.innerHTML = ""+
+                "<noscript data-src='"+imagePath+"'></noscript>" +
+                "<div class='dummy-controls'><div class='play dr-icon-play'></div></div>" +
+                "<div class='icon-wrap'><div class='dr-icon-play-inverted-large'></div></div>" +
+                "";
+            this.options.element[0].appendChild(markup);
+
+            markup.addEventListener('click', function (event) {
                 event.stop();
 
                 //Fire click event
@@ -93,18 +103,24 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
 
                 this.options.appData.autoPlay = true;
                 this.build();
-            } .bind(this));
+            } .bind(this), false);
+
+
             this.options.appData.controlsHeight = 32;
             this.updateElementHeight();
+
+            /*
+            TODO lazyload
             window.fireEvent("dr-dom-inserted", [new Elements([markup]), ["dr-lazyloader"]]);
-        }.bind(this);
+            */
+        };
 
         switch (this.options.videoData.videoType) {
             case 'live':
-                build();
+                build.apply(this);
                 break;
-            case 'ondemand':
-                this.ensureResource(build);
+            case 'ondemand':  
+                this.ensureResource(build, this);
                 break;
         }
     };
@@ -115,29 +131,30 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
         }, this)[0];
     };
     VideoPlayer.prototype.buildAccessabilityControls = function () {
-        var container, play, pause, stop, forward, backwards;
-        container = new Element('div', { 'class': 'accessability-controls' });
-        container.inject(this.options.element);
-        play = new Element('button', { 'text': 'afspil video' }).addEvent('click', this.play.bind(this)).inject(container);
-        if (this.options.videoData.videoType === 'ondemand') {
-            pause = new Element('button', { 'text': 'pause video' }).addEvent('click', this.pause.bind(this)).inject(container);
-            forward = new Element('button', { 'text': 'spol frem i video' }).addEvent('click', function () {
-                this.seek(this.progress() + 0.1);
-            } .bind(this)).inject(container);
-            backwards = new Element('button', { 'text': 'spol tilbage i video' }).addEvent('click', function () {
-                this.seek(this.progress() - 0.1);
-            } .bind(this)).inject(container);
-        } else {
-            stop = new Element('button', { 'text': 'stop video' }).addEvent('click', this.pause.bind(this)).inject(container);
-        }
+        // TODO:
+        // var container, play, pause, stop, forward, backwards;
+        // container = new Element('div', { 'class': 'accessability-controls' });
+        // container.inject(this.options.element);
+        // play = new Element('button', { 'text': 'afspil video' }).addEvent('click', this.play.bind(this)).inject(container);
+        // if (this.options.videoData.videoType === 'ondemand') {
+        //     pause = new Element('button', { 'text': 'pause video' }).addEvent('click', this.pause.bind(this)).inject(container);
+        //     forward = new Element('button', { 'text': 'spol frem i video' }).addEvent('click', function () {
+        //         this.seek(this.progress() + 0.1);
+        //     } .bind(this)).inject(container);
+        //     backwards = new Element('button', { 'text': 'spol tilbage i video' }).addEvent('click', function () {
+        //         this.seek(this.progress() - 0.1);
+        //     } .bind(this)).inject(container);
+        // } else {
+        //     stop = new Element('button', { 'text': 'stop video' }).addEvent('click', this.pause.bind(this)).inject(container);
+        // }
     };
     VideoPlayer.prototype.displayError = function (errorCode, info, logOutput, errorDetails) {
+        
         this.logOutput = logOutput;
-        //if (window.console && console.log) console.log('logOutput: ' + logOutput);
         var container, paragraph, floater, log;
 
         container = this.options.element;
-        container.addClass('error');
+        DomHelper.addClass(container, 'error');
 
         this.clearContent();
 
@@ -149,7 +166,7 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
             headerText = this.options.appData.errorMessages['header_' + errorCode];
         }
 
-        var header = new Element('h3', {
+        var header = DomHelper.newElement('h3', {
             text: headerText
         });
 
@@ -157,26 +174,28 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
         if (paragraphText === null || paragraphText.length === 0) {
             paragraphText = this.options.appData.errorMessages.defaultMsg;
         }
-        paragraph = new Element('p', {
-            html: paragraphText
-        });
+        paragraph = DomHelper.newElement('p');
+        paragraph.innerHTML = paragraphText;
 
         var errorContainer = this.buildErrorContainer(info, errorCode, errorDetails, header, paragraph);
 
-        floater = new Element('div', {});
-        floater.addClass('floater');
-        container.grab(floater);
-        container.grab(errorContainer);
+        floater = DomHelper.newElement('div', {});
+        DomHelper.addClass(floater, 'floater');
+        container.appendChild(floater);
+        container.appendChild(errorContainer);
         this.logError(errorCode);
         this.fireEvent('displayError');
     };
     VideoPlayer.prototype.buildErrorContainer = function (info, errorCode, errorDetails, header, paragraph) {
-        var errorGfx = new Element('div', {});
-        errorGfx.addClass('gfx').addClass('dr-icon-alert');
+        var errorGfx = DomHelper.newElement('div', {});
+        DomHelper.addClass(errorGfx, 'gfx');
+        DomHelper.addClass(errorGfx, 'dr-icon-alert');
 
-        var errorContainer = new Element('div', {});
-        errorContainer.addClass('wrapper');
-        errorContainer.adopt(errorGfx, header, paragraph);
+        var errorContainer = DomHelper.newElement('div', {});
+        DomHelper.addClass(errorContainer, 'wrapper');
+        errorContainer.appendChild(errorGfx);
+        errorContainer.appendChild(header);
+        errorContainer.appendChild(paragraph);
 
         if (!this.isValidErrorDownloadBrowser())
             return errorContainer;
@@ -184,7 +203,7 @@ define("dr-media-video-player", ["dr-media-class", "dr-media-abstract-player", "
         if(errorCode != "obsolete_flash_player") { // Don't show error log if error is caused by obsolete flash version / no flash
             var detailsElement = this.buildErrorDetails(errorDetails, info, errorCode)
             if (detailsElement && detailsElement !== null) {
-                errorContainer.adopt(detailsElement);
+                errorContainer.appendChild(detailsElement);
             }
         }
 
