@@ -25,6 +25,15 @@ define('dr-widget-media-dom-helper', [], function () {
 			    el.detachEvent('on' + eventType, eventHandler);
 			}
 		},
+		cancelEvent: function(evnet) {
+			var e = event || window.event,
+                t = e.target || e.srcElement;
+            if(e.preventDefault) {
+                e.preventDefault();
+            } else {
+                e.returnValue = false;
+            }
+		},
 		newElement: function (tagName, attributes) {
 			var el = document.createElement(tagName);
 			if (attributes) {
