@@ -1,3 +1,9 @@
+/* jshint devel: true */
+/* global define: true */
+
+/**
+ * TODO: rewrite or remove Browser property
+ **/
 define('dr-widget-media-dom-helper', [], function () {
 
 	'use strict';
@@ -53,11 +59,19 @@ define('dr-widget-media-dom-helper', [], function () {
 		},
 		setAttributes: function (element, attributes) {
 			for (var s in attributes) {
-				attributes.hasOwnProperty(s) && s != 'text' && element.setAttribute(s, attributes[s]);
+				if (attributes.hasOwnProperty(s) && s != 'text') {
+					element.setAttribute(s, attributes[s]);
+				}
 			}
+		},
+		Browser: {
+			Platform: {
+				ios: ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false ),
+				android: ( navigator.userAgent.match(/android/g) ? true : false )
+			},
+			ie8: navigator.userAgent.toLowerCase().match(/msie 8/) ? true : false
 		}
 	};
 
 	return Helper;
-
 });
