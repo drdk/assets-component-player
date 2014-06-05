@@ -1,170 +1,163 @@
-define("dr-media-sola-implementation", function () {
-    "use strict";
+/* jshint devel: true */
+/* global define: true, require: true, akamaiSetVideoObject: true, akamaiHandleStreamSwitch:true, setAkamaiMediaAnalyticsData: true */
 
-    var SolaImplementation = new Class({
-        initialize: function (player) {
-            if (player.options.mediaType === 'audio') {
-                window.AKAMAI_MEDIA_ANALYTICS_CONFIG_FILE_PATH = 'http://ma403-r.analytics.edgesuite.net/config/beacon-5186.xml';
-            } else if (player.options.mediaType === 'video') {
-                window.AKAMAI_MEDIA_ANALYTICS_CONFIG_FILE_PATH = 'http://ma403-r.analytics.edgesuite.net/config/beacon-5118.xml';
-            } else {
+define('dr-media-sola-implementation', function () {
+    'use strict';
+
+    var SolaImplementation = function (player) {
+        
+        var self = this;
+
+        self.player = player;
+
+
+        if (player.options.mediaType === 'audio') {
+            window.AKAMAI_MEDIA_ANALYTICS_CONFIG_FILE_PATH = 'http://ma403-r.analytics.edgesuite.net/config/beacon-5186.xml';
+        } else if (player.options.mediaType === 'video') {
+            window.AKAMAI_MEDIA_ANALYTICS_CONFIG_FILE_PATH = 'http://ma403-r.analytics.edgesuite.net/config/beacon-5118.xml';
+        } else {
+            if (console) {
                 console.log('Unsupported mediaType received by SolaImplementation: ' + player.options.mediaType);
             }
+        }
 
-		    this.player = player;
-		    this.onPlay = this.bootstrap.bind(this);
-		    this.player.addEvent('play', this.onPlay);
-        },
-        bootstrap: function () {
-        	this.player.removeEvent('play', this.onPlay);
+        function bootstrap() {
+            self.player.removeEvent('play', bootstrap);
 
-            if (this.player.options.mediaType === 'audio') {
-                this.mediaElement = this.player.audioElement;
+            if (self.player.options.mediaType === 'audio') {
+                self.mediaElement = self.player.audioElement;
             } else {
-                this.mediaElement = this.player.videoElement;
+                self.mediaElement = self.player.videoElement;
             }
 
             require(['sola'], function (){
-                this.buildAndSendSolaMetadata();
-                console.log ("media element: " + this.mediaElement);
-                akamaiSetVideoObject(this.mediaElement);
+                buildAndSendSolaMetadata();
+                if (console) console.log ('media element: ' + self.mediaElement);
+                akamaiSetVideoObject(self.mediaElement);
                 akamaiHandleStreamSwitch();
-            }.bind(this));
-        },
-        getDeviceType : function() {
-            var deviceType  = "Other";
+            });
+        }
 
+        function getDeviceType () {
+            var deviceType  = 'Other';
             var userAgent = navigator.userAgent;
-               
             deviceType = userAgent;
-    
-                if (userAgent == null)
-                {
-                    return deviceType;
+            if (userAgent === null)
+            {
+                return deviceType;
+            }
+            if (userAgent.toLowerCase().indexOf('android') > -1) 
+            {
+                if (userAgent.toLowerCase() === 'Phone - Android') {    
+                } else {
+                    deviceType = 'Tablet - Android';
                 }
-                
-                if (userAgent.toLowerCase().indexOf("android") > -1) 
-                {
-                    if (userAgent.toLowerCase() === "Phone - Android")
-                    {
-                    } else 
-                    {
-                        deviceType = "Tablet - Android";
-                    }
 
-                } else if (userAgent.toLowerCase().indexOf("ipad") > -1) {
-                    deviceType = "Tablet - IOS";
-                } else if (userAgent.toLowerCase().indexOf("iphone") > -1) {
-                    deviceType = "Phone - IOS";
-                } else if (this.isWinTablet(userAgent)) {
-                    deviceType = "Tablet - Windows";
-                } else if (this.isWinPhone(userAgent)) {
-                    deviceType = "Phone - Windows";
-                } else if (userAgent.toLowerCase().indexOf("linux") > -1) {
-                    deviceType = "Computer - Linux";
-                } else if (userAgent.toLowerCase().indexOf("windows") > -1) {
-                    deviceType = "Computer - Windows";
-                } else if (userAgent.toLowerCase().indexOf("macintosh") > -1) {
-                    deviceType = "Computer - Mac";
-                }
-                
-            
+            } else if (userAgent.toLowerCase().indexOf('ipad') > -1) {
+                deviceType = 'Tablet - IOS';
+            } else if (userAgent.toLowerCase().indexOf('iphone') > -1) {
+                deviceType = 'Phone - IOS';
+            } else if (isWinTablet(userAgent)) {
+                deviceType = 'Tablet - Windows';
+            } else if (isWinPhone(userAgent)) {
+                deviceType = 'Phone - Windows';
+            } else if (userAgent.toLowerCase().indexOf('linux') > -1) {
+                deviceType = 'Computer - Linux';
+            } else if (userAgent.toLowerCase().indexOf('windows') > -1) {
+                deviceType = 'Computer - Windows';
+            } else if (userAgent.toLowerCase().indexOf('macintosh') > -1) {
+                deviceType = 'Computer - Mac';
+            }
             return deviceType;
-        },
-        getDeliveryType: function () 
-        {
-            var options = this.player.options;
+        }
 
+        function getDeliveryType () {
+            var options = self.player.options;
             if (options.videoData.videoType === 'live') {
-                var thisRef = this;
-                var channels = options.videoData.channels.filter(function(element){return element.slug === thisRef.player.options.videoData.channelId});
+                var channels = options.videoData.channels;// TODO .filter(function(element){return element.slug === thisRef.player.options.videoData.channelId});
                 if (channels.length > 0) {
                     var channel = channels[0];
 
-                    /**
-                     * If the channel has a logo and a url it must be a regular broadcast channel.
-                     * If the channel does not have these values it must be an event channel. Therefore deliveryType shoul be "L"
-                     */
-                    if (channel.logo.length > 0 && channel.url !== null) {
-                        return "T";
+                    if (channel.webChannel === true) {
+                        return 'L';
                     }
 
-                    return "L"
-                    
+                    return 'T';
                 }
 
                 // Weird. Channel is not in channel list
-                return "L";
+                return 'L';
             }
+            
+            return 'O';
+        }
 
-            return "O";
-        },
-        isWinTablet: function(userAgent)
-        {
-            return userAgent.toLowerCase().indexOf("windows nt") > -1 && userAgent.toLowerCase().indexOf("touch") > -1;
-        },
-        isWinPhone: function (userAgent)
-        {
-            return userAgent.toLowerCase().indexOf("windows phone") > -1;
-        },
-        buildAndSendSolaMetadata: function() {
-            var options = this.player.options;
+        function isWinTablet (userAgent) {
+            return userAgent.toLowerCase().indexOf('windows nt') > -1 && userAgent.toLowerCase().indexOf('touch') > -1;
+        }
+        function isWinPhone (userAgent) {
+            return userAgent.toLowerCase().indexOf('windows phone') > -1;
+        }
+        function buildAndSendSolaMetadata () {
+            var options = self.player.options;
             var eventName = '';
             
             if (options.videoData.videoType === 'live') {
                 eventName = options.videoData.channelId;
             } else {
-                if (this.player.productionNumber() !== null && this.player.productionNumber() !== undefined) {
-                    eventName = '[' + this.player.productionNumber() + '] ' + this.player.resourceSlug();
+                if (self.player.productionNumber() !== null && self.player.productionNumber() !== undefined) {
+                    eventName = '[' + self.player.productionNumber() + '] ' + self.player.resourceSlug();
                 } else {
-                    eventName = '[] ' + this.player.resourceSlug();
+                    eventName = '[] ' + self.player.resourceSlug();
                 }
             }
         
-            //var eventName = options.videoData.videoType === 'live' ? options.videoData.programSerieSlug :'[' + this.player.productionNumber() + '] ' + options.videoData.programmeName;
-            var playerId = "Global Assets 004.1";
-            var device = this.getDeviceType();
+            //var eventName = options.videoData.videoType === 'live' ? options.videoData.programSerieSlug :'[' + self.player.productionNumber() + '] ' + options.videoData.programmeName;
+            var playerId = '/tv HTML5 player v. 1.0';
+            var device = getDeviceType();
 
             var log = '';
-            log += "sola data:";
-            log += "\n\teventName: " + eventName;
-            log += "\n\tplayerId: " + playerId;
-            log += "\n\tdevice: " + device;
+            log += 'sola data:';
+            log += '\n\teventName: ' + eventName;
+            log += '\n\tplayerId: ' + playerId;
+            log += '\n\tdevice: ' + device;
 
             if (options.videoData.programSerieSlug !== undefined && options.videoData.programSerieSlug !== null) {
-                log += "\n\tshow: " + options.videoData.programSerieSlug;
-                setAkamaiMediaAnalyticsData("show", options.videoData.programSerieSlug);
+                log += '\n\tshow: ' + options.videoData.programSerieSlug;
+                setAkamaiMediaAnalyticsData('show', options.videoData.programSerieSlug);
             }
 
-            if (this.player.resourceSlug() !== '') {
-                setAkamaiMediaAnalyticsData("title", this.player.resourceSlug());
-                log += "\n\ttitle: " + this.player.resourceSlug();
+            if (self.player.resourceSlug() !== '') {
+                setAkamaiMediaAnalyticsData('title', self.player.resourceSlug());
+                log += '\n\ttitle: ' + self.player.resourceSlug();
             }
             
-            log += "\n\tdeliveryType: " + this.getDeliveryType();
+            log += '\n\tdeliveryType: ' + getDeliveryType();
           
-            setAkamaiMediaAnalyticsData("eventName", eventName);
+            setAkamaiMediaAnalyticsData('eventName', eventName);
             
             if (options.videoData.genre) {
-                setAkamaiMediaAnalyticsData("category", options.videoData.genre);
-                log += "\n\tcategory: " + options.videoData.genre;
+                setAkamaiMediaAnalyticsData('category', options.videoData.genre);
+                log += '\n\tcategory: ' + options.videoData.genre;
             }
 
-            setAkamaiMediaAnalyticsData("device", device);
-            setAkamaiMediaAnalyticsData("deliveryType", this.getDeliveryType());
-            setAkamaiMediaAnalyticsData("playerId", playerId);
+            setAkamaiMediaAnalyticsData('device', device);
+            setAkamaiMediaAnalyticsData('deliveryType', getDeliveryType());
+            setAkamaiMediaAnalyticsData('playerId', playerId);
             
             if (options.videoData.videoType === 'live') {
-                setAkamaiMediaAnalyticsData("channel", options.videoData.channelId);
-                log += "\n\tchannel: " + options.videoData.channelId;
+                setAkamaiMediaAnalyticsData('channel', options.videoData.channelId);
+                log += '\n\tchannel: ' + options.videoData.channelId;
             } else {
-                setAkamaiMediaAnalyticsData("productionNumber", this.player.productionNumber());
-                log += "\n\tproductionNumber: " + this.player.productionNumber();
+                setAkamaiMediaAnalyticsData('productionNumber', self.player.productionNumber());
+                log += '\n\tproductionNumber: ' + self.player.productionNumber();
             }
             
             console.log(log);
         }
-    });
+
+        self.player.addEvent('play', bootstrap);
+    };
 
     return SolaImplementation;
 });

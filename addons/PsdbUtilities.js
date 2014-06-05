@@ -1,34 +1,34 @@
-﻿define("dr-media-psdb-utilities", function () {
-    "use strict";
+﻿/* jshint devel: true */
+/* global define: true */
+
+define('dr-media-psdb-utilities', function () {
+    'use strict';
     //PSDB utilities, (should) contain every utility function that communicates with PSBD
-    var psdbUtilities = new Class({
-            initialize: function (player) {
+    var psdbUtilities = function(player) {
+        var self = this;
+        this.player = player;
 
-            this.player = player;
-            this.onPlayEvent = this.onPlay.bind(this);
-            this.player.addEvent('play', this.onPlayEvent);
-
-        },
-        //Registers PSDB view, used to show most played
-        registerView: function () {
-            var requesturl = this.player.options.videoData.trackviewurl;
-            var episodeurn = this.player.options.videoData.episodeurn;
+        function registerView () {
+            console.log('psdbUtilities.registerView');
+            var requesturl = self.player.options.videoData.trackviewurl;
+            var episodeurn = self.player.options.videoData.episodeurn;
 
             if(requesturl && episodeurn){
-                    new Request({
-                        url: requesturl,
-                        onFailure: function () {
-                        },
-                    }).post('id=' + episodeurn);
+                var httpRequest = new XMLHttpRequest();
+                httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                httpRequest.open('POST', requesturl);
+                httpRequest.send('id=' + encodeURIComponent(episodeurn));
             }
-        },
-        //Run onces when play event is fired, then unsubscribe to the event
-        onPlay: function () {
-            this.player.removeEvent('play', this.onPlayEvent);
-            this.registerView();
         }
-       
-    });
+
+        function onPlay () {
+            console.log('psdbUtilities.onPlay');
+            self.player.removeEvent('play', onPlay);
+            registerView();
+        }
+
+        self.player.addEvent('play', onPlay);
+    };
+
     return psdbUtilities;
 });
-
