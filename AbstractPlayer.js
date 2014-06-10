@@ -27,7 +27,8 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
                     geoHandlerUrl: '/DR/DR.CheckIP.IsDanish/'
                 },
                 linkType: 'Streaming',
-                fileType: 'mp3'
+                fileType: 'mp3',
+                assetType: 'default'
             },
             videoData: {
                 materialIdentifier: 'unknown'
@@ -232,23 +233,18 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
     AbstractPlayer.prototype.duration = function () {
         if (this.resourceResult) {
             return this.resourceResult.durationInMilliseconds / 1000;
-        } else if (this.assetsLinksResult) {
-            return this.options.videoData.durationInMilliseconds / 1000;
-        } else if (this.programcardResult && this.programcardResult.Assets) {
-            var resource;
-            for (var i =0; i < this.programcardResult.Assets.length; i++) {
-                var item = this.programcardResult.Assets[i];
-                if (item.Kind === 'VideoResource' || item.Kind === 'AudioResource') {
-                    resource = item;
-                }
-            }
-            if (!resource) {
-                return 0;
-            }
-            return resource.DurationInMilliseconds / 1000;
-        } else {
-            return 0;
         }
+
+        if (this.assetsLinksResult) {
+            return this.options.videoData.durationInMilliseconds / 1000;
+        }
+
+        var mediaAsset = this.getMediaAsset();
+        if (mediaAsset) {
+            return mediaAsset.DurationInMilliseconds / 1000;
+        }
+
+        return 0;
     };
     AbstractPlayer.prototype.productionNumber = function () {
         if (this.resourceResult) {
@@ -288,7 +284,9 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
     AbstractPlayer.prototype.links = function () {
         if (this.resourceResult) {
             return this.resourceResult.links;
-        } else if (this.assetsLinksResult) {
+        }
+
+        if (this.assetsLinksResult) {
             var result = [];
             for (var j = 0; j < this.assetsLinksResult.Links.length; j++) {
                 var link = this.assetsLinksResult.Links[j];
@@ -303,29 +301,14 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
             }
             return result;
 
-        } else if (this.programcardResult) {
-            var resource;
-            for (var i = 0; i < this.programcardResult.Assets.length; i++) {
-                var item = this.programcardResult.Assets[i];
-                if (item.Kind === 'VideoResource' || item.Kind === 'AudioResource') {
-                    resource = item;
-                }
-            }
-            var programcardLinks = [];
-            for (var k = 0; k < resource.Links.length; k++) {
-                var programcardLink = resource.Links[k];
-                programcardLinks.push({
-                    uri: programcardLink.Uri,
-                    linkType: programcardLink.Target,
-                    fileType: programcardLink.FileFormat,
-                    bitrateKbps: programcardLink.Bitrate,
-                    width: programcardLink.Width,
-                    height: programcardLink.Height
-                });
-            }
-            return programcardLinks;
-            
         }
+
+        var mediaAsset = this.getMediaAsset();
+
+        if (mediaAsset && this.mapLinks(mediaAsset) && this.mapLinks(mediaAsset).length > 0) {
+            return this.mapLinks(mediaAsset);
+        }
+        
         return [];
     };
     AbstractPlayer.prototype.getPosterImage = function () {
@@ -356,6 +339,61 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
             return this.options.appData.urls.defaultImage || '';
         }
     };
+    AbstractPlayer.prototype.getMediaAsset = function() {
+        var self = this;
+
+        if (!this.programcardResult) {
+            console.log('No programcardResult found!')
+            return null;
+        }
+
+        if (!this.programcardResult.Assets) {
+            console.log('No assets found on programcard')
+            return null;
+        }
+
+        var resources = this.programcardResult.Assets.filter(function (item) {
+            return item.Kind === "VideoResource" || item.Kind === "AudioResource";
+        });
+
+        if (!resources || resources.length === 0) {
+            console.log('No valid resources found: ' + resources);
+            return null;
+        }
+
+        var matchingTypeAssets = this.programcardResult.Assets.filter(function (item) {
+            return (item.Kind === "VideoResource" || item.Kind === "AudioResource") && item.Target === self.options.appData.assetType;
+        });
+
+        if (matchingTypeAssets && matchingTypeAssets.length > 0) {
+            return matchingTypeAssets[0];
+        }
+
+        return resources[0];
+    };
+    AbstractPlayer.prototype.mapLinks = function(assetData) {
+        if (!assetData) {
+            console.log('assetData not valid: ' + assetData);
+            return null;
+        }
+
+        if (!assetData.Links || assetData.Links.length === 0) {
+            console.log('no valid Links found in asset: ' + assetData.Links);
+            return null;
+        }
+
+        return assetData.Links.map(function (item) {
+            return {
+                "uri": item.Uri,
+                "linkType": item.Target,
+                "fileType": item.FileFormat,
+                "bitrateKbps": item.Bitrate,
+                "width": item.Width,
+                "height": item.Height
+            }
+        });
+    };
+    
     AbstractPlayer.prototype.forgetModel = function () {
             this.resourceResult = null;
             this.programcardResult = null;

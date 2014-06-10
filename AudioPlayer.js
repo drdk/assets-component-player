@@ -197,9 +197,38 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
 
                 item = this.getStreamByBitrate(quality);
             }
+
+            if (this.options.appData.useInternalResources === true) {
+                item.uri = this.convertToInternalResource(item.uri);
+            }
+
             console.log('AudioPlayer.getStream ' + item.uri);
             return item.uri;
         }
+    };
+    AudioPlayer.prototype.convertToInternalResource = function(link) {
+        var replaceable = [
+            "/all/clear/streaming/",
+            "/all/clear/download/",
+            "/all/token/streaming/",
+            "/all/token/download/",
+            "/dk/clear/streaming/",
+            "/dk/clear/download/",
+            "/dk/token/streaming/",
+            "/dk/token/download/"
+        ];
+        
+        for (var i=0, tot=replaceable.length; i < tot; i++) {
+            var item = replaceable[i];
+
+            link = link.replace(item, "/dr/clear/download/");
+        }
+
+        link = link.replace("/z/all/clear/streaming/", "/z/dr/clear/download/");
+
+        console.log("Link converted to internal resource path: " + link);
+
+        return link;
     };
     AudioPlayer.prototype.getBitratesFromODStream = function (stream) {
             // create bitrates array with default 'all bitrates' option

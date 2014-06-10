@@ -20,12 +20,26 @@ define('dr-media-hash-implementation', function () {
         self.ignoreNextHashchange = false;
 
 
-        function setHash (value) {
-            var hash = '#!/' + value;
+        function setTimeInHash ( timeCode ) {
+            console.log('setTimeInHash -> ' + timeCode);
+            var hash = '#!/' + timeCode;
+
+            if (document.location.hash.indexOf('#!/') === 0) {
+                var settings = document.location.hash.substring(3).split(',');
+                console.log('settings: ' + settings);
+
+                if (settings.length > 1) {
+                    settings.shift();
+
+                    var settingStr = settings.join(',')
+                    hash += ',' + settingStr;
+                }
+            }
+
             if (window.location.hash != hash) {
                 self.ignoreNextHashchange = true;
             }
-            window.location.replace('#!/' + value);
+            window.location.replace(hash);
         }
 
         function hashChangeHandler () {
@@ -41,12 +55,12 @@ define('dr-media-hash-implementation', function () {
         }
 
         function onPlay () {
-            setHash('');
+            setTimeInHash('');
         }
 
         function onPause () {
             if (self.player.options.videoData.videoType !== 'live') {
-                setHash(self.player.currentTimeCode());
+                setTimeInHash(self.player.currentTimeCode());
             }
         }
 
@@ -103,6 +117,8 @@ define('dr-media-hash-implementation', function () {
                                     self.player.options.appData.autoPlay = true;
                                     self.player.build();
                                 }
+                            case 'assetType':
+                                self.player.options.appData.assetType = value;
                             break;
                         }
                     }

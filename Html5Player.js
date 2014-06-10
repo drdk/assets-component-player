@@ -88,7 +88,7 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
         if (src === null || src.length === 0) {
             // MU will return a program card with no resource links if the user is not in DK
             if (this.links().length === 0) {
-                this.displayError('access_denied');
+                this.queryGeofilter();
             } else {
                 this.displayError('defaultMsg');
             }
