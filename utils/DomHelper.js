@@ -25,7 +25,7 @@ define('dr-widget-media-dom-helper', [], function () {
 			    el.detachEvent('on' + eventType, eventHandler);
 			}
 		},
-		cancelEvent: function(evnet) {
+		cancelEvent: function(event) {
 			var e = event || window.event,
                 t = e.target || e.srcElement;
             if(e.preventDefault) {
