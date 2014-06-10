@@ -32,6 +32,7 @@ define("dr-widget-audio-player", ["dr-media-player-factory"], function (PlayerFa
                 },
                 'appData': {
                     'autoPlay': (element.get('data-autoplay') == 'true'),
+                    'useInternalResources': element.get('data-internalResources') == 'true',
                     'gemius': {
                         'channelName': (element.get('data-gchannel') ? element.get('data-gchannel') : 'drdk')
                     }
