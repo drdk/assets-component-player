@@ -4,8 +4,8 @@
 define('dr-media-audio-player',
 ['dr-media-class', 'dr-media-abstract-player', 'dr-lazyloader',
     'audio-control-error-message', 'audio-control-settings-button', 'audio-control-play-button-overlay', 'audio-control-play-button',
-    'audio-control-progressbar', 'audio-control-volumeselector', 'audio-control-skip-buttons'],
-function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl) {
+    'audio-control-progressbar', 'audio-control-volumeselector', 'audio-control-skip-buttons', 'dr-media-hash-implementation'],
+function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl, HashTimeCodeImplementation) {
     'use strict';
 
     /*
@@ -58,6 +58,10 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
 
         if (options) {
             this.setOptions(options);
+        }
+        
+        if (this.options.enableHashTimeCode) {
+            this.hashTimeCodeInstance = new HashTimeCodeImplementation(this);
         }
 
         this.isTouch = ('ontouchmove' in window);
