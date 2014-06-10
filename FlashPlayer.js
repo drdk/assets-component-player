@@ -56,7 +56,7 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
         }
         VideoPlayer.prototype.build.call(this);
     };
-    FlashPlayer.isFlashOutdated =  function() {
+    FlashPlayer.prototype.isFlashOutdated = function() {
         return FlashObject.getFlashMajorVersion() < 10 || (FlashObject.getFlashMajorVersion() == 10 && FlashObject.getFlashMinorVersion() < 2);
     };
     FlashPlayer.prototype.showFlashErrorMessage = function () {
@@ -120,7 +120,7 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
             container: flashWrapper,
             height: '100%',
             width: '100%',
-            version: '11.0.0',
+            version: '10.2',
             params: {
                 bgcolor: '#000000',
                 AllowScriptAccess: 'sameDomain',

@@ -3,6 +3,7 @@
 
 define('dr-media-player-factory', [
     'dr-widget-media-dom-helper',
+    'dr-media-flash-object',
     'dr-media-abstract-player',
     'dr-media-flash-video-player',
     'dr-media-html5-video-player',
@@ -14,13 +15,13 @@ define('dr-media-player-factory', [
     'dr-media-sola-implementation',
     'dr-media-springstreams-implementation'
     
-], function ( DomHelper, AbstractPlayer, FlashPlayer, Html5Player, FlashAudioPlayer, Html5AudioPlayer, GemiusImplementation, PsdbUtilities, ConvivaImplementation, SolaImplementation, SpringstreamsImplementation ) {
+], function ( DomHelper, FlashObject, AbstractPlayer, FlashPlayer, Html5Player, FlashAudioPlayer, Html5AudioPlayer, GemiusImplementation, PsdbUtilities, ConvivaImplementation, SolaImplementation, SpringstreamsImplementation ) {
     'use strict';
 
     /*jshint browser:true, mootools:true*/
 
     function hasFlash() {
-        return FlashPlayer.isFlashOutdated();
+        return FlashObject.getFlashMajorVersion() > 9;
     }
 
     function canPlayMp3() {

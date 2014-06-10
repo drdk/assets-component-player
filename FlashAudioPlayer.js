@@ -70,6 +70,7 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
             
             this.swiff = new FlashObject(swfUrl, { //TODO: Swiff
                 container: swiffContainer,
+                version: '10.2',
                 params: {
                     allowscriptaccess: 'sameDomain',
                     wmode: 'transparent',
@@ -181,7 +182,7 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
         if (this.swiff) {
             return this.swiff.remote.apply(this.swiff, arguments);
         } else {
-            console.error('FlashObject not created!', arguments);
+            console.log('FlashObject not created!', arguments);
         }
     };
     FlashAudioPlayer.prototype.play = function () {
