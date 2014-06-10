@@ -29,7 +29,8 @@ define("dr-widget-media-playlist", ["dr-media-player-factory"], function (Player
         mediaPlayer: null,
         selectedPlaylistItemElement: null,
         initialize: function (element) {
-            this.element = element;
+        	this.element = element;
+        	this.element.store("instance", this);
             this.mediaContainerElement = element.getElement('.player');
             this.playlistItemElements = element.getElements('.playlist-item');
 			this.description = element.getElement('figcaption');

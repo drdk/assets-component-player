@@ -34,7 +34,6 @@ define("dr-media-gemius-implementation-test", ["gstream"], function () {
             this.player.options.appData.gemius.playerId = 'global-assets-player_' + Math.round(Math.random() * 1000000);
             this.initialAutoPlay = this.player.options.appData.autoPlay;
 
-
             this.player.addEvent('play', this.onPlay.bind(this));
             this.player.addEvent('pause', this.onPause.bind(this));
             this.player.addEvent('stop', this.onStop.bind(this));
@@ -58,14 +57,32 @@ define("dr-media-gemius-implementation-test", ["gstream"], function () {
                     videoData = this.player.options.videoData,
                     appData = this.player.options.appData;
 
-                customPackage = this.getCustomPackage();
-
-                totalTime = this.getTotalTime();
-
-                this.setMaterialIdentifier();
-
+                customPackage = [
+                    { 'name': 'AUTOSTART', 'value': (this.initialAutoPlay ? "YES" : "NO") },
+                    { 'name': 'URL', 'value': encodeURIComponent(document.location.pathname) },
+                    { 'name': 'PLATFORM', 'value': Browser.Platform.name },
+                    { 'name': 'CHANNEL', 'value': this.player.options.appData.gemius.channelName }
+                ];
+                if (this.player.options.videoData.videoType == 'live') {
+                    totalTime = -1;
+                } else {
+                    totalTime = this.player.duration();
+                }
+                if (this.player.hasResource()) {
+                    customPackage.push({ 'name': 'PRODUCTIONNUMBER', 'value': this.player.productionNumber() });
+                    customPackage.push({ 'name': 'PROGRAMME', 'value': this.player.resourceName() });
+                }
+                if (this.player.options.videoData.materialIdentifier == 'unknown' && this.player.hasResource()) {
+                    this.player.options.videoData.materialIdentifier = this.player.resourceSlug();
+                }
+                if (this.player.options.videoData.channelId) {
+                    customPackage.push({ 'name': 'PROGRAMME', 'value': this.player.options.videoData.channelId });
+                    customPackage.push({ 'name': 'PRODUCTIONNUMBER', 'value': '00000000000' });
+                    this.player.options.videoData.materialIdentifier = this.player.options.videoData.channelId;
+                } else if (!this.player.options.videoData.materialIdentifier && this.player.hasResource() && this.player.productionNumber()) {
+                    this.player.options.videoData.materialIdentifier = this.player.productionNumber();
+                }
                 treeId = [];
-                
                 gemiusStream.newStream(
                     this.player.options.appData.gemius.playerId,
                     this.player.options.appData.gemius.drIdentifier + this.player.options.videoData.materialIdentifier,
@@ -83,71 +100,6 @@ define("dr-media-gemius-implementation-test", ["gstream"], function () {
                 this.player.ensureLiveStreams(newStreamWithResource);
             }
         },
-        getCustomPackage: function() {
-            var pack = [
-                { 'name': 'AUTOSTART', 'value': (this.initialAutoPlay ? "YES" : "NO") },
-                { 'name': 'URL', 'value': encodeURIComponent(document.location.pathname) },
-                { 'name': 'PLATFORM', 'value': Browser.Platform.name },
-                { 'name': 'DR-CHANNEL', 'value': this.getChannelId() },
-                { 'name': 'PRODUCTIONNUMBER', 'value': this.getProductionNumber() },
-                { 'name': 'FORMAT', 'value': this.getStreamFormat() }
-            ];
-
-            return pack;
-        },
-        getTotalTime: function() {
-            if (this.player.options.videoData.videoType == 'live') {
-                return -1;
-            } else {
-                return this.player.duration();
-            }
-        },
-        getProductionNumber: function() {
-            if (this.player.hasResource()) {
-                return this.player.productionNumber()
-            } else {
-                return '00000000000';
-            }
-        },
-        getStreamFormat: function() {
-            if (this.player.options.videoData.videoType == 'live') {
-                return 'live';
-            }
-
-            return this.getODClipType();
-        },
-        getODClipType: function () {
-            return this.player.productionNumber() !== '' ? 'OD' : 'Clip';
-        },
-        setMaterialIdentifier: function() {
-            var namePrefix = 'test_';
-            if (this.player.options.videoData.materialIdentifier == 'unknown' && this.player.hasResource()) {
-                this.player.options.videoData.materialIdentifier = this.player.resourceSlug();
-            }
-
-            if (this.player.options.videoData.channelId) {
-                this.player.options.videoData.materialIdentifier = this.player.options.videoData.channelId;
-            } else if (!this.player.options.videoData.materialIdentifier && this.player.hasResource() && this.player.productionNumber()) {
-                this.player.options.videoData.materialIdentifier = this.player.productionNumber();
-            }
-
-            this.player.options.videoData.materialIdentifier = namePrefix + this.player.options.videoData.materialIdentifier;
-        },
-        getChannelId: function () {
-            if (this.player.options.videoData.videoType == 'live') {
-                return this.player.options.videoData.channelId.toLowerCase();
-            }
-
-            if (this.player.resourceResult && this.player.resourceResult.broadcastChannel) {
-                return this.player.resourceResult.broadcastChannel.toLowerCase();
-            } 
-
-            if (this.player.programcardResult) {
-                return this.player.programcardResult.PrimaryChannel.split('/').pop().toLowerCase();
-            }
-
-            return this.player.options.appData.gemius.channelName;
-        },
         /**
          * @private
          */
@@ -157,21 +109,32 @@ define("dr-media-gemius-implementation-test", ["gstream"], function () {
                 this.newStream();
             }
         },
+
+        dispatchPlayEvent : function(position) {
+            //console.log('dispatchPlayEvent -> this.lastEvent: ' + this.lastEvent + ' || this.isSeeking: ' + this.isSeeking + ' || this.isBuffering: ' + this.isBuffering);
+            if (this.lastEvent != 'playing' && !this.isSeeking  && !this.isBuffering) {
+                this.gemiusEvent('playing', position);
+            }
+        },
         /**
          * @private
          */
         gemiusEvent: function (type, position) {
-
             position = Math.round(position || this.player.position());
 
-            // ignore playing and buffering events at the end of the content
-            gemiusStream.event(
-                this.player.options.appData.gemius.playerId,
-                this.player.options.appData.gemius.drIdentifier + this.player.options.videoData.materialIdentifier,
-                position,
-                type
-            );
-            //console.log('gemius:gemiusEvent', type + " " + position);
+            if (!((type == 'playing' || type == 'buffering') && parseInt(position) == parseInt(this.player.duration()) && this.player.options.videoData.videoType == 'ondemand')){
+                // ignore playing and buffering events at the end of the content
+                gemiusStream.event(
+                    this.player.options.appData.gemius.playerId,
+                    this.player.options.appData.gemius.drIdentifier + this.player.options.videoData.materialIdentifier,
+                    position,
+                    type
+                );
+                console.log('gemius:gemiusEvent', type + " " + position);
+            } else {
+                console.log('ignoring ' + type + ' event at the end of content');
+            }
+
             this.lastEvent = type;
         },
         /**
@@ -179,9 +142,9 @@ define("dr-media-gemius-implementation-test", ["gstream"], function () {
          */
         onPlay: function () {
             this.testForNewStream();
-            if (this.lastEvent != 'playing' && !this.isSeeking  && !this.isBuffering) {
-                this.gemiusEvent('playing');
-            }
+
+            this.dispatchPlayEvent();
+
             this.isPlaying = true;
         },
         /**
@@ -207,50 +170,60 @@ define("dr-media-gemius-implementation-test", ["gstream"], function () {
          * @private
          */
         onBuffering: function () {
-            //console.log('gemius:onBuffering', this.isIgnoringBuffer);
-            if (!this.isIgnoringBuffer) {
+            //console.log('onBuffering');
+
+            //if (!this.isIgnoringBuffer) {
                 this.testForNewStream();
                 this.gemiusEvent('buffering');
                 this.isBuffering = true;
-            } else {
+            /*} else {
                 this.isIgnoringBuffer = false;
-            }
+            }*/
         },
         /**
          * @private
          */
         onBufferingComplete: function () {
+            //console.log('onBufferingComplete()');
             this.isBuffering = false;
 
-            if (this.player.options.videoData.videoType === 'ondemand') {
-                this.isIgnoringBuffer = true;
+            //if (this.player.options.videoData.videoType === 'ondemand') {
+                //this.isIgnoringBuffer = true;
                 //console.log('gemius:gemiusEvent', 'ignoring buffer event at the end of content');
-            }
+            //}
 
-            if (this.isPlaying && !this.isSeeking) {
+            if (this.isPlaying) {
                 // gemius need a 'playing' event after 'buffering' event 
                 // if the player was playing before it started buffering
-                this.gemiusEvent('playing');
+                this.dispatchPlayEvent();
             }
         },
         /**
          * @private
          */
         onBeforeSeek: function (position) {
+            //console.log('onBeforeSeek()');
             if (!this.isSeeking) {
                 this.gemiusEvent('seekingStarted', position);
             }
+            this.seekTarget = position;
             this.isSeeking = true; //prevent unwanted play gemius-event
         },
         /**
          * @private
          */
-        onAfterSeek: function () {
+        onAfterSeek: function (position) {
+            //console.log('onAfterSeek()');
             this.isSeeking = false;
-            if (this.isPlaying && !this.isBuffering) {
+            if (this.isPlaying) {
                 // gemius need a 'playing' event after 'seekingStarted' event 
                 // if the player was playing before it started buffering
-                this.gemiusEvent('playing');
+                if (this.seekTarget) {
+                    position = this.seekTarget;
+                    this.seekTarget = null;
+                }
+
+                this.dispatchPlayEvent(position);
             }
         },
         /**
