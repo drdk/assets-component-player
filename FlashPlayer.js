@@ -39,7 +39,7 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
     FlashPlayer.prototype.build = function () {
         console.log('FlashPlayer.build');
 
-        if (FlashPlayer.isFlashOutdated()) {
+        if (this.isFlashOutdated()) {
             // if this is a live stream we need to load the live data first, to be able to give the user an HLS stream
             if (this.options.videoData.videoType === 'live') {
                 this.ensureLiveStreams(this.showFlashErrorMessage, this);
@@ -152,6 +152,7 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
             }
         });
         
+        // Is this needed? Why?
         try {
             this.swiff.setAttribute('tabindex', '-1');
         } catch (err) {
