@@ -2,10 +2,10 @@
 /* global define: true, require: true */
 
 define('dr-media-audio-player',
-['dr-media-class', 'dr-media-abstract-player', 'dr-lazyloader',
+['dr-media-class', 'dr-media-abstract-player', 'dr-lazyloader', 'dr-widget-media-dom-helper',
     'audio-control-error-message', 'audio-control-settings-button', 'audio-control-play-button-overlay', 'audio-control-play-button',
     'audio-control-progressbar', 'audio-control-volumeselector', 'audio-control-skip-buttons', 'dr-media-hash-implementation'],
-function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl, HashTimeCodeImplementation) {
+function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl, HashTimeCodeImplementation) {
     'use strict';
 
     /*
@@ -66,7 +66,7 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
 
         this.isTouch = ('ontouchmove' in window);
         if (this.isTouch) {
-            this.options.element.addClass('touch'); //TODO: addClass
+            DomHelper.addClass(this.options.element, 'touch');
         }
         var data = this.load();
         if (data && data.bitrate) {
@@ -79,11 +79,9 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
             this[fn] = this[fn].bind(this); //TODO: bind
         }, this);
 
-        this.addEvent('resourceReady', this.setDurationClass.bind(this)); //TODO: bind
+        this.addEvent('resourceReady', this.setDurationClass, this);
 
         this.build();
-
-        console.log('AudioPlayer constructor ' + options);
     }
     MediaClass.inheritance(AudioPlayer, AbstractPlayer);
 
@@ -100,45 +98,38 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
 
     AudioPlayer.prototype.setDurationClass = function () {
         if (this.duration() >= 3600) {
-            this.options.element.addClass('hours'); //TODO: addClass
+            DomHelper.addClass(this.options.element, 'hours');
         } else {
-            this.options.element.removeClass('hours'); //TODO: removeClass
+            DomHelper.removeClass(this.options.element, 'hours');
         }
     };
 
     AudioPlayer.prototype.build = function () {
-        console.log('AudioPlayer.build');
         var container = this.options.element;
         if (this.options.videoData.videoType === 'ondemand') {
-            container.adopt(
-                new PlayButtonControl(this),
-                //new PlayButtonOverlayControl(this),
-                new ProgressBarControl(this),
-                new SettingsButton(this)
-            );
+            container.appendChild(new PlayButtonControl(this));
+            container.appendChild(new ProgressBarControl(this));
+            container.appendChild(new SettingsButton(this));
 
-            if (document.getElement('#net-radio')) { //TODO: getElement
+            if (document.getElementById('net-radio')) {
                 new PlayButtonOverlayControl(this);
             }
         } else {
-            container.adopt( //TODO: adopt
-                new PlayButtonControl(this, null,'dr-icon-stop-large'),
-                //new PlayButtonOverlayControl(this),
-                new ProgressBarControl(this),
-                new SettingsButton(this)
-            );
+            container.appendChild(new PlayButtonControl(this, null,'dr-icon-stop-large'));
+            container.appendChild(new ProgressBarControl(this));
+            container.appendChild(new SettingsButton(this));
 
-            if (document.getElement('#net-radio')) {
+            if (document.getElementById('net-radio')) {
                 new PlayButtonOverlayControl(this);
             }
         }
 
         if (this.options.appData.volumeControls) {
-            this.options.element.addClass('has-volume'); //TODO: addClass
-            container.adopt(new VolumeSelectorControl(this)); //TODO: adopt
+            DomHelper.addClass(this.options.element, 'has-volume');
+            container.appendChild(new VolumeSelectorControl(this));
         }
 
-        this.options.element.addClass('loading');
+        DomHelper.addClass(this.options.element, 'loading');
 
         if(this.options.videoData.videoType === 'live') {
             this.initializeLiveProgressbar();
@@ -158,16 +149,18 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         document.cookie = 'audio-player-bitrate=' + encodeURIComponent(JSON.stringify(data)) + ';expires=' + expires.toUTCString() + ';path=/;domain=.dr.dk';
     };
     AudioPlayer.prototype.ready = function () {
-        console.log('AudioPlayer.ready');
         this.options.element.removeClass('loading');
         if (this.options.appData.autoPlay) {
             this.play();
         }
     };
     AudioPlayer.prototype.getChannel = function () {
-        return this.options.videoData.channels.filter(function (c) { //TODO: filter
-            return c.slug === this.options.videoData.channelId;
-        }, this)[0];
+        for (var i=0; i < this.options.videoData.channels.length; i++) {
+            var c = this.options.videoData.channels[i];
+            if (c.slug === this.options.videoData.channelId) {
+                return c;
+            }
+        }
     };
     AudioPlayer.prototype.setBitratesAvailable = function (value) {
         this.bitratesAvailable = value;
@@ -205,8 +198,6 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
             if (this.options.appData.useInternalResources === true) {
                 item.uri = this.convertToInternalResource(item.uri);
             }
-
-            console.log('AudioPlayer.getStream ' + item.uri);
             return item.uri;
         }
     };
@@ -229,8 +220,6 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         }
 
         link = link.replace("/z/all/clear/streaming/", "/z/dr/clear/download/");
-
-        console.log("Link converted to internal resource path: " + link);
 
         return link;
     };
@@ -322,18 +311,18 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         if(this.options.videoData.videoType !== 'live') {
             var buttons = new SkipButtonsControl(this);
             var container = this.options.element;
-            $(buttons).inject(container.getElement('.progressbar'), 'before');
+            $(buttons).inject(container.getElement('.progressbar'), 'before'); //TODO: $, inject, getElement
         }
     };
     AudioPlayer.prototype.onBeforeSeek = function () {
         AbstractPlayer.prototype.onBeforeSeek.call(this);
     };
     AudioPlayer.prototype.onBuffering = function (pos) {
-        this.options.element.addClass('buffering');
+        DomHelper.addClass(this.options.element, 'buffering');
         AbstractPlayer.prototype.onBuffering.call(this, pos);
     };
     AudioPlayer.prototype.onBufferingComplete = function (pos) {
-        this.options.element.removeClass('buffering');
+        DomHelper.removeClass(this.options.element, 'buffering');
         AbstractPlayer.prototype.onBufferingComplete.call(this, pos);
     };
     AudioPlayer.prototype.setLiveTimestamps = function (start, end) {
