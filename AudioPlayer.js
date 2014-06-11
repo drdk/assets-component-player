@@ -165,9 +165,15 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
         }
     };
     AudioPlayer.prototype.getChannel = function () {
-        return this.options.videoData.channels.filter(function (c) { //TODO: filter
-            return c.slug === this.options.videoData.channelId;
-        }, this)[0];
+        var channels = this.options.videoData.channels;
+
+        for (var i=0; i < channels.length; i++) {
+            if (channels[i].slug === this.options.videoData.channelId) {
+                return channels[i];
+            }
+        }
+
+        return null;
     };
     AudioPlayer.prototype.setBitratesAvailable = function (value) {
         this.bitratesAvailable = value;
@@ -186,10 +192,6 @@ function (MediaClass, AbstractPlayer, LazyLoader, ErrorMessageControl, SettingsB
     AudioPlayer.prototype.getStream = function (quality) {
         var item;
         if (this.options.videoData.videoType === 'live') {
-            console.log('this: ' + this);
-            console.log('this.getChannel(): ' + this.getChannel());
-            console.log('this.getChannel().servers: ' + this.getChannel().servers);
-
             item = this.findClosestQuality(this.getChannel().servers, quality);
             this.setBitratesAvailable(this.getBitratesFromLiveStream(item));
             var selectedStream = this.getStreamByBitrate(quality);
