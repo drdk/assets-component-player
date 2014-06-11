@@ -84,7 +84,7 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
             // this.swiff.object.set('tabindex', '-1');
     };
     FlashAudioPlayer.prototype.eventCatcher = function (event) {
-        console.log('FlashAudioPlayer.eventCatcher:' + event.type + ' ' + event.playState);
+        //console.log('FlashAudioPlayer.eventCatcher:' + event.type + ' ' + event.playState);
         switch (event.type) {
 
             case 'versionEvent':

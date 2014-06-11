@@ -21,12 +21,10 @@ define('dr-media-hash-implementation', function () {
 
 
         function setTimeInHash ( timeCode ) {
-            console.log('setTimeInHash -> ' + timeCode);
             var hash = '#!/' + timeCode;
 
             if (document.location.hash.indexOf('#!/') === 0) {
                 var settings = document.location.hash.substring(3).split(',');
-                console.log('settings: ' + settings);
 
                 if (settings.length > 1) {
                     settings.shift();
