@@ -43,7 +43,7 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
                     defaultMsg: 'Der er desværre sket en fejl. Vi kigger på sagen, så prøv igen senere!'
                 },
                 urls: {
-                    liveStreams: '/radio/external/channels?mediaType=radio',
+                    liveStreams: '/mu-online/api/1.0/channel/all-active-dr-radio-channels',
                     channelLogoUrl: '/assets/img/logos/dr-logo-{id}-small.png'
                 }
             }
@@ -155,12 +155,15 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
         }
     };
     AudioPlayer.prototype.getChannel = function () {
-        for (var i=0; i < this.options.videoData.channels.length; i++) {
-            var c = this.options.videoData.channels[i];
-            if (c.slug === this.options.videoData.channelId) {
-                return c;
+        var channels = this.options.videoData.channels;
+
+        for (var i=0; i < channels.length; i++) {
+            if (channels[i].slug === this.options.videoData.channelId) {
+                return channels[i];
             }
         }
+
+        return null;
     };
     AudioPlayer.prototype.setBitratesAvailable = function (value) {
         this.bitratesAvailable = value;

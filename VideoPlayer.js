@@ -92,9 +92,7 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
             var player = this;
             DomHelper.on(markup, 'click', function (event) {
                 DomHelper.cancelEvent(event);
-                if (typeof _gaq !== 'undefined') {
-                    _gaq.push(['_trackEvent', 'global-assets-video-player', 'click', 'play']);
-                }
+                
                 player.options.appData.autoPlay = true;
                 player.build();
             });
@@ -111,6 +109,19 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
                 this.ensureResource(build, this);
                 break;
         }
+    };
+    VideoPlayer.prototype.onPlay = function() {
+        if (!this.firstPlay === true) {
+            return;
+        }
+
+        this.firstPlay = false;
+
+        if (typeof _gaq !== 'undefined') {
+            _gaq.push(['_trackEvent', 'tv-site-video-player', 'click', 'play']);
+        }
+
+        AbstractPlayer.prototype.onPlay.call(this);
     };
     VideoPlayer.prototype.build = function () { };
     VideoPlayer.prototype.getChannel = function () {
