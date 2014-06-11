@@ -25,7 +25,7 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
     */
     function AudioPlayer (options) {
         
-        AbstractPlayer.call(this);
+        AbstractPlayer.call(this, options);
 
         this.setOptions({
             mediaType: 'audio',

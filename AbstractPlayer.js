@@ -4,7 +4,7 @@
 define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
     'use strict';
 
-    var AbstractPlayer = function() {
+    var AbstractPlayer = function(options) {
         MediaClass.call(this);
         this.resourceResult = null;
         this.programcardResult = null;
@@ -36,7 +36,21 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
             enableHashTimeCode: false
         });
 
-        //TODO: store instance on dom element
+        if (options) {
+            this.setOptions(options);
+        }
+
+        // legacy support: 
+        // 'dr-ui-media-playlist' requires a player instance stored on element and an instance event
+        // check for mootools methods in element
+        if (this.options.element) {
+            if ('store' in this.options.element) {
+                this.options.element.store('instance', this);
+            }
+            if ('fireEvent' in this.options.element) {
+                this.options.element.fireEvent('instance', this);
+            }
+        }
 
         this.mediaPlayerId = ++AbstractPlayer.$mediaPlayerId;
 
