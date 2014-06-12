@@ -314,7 +314,9 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
         if(this.options.videoData.videoType !== 'live') {
             var buttons = new SkipButtonsControl(this);
             var container = this.options.element;
-            $(buttons).inject(container.getElement('.progressbar'), 'before'); //TODO: $, inject, getElement
+            var progressbar = container.querySelector('.progressbar') || null;
+            console.log('AudioPlayer.registerSkipProvider');
+            container.insertBefore(buttons, progressbar);
         }
     };
     AudioPlayer.prototype.onBeforeSeek = function () {
