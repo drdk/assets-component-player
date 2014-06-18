@@ -21,7 +21,6 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
             this.setOptions(options);
         }
 
-
         this.buildPreview();
 
     }
@@ -237,19 +236,30 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
         if (this.options.videoData.videoType === 'live') {
             var servers = [];
 
-            servers = streams.servers.filter(function (s) { //TODO: filter
-                return s.linkType.toLowerCase() === 'hls';
-            });
+            for (var i = 0; i < streams.servers.length; i++) {
+                var s_hls = streams.servers[i];
+                if (s_hls.linkType.toLowerCase() === 'hls') {
+                    servers.push(s_hls);
+                }
+            }
 
             // If no HLS servers were found, move on to check for IOS servers
             if (servers.length === 0) {
-                servers = streams.servers.filter(function (s) { //TODO: filter
-                    return s.linkType.toLowerCase() === 'ios';
-                });
+                for (var j = 0; j < streams.servers.length; j++) {
+                    var s_ios = streams.servers[j];
+                    if (s_ios.linkType.toLowerCase() === 'ios') {
+                        servers.push(s_ios);
+                    }
+                }
                 
-                var rtspServer = streams.servers.filter(function (s) { //TODO: filter
-                    return s.linkType.toLowerCase() === 'android';
-                })[0];
+                var rtspServer = null;
+                for (var k = 0; k < streams.servers.length; k++) {
+                    var s_rtsp = streams.servers[k];
+                    if (s_rtsp.linkType.toLowerCase() === 'android') {
+                        rtspServer = s_rtsp;
+                        break;
+                    }
+                }
 
                 if (rtspServer !== null && rtspServer !== undefined) {
                     servers.push(rtspServer);
@@ -257,22 +267,30 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
             }
 
             var qualities = [];
-            for (var i=0; i < servers.length; i++) {
-                var liveStream = VideoPlayer.prototype.findClosestQuality.call(this, servers[i].qualities, quality);
-                qualities.push({stream: servers[i].server + '/' + liveStream.streams[0], kbps: liveStream.kbps});
+            for (var m=0; m < servers.length; m++) {
+                var liveStream = VideoPlayer.prototype.findClosestQuality.call(this, servers[m].qualities, quality);
+                qualities.push({stream: servers[m].server + '/' + liveStream.streams[0], kbps: liveStream.kbps});
             }
 
             return qualities;
         } else {
-            var hls = streams.filter(function (item){ //TODO: fitler
-                return (item.linkType.toLowerCase() === 'hls');
-            });
-            var ios = streams.filter(function (item){ //TODO: fitler
-                return (item.linkType === 'Ios');
-            });
-            var rtsp = streams.filter(function (item){ //TODO: fitler
-                return (item.linkType === 'Android');
-            });
+            var hls = [],
+                ios = [],
+                rtsp = [];
+            for (var n = 0; n < streams.length; n++) {
+                var s = streams[n];
+                switch (s.linkType.toLowerCase()) {
+                    case 'hls':
+                        hls.push(s);
+                        break;
+                    case 'ios':
+                        ios.push(s);
+                        break;
+                    case 'Android':
+                        rtsp.push(s);
+                        break;
+                }
+            }
 
             streams = [];
             var stream;
