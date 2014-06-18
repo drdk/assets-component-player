@@ -11,11 +11,10 @@ define('dr-media-player-factory', [
     'dr-media-html5-audio-player',
     'dr-media-gemius-implementation',
     'dr-media-psdb-utilities',
-    'dr-media-conviva-implementation',
     'dr-media-sola-implementation',
     'dr-media-springstreams-implementation'
     
-], function ( DomHelper, FlashObject, AbstractPlayer, FlashPlayer, Html5Player, FlashAudioPlayer, Html5AudioPlayer, GemiusImplementation, PsdbUtilities, ConvivaImplementation, SolaImplementation, SpringstreamsImplementation ) {
+], function ( DomHelper, FlashObject, AbstractPlayer, FlashPlayer, Html5Player, FlashAudioPlayer, Html5AudioPlayer, GemiusImplementation, PsdbUtilities, SolaImplementation, SpringstreamsImplementation ) {
     'use strict';
 
     /*jshint browser:true, mootools:true*/
@@ -39,7 +38,7 @@ define('dr-media-player-factory', [
     var PlayerFactory = {
         getPlayer: function (options) {
             
-            var player, gemius, psdbUtilities, conviva,sola, springStreams;
+            var player, gemius, psdbUtilities, sola, springStreams;
             var getQuerystring = AbstractPlayer.prototype.getQuerystring;
 
             if (options.type && options.type === 'audio') {
@@ -86,7 +85,6 @@ define('dr-media-player-factory', [
                     }
 
                     player = new Html5Player(options);
-                    conviva = new ConvivaImplementation(player);
                     sola = new SolaImplementation(player);
                     springStreams = new SpringstreamsImplementation(player);
                 } else {
