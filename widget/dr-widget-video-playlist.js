@@ -68,7 +68,11 @@ define("dr-widget-video-playlist", ["dr-media-player-factory"], function (Player
             event.preventDefault();
             this.deselectAll();
             this.selectItem(selectedElement);
+            this.videoPlayer.forgetModel();
             this.videoPlayer.updateOptions({
+                'appData': {
+                    'autoPlay': true
+                },
                 'videoData': {
                     'resource': selectedElement.get('data-resource'),
                     'image': selectedElement.get('data-image'),

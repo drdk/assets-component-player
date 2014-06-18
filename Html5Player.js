@@ -151,7 +151,7 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
          *  handleGeoResponse() is called after an error has ocurred. So no matter what we need to show an error.
          *  If the user is outside of Denmark we'll show a geo block error
          */
-        if (isInDenmark == 'true') {
+        if (isInDenmark === true) {
             this.displayError('defaultMsg');
         } else {
             this.displayError('access_denied');

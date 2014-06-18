@@ -12,6 +12,7 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
         AbstractPlayer.call(this, options);
 
         this.logOutput = '';
+        this.firstPlay = true;
 
         this.setOptions({
             mediaType: 'video',
@@ -111,6 +112,8 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
         }
     };
     VideoPlayer.prototype.onPlay = function() {
+        AbstractPlayer.prototype.onPlay.call(this);
+
         if (!this.firstPlay === true) {
             return;
         }
@@ -120,8 +123,6 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
         if (typeof _gaq !== 'undefined') {
             _gaq.push(['_trackEvent', 'tv-site-video-player', 'click', 'play']);
         }
-
-        AbstractPlayer.prototype.onPlay.call(this);
     };
     VideoPlayer.prototype.build = function () { };
     VideoPlayer.prototype.getChannel = function () {
