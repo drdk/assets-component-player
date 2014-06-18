@@ -50,8 +50,8 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
                     } else {
                         labelStart.innerText = self.model.timeCodeConverter.secondsToTimeCode(self.model.position());
                     }
-                    meter.style.width = ((p ? p : 0) * 100) + '%';
                 }
+                meter.style.width = ((p ? p : 0) * 100) + '%';
             }
         }
         function initializeEvents () {

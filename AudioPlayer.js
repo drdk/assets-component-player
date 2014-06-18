@@ -75,9 +75,9 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
         }
 
         // bind methods
-        ['play', 'pause', 'stop', 'progress', 'position', 'duration'].forEach(function (fn) { //TODO: forEach
-            this[fn] = this[fn].bind(this); //TODO: bind
-        }, this);
+        // ['play', 'pause', 'stop', 'progress', 'position', 'duration'].forEach(function (fn) { //TODO: forEach
+        //     this[fn] = this[fn].bind(this); //TODO: bind
+        // }, this);
 
         this.addEvent('resourceReady', this.setDurationClass, this);
 
@@ -294,11 +294,38 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
         this.build();
     };
     AudioPlayer.prototype.initializeLiveProgressbar = function () {
-        require(['dr-widget-live-element'], function (LiveElement) {
-            this.liveProgressBar = new LiveElement(this.options.element);
-            window.liveprogress = this.liveProgressBar.domElement;
-            this.liveProgressBar.domElement.addEvent('update', this.update.bind(this));
-        }.bind(this));
+        var startTimeStamp = parseInt(this.options.element.getAttribute('data-start'));
+        var endTimeStamp = parseInt(this.options.element.getAttribute('data-end'));
+        var nowTimeStamp = parseInt(this.options.element.getAttribute('data-now'));
+        var initialized = new Date().getTime();
+
+        // hijack position, duration and onProgressChange
+        this.position = function () {
+            var timeElapsed = (new Date().getTime() - initialized);
+            return (nowTimeStamp - startTimeStamp) + timeElapsed;
+        };
+        this.duration = function () {
+            return endTimeStamp - startTimeStamp;
+        };
+        this.onProgressChange = function () {
+            if (this.progress() >= 1) {
+                // legacy support: live radio expects a mootools dom 
+                // event when progress timestamps needs to be updated
+                if ('fireEvent' in window) {
+                    window.fireEvent('dr-widget-audio-player-program-end', this);
+                    // this.options.element.fireEvent('update', this.options.element);
+                }
+            }
+            AudioPlayer.prototype.onProgressChange.call(this);
+        };
+        // match old interface to the progressbar:
+        this.liveProgressBar = this.liveProgressBar || {};
+        this.liveProgressBar.initialize = function (element) {
+            startTimeStamp = parseInt(element.getAttribute('data-start'));
+            endTimeStamp = parseInt(element.getAttribute('data-end'));
+            nowTimeStamp = parseInt(element.getAttribute('data-now'));
+            initialized = new Date().getTime();
+        }
     };
     AudioPlayer.prototype.buildPreview = function () {
         // no-op, audioplayer has no preview
@@ -333,9 +360,6 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
     AudioPlayer.prototype.setLiveTimestamps = function (start, end) {
         this.options.element.getElement('.text span:first-child').set('text', start);
         this.options.element.getElement('.text span:last-child').set('text', end);
-    };
-    AudioPlayer.prototype.update = function () {
-        window.fireEvent('dr-widget-audio-player-program-end', this);
     };
 
     return AudioPlayer;
