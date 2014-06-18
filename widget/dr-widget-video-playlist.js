@@ -68,7 +68,7 @@ define("dr-widget-video-playlist", ["dr-media-player-factory"], function (Player
             event.preventDefault();
             this.deselectAll();
             this.selectItem(selectedElement);
-            this.videoPlayer.programcardResult = null; // otherwise the old program card result will be used
+            this.videoPlayer.forgetModel();
             this.videoPlayer.updateOptions({
                 'appData': {
                     'autoPlay': true
