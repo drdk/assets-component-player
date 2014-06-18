@@ -200,6 +200,9 @@
         }
 
         function closeStream () {
+            self.isPlaying = false;
+            self.lastEvent = null;
+
             if (self.newStreamRegistered) {
                 gemiusStream.closeStream(
                     self.player.options.appData.gemius.playerId,
