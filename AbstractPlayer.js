@@ -13,8 +13,6 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
         this.hashTimeCodeInstance = null;
         this._forceSeekIntervalId = null;
 
-        console.log('AbstractPlayer.contructor');
-
         this.setOptions({
             appData: {
                 gemius: {
@@ -430,6 +428,13 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
             return this.programcardResult._ResourceId;
         }
         return 0;
+    };
+    AbstractPlayer.prototype.urn = function() {
+        if (this.programcardResult) {
+            return this.programcardResult.Urn;
+        }
+
+        return null;
     };
     AbstractPlayer.prototype.onDurationChange = function () {
         var dur = this.duration();
