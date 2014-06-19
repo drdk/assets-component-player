@@ -32,7 +32,6 @@ define('dr-media-sola-implementation', function () {
 
             require(['sola'], function (){
                 buildAndSendSolaMetadata();
-                if (console) console.log ('media element: ' + self.mediaElement);
                 akamaiSetVideoObject(self.mediaElement);
                 akamaiHandleStreamSwitch();
             });
