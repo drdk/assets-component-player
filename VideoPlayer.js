@@ -4,7 +4,7 @@
 /**
  * TODO: Build accessability controls
  **/
-define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', 'dr-widget-media-dom-helper', 'dr-media-hash-implementation'], function (MediaClass, AbstractPlayer, DomHelper, HashTimeCodeImplementation) {
+define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', 'video-control-accessability-controls', 'dr-widget-media-dom-helper', 'dr-media-hash-implementation'], function (MediaClass, AbstractPlayer, AccessabilityControls, DomHelper, HashTimeCodeImplementation) {
     'use strict';
 
     function VideoPlayer (options) {
@@ -131,22 +131,7 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
         }, this)[0];
     };
     VideoPlayer.prototype.buildAccessabilityControls = function () {
-        // TODO:
-        // var container, play, pause, stop, forward, backwards;
-        // container = new Element('div', { 'class': 'accessability-controls' });
-        // container.inject(this.options.element);
-        // play = new Element('button', { 'text': 'afspil video' }).addEvent('click', this.play.bind(this)).inject(container);
-        // if (this.options.videoData.videoType === 'ondemand') {
-        //     pause = new Element('button', { 'text': 'pause video' }).addEvent('click', this.pause.bind(this)).inject(container);
-        //     forward = new Element('button', { 'text': 'spol frem i video' }).addEvent('click', function () {
-        //         this.seek(this.progress() + 0.1);
-        //     } .bind(this)).inject(container);
-        //     backwards = new Element('button', { 'text': 'spol tilbage i video' }).addEvent('click', function () {
-        //         this.seek(this.progress() - 0.1);
-        //     } .bind(this)).inject(container);
-        // } else {
-        //     stop = new Element('button', { 'text': 'stop video' }).addEvent('click', this.pause.bind(this)).inject(container);
-        // }
+        var accessabilityControls = new AccessabilityControls(this);
     };
     VideoPlayer.prototype.displayError = function (errorCode, info, logOutput, errorDetails) {
         
