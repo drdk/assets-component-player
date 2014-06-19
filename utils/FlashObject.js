@@ -6,26 +6,30 @@
  * It a swfobject wrapper that implements Swiff's callbacks'
  * TODO: use swfobject 2.*
  **/
-define('dr-media-flash-object', ['swfobject'], function (Swfobject) {
+define('dr-media-flash-object', ['swfobject2', 'dr-widget-media-dom-helper'], function (Swfobject, DomHelper) {
     'use strict';
 
     var $spawn = 0;
 
     function FlashObject (path, options) {
-
         var self = this;
+        self.id = 'dr_FlashObject_'+(++$spawn); 
 
         if (!options.container.id) {
-            options.container.id = 'asdf';
+            options.container.id = self.id + '_wrapper';
         }
+        
+        var replace = DomHelper.newElement('div', {'id':self.id});
+        options.container.appendChild(replace);
 
-        self.id = 'dr_FlashObject_'+(++$spawn);
-        self.so = new Swfobject(path, self.id, options.width, options.height, options.version, options.params.bgcolor);
+        var attributes = {'data':path, 'width':options.width, 'height':options.height},
+            params = {'id':self.id, 'bgcolor':options.params.bgcolor, 'wMode':'direct', 'AllowFullScreen':'true'},
+            vars = [];
 
         if (options.params) {
-            for (var s in options.params) {
-                if (options.params.hasOwnProperty(s)) {
-                    self.so.addParam(s, options.params[s]);
+            for (var p in options.params) {
+                if (options.params.hasOwnProperty(p)) {
+                    params[p] = options.params[p];
                 }
             }
         }
@@ -33,11 +37,11 @@ define('dr-media-flash-object', ['swfobject'], function (Swfobject) {
         if (options.vars) {
             for (var v in options.vars) {
                 if (options.vars.hasOwnProperty(v)) {
-                    self.so.addVariable(v, escape(options.vars[v]));
+                    vars.push(v+'='+escape(options.vars[v]));
                 }
             }
         }
-
+        
         //Setup callback table:
         if (options.callBacks) {
             window.DR = window.DR || {};
@@ -46,12 +50,13 @@ define('dr-media-flash-object', ['swfobject'], function (Swfobject) {
             for (var c in options.callBacks) {
                 if (options.callBacks.hasOwnProperty(c)) {
                     window.DR.FlashObjectCallbacks[self.id][c] = options.callBacks[c];
-                    self.so.addVariable(c, 'window.DR.FlashObjectCallbacks.'+self.id+'.'+c);
+                    vars.push(c+'='+'window.DR.FlashObjectCallbacks.'+self.id+'.'+c);
                 }
             }
         }
 
-        self.so.write(options.container.id);
+        params.flashvars = vars.join('&');
+        self.objectElement = swfobject.createSWF(attributes, params, replace.id);
 
         self.remote = function (fn) {
             if (__flash__argumentsToXML) {
@@ -62,7 +67,7 @@ define('dr-media-flash-object', ['swfobject'], function (Swfobject) {
         };
 
         self.toElement = function () {
-            return document.getElementById(self.id);
+            return self.objectElement;
         };
 
     }
