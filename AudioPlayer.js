@@ -74,11 +74,6 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
             this.options.appData.defaultQuality = data.bitrate;
         }
 
-        // bind methods
-        // ['play', 'pause', 'stop', 'progress', 'position', 'duration'].forEach(function (fn) { //TODO: forEach
-        //     this[fn] = this[fn].bind(this); //TODO: bind
-        // }, this);
-
         this.addEvent('resourceReady', this.setDurationClass, this);
 
         this.build();
@@ -135,7 +130,11 @@ function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl
             this.initializeLiveProgressbar();
         }
 
-        window.fireEvent('dr-widget-audio-player-initialized', container); //TODO: window.fireEvent
+        // legacy support: live radio expects a mootools dom 
+        // event when the player is initialized
+        if ('fireEvent' in window) {
+            window.fireEvent('dr-widget-audio-player-initialized', container);
+        }
     };
 
 
