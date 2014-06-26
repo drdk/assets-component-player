@@ -37,17 +37,18 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
                 time = getLiveBroadcastTime();
             }
 
+            /**
+             * Tag order:
+             * BroadCaster_OD/Channel/Program/Season/Episode/DateBroadcast/TimeBroadcast/Streamid
+             * BroadCaster_Live/Channel/Program/Season/Episode/DateBroadcast/TimeBroadcast/Streamid
+             * (season og episode vil altid være NULL, da vi slet ikke er så avancerede)
+             */
             var desc = {
                 'stream':'DR_' + videoType + '/' + channelId + '/' + broadcastName + '/NULL/NULL/' + date + '/' + time + '/' + streamId,
-                'duration': self.player.duration()
-
-                /**
-                 * Tag order:
-                 * BroadCaster_OD/Channel/Program/Season/Episode/DateBroadcast/TimeBroadcast/Streamid
-                 * BroadCaster_Live/Channel/Program/Season/Episode/DateBroadcast/TimeBroadcast/Streamid
-                 * (season og episode vil altid være NULL, da vi slet ikke er så avancerede)
-                 */
+                'duration': self.player.duration(),
+                'cq': streamId
             };
+            
             console.log('SpringstreamsImplementation.trackPlayEvent', self.sensors, self.player.videoElement, desc);
             self.sensors.track(self.player.videoElement, desc);
         }
