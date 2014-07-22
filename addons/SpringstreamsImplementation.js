@@ -48,7 +48,7 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
                 'duration': self.player.duration(),
                 'cq': streamId
             };
-            
+
             console.log('SpringstreamsImplementation.trackPlayEvent', self.sensors, self.player.videoElement, desc);
             self.sensors.track(self.player.videoElement, desc);
         }
@@ -79,7 +79,11 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
 
         function getODBroadcastTime() {
             if (self.player.programcardResult) {
-                return self.player.programcardResult.PrimaryAssetStartPublish.split('T')[1].split('Z')[0];
+                var time = self.player.programcardResult.PrimaryAssetStartPublish.split('T')[1].split('Z')[0]
+                if (time)
+                    time = time.split(':').join('.');
+                
+                return time;
             }
 
             return 'NULL';
@@ -107,7 +111,11 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
         function getLiveBroadcastTime() {
                 var dateObj = self.player.options.videoData.primaryAssetStartPublish;
                 if (dateObj !== null && dateObj !== undefined) {
-                    return dateObj.split('T')[1].split('Z')[0];
+                    var time = dateObj.split('T')[1].split('Z')[0];
+                    if (time)
+                        time = time.split(':').join('.')
+
+                    return time;
                 }
 
                 return 'NULL';
