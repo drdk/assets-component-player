@@ -83,7 +83,6 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
             //debug replace:
             if (document.location.host != 'www.dr.dk') {
                 url = url.replace('www.dr.dk', document.location.host);
-                url = url.replace('/mu/programcard', '/tv/api/programcard');
             }
             this.json(url, function(result){
                 if (result.Data) {
