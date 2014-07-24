@@ -25,6 +25,15 @@ define('dr-widget-media-dom-helper', [], function () {
 			    el.detachEvent('on' + eventType, eventHandler);
 			}
 		},
+		trigger: function (el, eventType) {
+			if (document.createEvent) {
+				var event = document.createEvent('HTMLEvents');
+				event.initEvent(eventType, true, false);
+				el.dispatchEvent(event);
+			} else {
+				el.fireEvent('on'+eventType);
+			}
+		},
 		cancelEvent: function(event) {
 			var e = event || window.event,
                 t = e.target || e.srcElement;

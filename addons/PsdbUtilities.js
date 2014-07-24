@@ -15,8 +15,8 @@ define('dr-media-psdb-utilities', function () {
 
             if(requesturl && episodeurn){
                 var httpRequest = new XMLHttpRequest();
-                httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 httpRequest.open('POST', requesturl);
+                httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 httpRequest.send('id=' + encodeURIComponent(episodeurn));
             }
         }
