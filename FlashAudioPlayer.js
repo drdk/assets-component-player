@@ -70,6 +70,8 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
             
             this.swiff = new FlashObject(swfUrl, { //TODO: Swiff
                 container: swiffContainer,
+                height: '100%',
+                width: '100%',
                 version: '10.2',
                 params: {
                     allowscriptaccess: 'sameDomain',
