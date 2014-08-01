@@ -11,10 +11,10 @@ define('audio-control-skip-buttons', ['dr-widget-media-dom-helper'], function (D
         self.element = DomHelper.newElement('div', {'class': 'skip-buttons'});
 
         var prev = DomHelper.newElement('button', {
-            text: 'Tilbage', 'class': 'dr-icon-back',
+            text: 'Tilbage', 'class': 'dr-icon-back'
         });
         var next = DomHelper.newElement('button', {
-            text: 'Frem', 'class': 'dr-icon-skip',
+            text: 'Frem', 'class': 'dr-icon-skip'
         });
 
         self.element.appendChild(prev);
