@@ -216,7 +216,7 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
         this.swiffRemote('flash_stop');
     };
     FlashAudioPlayer.prototype.position = function () {
-        if (this.lastProgressEvent) {
+        if (this.lastProgressEvent && this.lastProgressEvent.currentTime && !isNaN(this.lastProgressEvent.currentTime)) {
             return this.lastProgressEvent.currentTime;
         } else {
             return 0;
