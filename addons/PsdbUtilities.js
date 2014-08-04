@@ -9,7 +9,6 @@ define('dr-media-psdb-utilities', function () {
         this.player = player;
 
         function registerView () {
-            console.log('psdbUtilities.registerView');
             var requesturl = self.player.options.videoData.trackviewurl;
             var episodeurn = self.player.options.videoData.episodeurn;
 
@@ -22,9 +21,10 @@ define('dr-media-psdb-utilities', function () {
         }
 
         function onPlay () {
-            console.log('psdbUtilities.onPlay');
             self.player.removeEvent('play', onPlay);
             registerView();
+
+            self.player.fireEvent('play');
         }
 
         self.player.addEvent('play', onPlay);
