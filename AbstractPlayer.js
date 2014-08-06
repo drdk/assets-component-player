@@ -12,6 +12,7 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
         this.hasDuration = null;
         this.hashTimeCodeInstance = null;
         this._forceSeekIntervalId = null;
+        this._forceSeekTries = 0;
 
         this.setOptions({
             appData: {
@@ -511,6 +512,7 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
     };
     AbstractPlayer.prototype._forceSeek = function (player, value) {
         var seconds, distance, pos, seekResult;
+        player._forceSeekTries ++;
         seekResult = player._seek(value);
         if (typeof(value) === 'string') {
             seconds = player.timeCodeConverter.timeCodeToSeconds(value);
@@ -519,7 +521,7 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
         }
         pos = player.position();
         distance = Math.abs(seconds - pos);
-        if (distance < 0.1 || seekResult || !value) {
+        if (distance < 0.1 || seekResult || !value || player._forceSeekTries > 10) {
             player._forceSeekComplete();
         }
 
@@ -527,6 +529,7 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
     AbstractPlayer.prototype._forceSeekComplete = function () {
         clearTimeout(this._forceSeekIntervalId);
         this._forceSeekIntervalId = null;
+        this._forceSeekTries = 0;
     };
     AbstractPlayer.prototype.queryGeofilter = function () {
         this.json(this.options.appData.urls.geoHandlerUrl, this.handleGeoResponse, this.handleGeoResponseFail, this);
