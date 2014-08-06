@@ -8,22 +8,27 @@
     /* dr-icon-p matches both play and pause */
     button[class*="dr-icon-p"], button[class*="dr-icon-stop"] {
         display: inline-block;
-        width: 50px;
+        width: 38px;
         height: 30px;
         overflow: hidden;
         border: none;
         border-right: 1px solid @grey-30;
-        padding: 0 0 0 10px;
         background-color: transparent;
+        padding: 0;
+
+        &:before {
+            text-indent: 0;
+            margin: 0 auto;
+            vertical-align: -3px;
+            line-height: 30px;
+        }
     }
 
     button:before {
         color: #fff;
-        text-indent: 8px;
-        margin-left: -10px;
-        margin-right: 12px;
+        margin: 0 auto;
+        text-indent: 0;
     }
-
     
     .skip-buttons {
         display: inline-block;
@@ -91,7 +96,7 @@
         .text {
 
             span {
-                padding: 3px 0;
+                padding: 2px 0;
                 font-family: 'gibsonRegular','Arial',sans-serif;
                 font-size: 12px;
             }
@@ -167,7 +172,16 @@
         border-left: 1px solid #4d4d4d;
 
         button {
-           padding: 0 0 0 13px;
+            //padding: 0 0 0 11px;
+            padding: 0;
+            width: 38px;
+            background: none;
+            &:before {
+                margin: 0 auto;
+                text-indent: 0;
+                vertical-align: -3px;
+                line-height: 15px;
+            }
         }
 
         ul {
