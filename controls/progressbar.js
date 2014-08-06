@@ -71,9 +71,10 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
             } else {
                 e.returnValue = false;
             }
+
             if (getMousePosition(e)) {
-                document.addEvent((self.model.isTouch ? 'touchend' : 'mouseup'), stopDrag);
-                document.addEvent((self.model.isTouch ? 'touchmove' : 'mousemove'), drag);
+                setDragEvents();
+
                 labelCurrent.style.display = 'block';
                 self.isDragging = true;
                 drag(e);
@@ -87,6 +88,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
             } else {
                 e.returnValue = false;
             }
+
             var progress = getMousePosition(e);
             if (progress) {
                 meter.style.width = (progress * 100) + '%';
@@ -108,14 +110,31 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
                 e.returnValue = false;
             }
             self.isDragging = false;
+
             var pos = self._dragPosition;
             if (pos) {
                 self.model.seek(pos);
             }
-            self.element.getElement('.text span.position').setStyle('display', 'none');
+            
             labelCurrent.style.display = 'none';
-            DomHelper.off(document, (self.model.isTouch ? 'touchend' : 'mouseup'), stopDrag);
-            DomHelper.off(document, (self.model.isTouch ? 'touchmove' : 'mousemove'), drag);
+
+            removeDragEvents();
+        }
+        function setDragEvents() {
+            if (self.model.isTouch) {
+                document.addEvent('touchend', stopDrag);
+                document.addEvent('touchmove', drag);
+            } else {
+                document.addEvent('mouseup', stopDrag);
+            }
+        }
+        function removeDragEvents() {
+            if (self.model.isTouch) {
+                document.removeEvent('touchend', stopDrag);
+                document.removeEvent('touchmove', drag);
+            } else {
+                document.removeEvent('mouseup', stopDrag);
+            }
         }
         function handleToolTipEvents (event) {
             var e = event || window.event,
@@ -158,6 +177,8 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
                 x = event.changedTouches[0].screenX;
             } else if (event.pageX) {
                 x = event.pageX;
+            } else if (event.changedTouches && event.changedTouches.length > 0){
+                x = event.changedTouches[0].clientX;
             } else {
                 x = event.clientX;
             }

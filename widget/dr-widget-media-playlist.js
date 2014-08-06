@@ -20,7 +20,7 @@
 * Optional attributes:
 * data-gchannel Custom Gemius channel metadata
 */
-define("dr-widget-media-playlist", ["dr-media-player-factory"], function (PlayerFactory) {
+define("dr-widget-media-playlist", ["dr-media-player-factory", 'dr-widget-media-dom-helper'], function (PlayerFactory, DomHelper) {
     "use strict";
     return new Class({
         element: null,
@@ -70,8 +70,8 @@ define("dr-widget-media-playlist", ["dr-media-player-factory"], function (Player
                 },
                 'type': this.selectedPlaylistItemElement.get('data-type')
             });
-            this.mediaPlayer.options.element.set('class', 'player ' + this.selectedPlaylistItemElement.get('data-type'));
-            this.mediaPlayer.options.element.set('style', '');	
+            DomHelper.addClass(this.mediaPlayer.options.element, this.selectedPlaylistItemElement.get('data-type'));
+            DomHelper.setAttributes(this.mediaPlayer.options.element, { 'style': '' });
         },
         itemClickHandler: function (event, selectedElement) {
             event.preventDefault();

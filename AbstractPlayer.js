@@ -507,27 +507,37 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
         if (this._forceSeekIntervalId) {
             this._forceSeekComplete();
         }
-        this._forceSeekIntervalId = setInterval(this._forceSeek, 1000, this, value);
-        this._forceSeek(this, value);
+        
+        this._forceSeekIntervalId = this.setIntervalObj(this, 1000, this._forceSeek, [value]);
+        this._forceSeek(value);
     };
-    AbstractPlayer.prototype._forceSeek = function (player, value) {
+    AbstractPlayer.prototype._forceSeek = function (value) {
         var seconds, distance, pos, seekResult;
-        player._forceSeekTries ++;
-        seekResult = player._seek(value);
+        
+        this._forceSeekTries ++;
+        seekResult = this._seek(value);
+
         if (typeof(value) === 'string') {
-            seconds = player.timeCodeConverter.timeCodeToSeconds(value);
+            seconds = this.timeCodeConverter.timeCodeToSeconds(value);
         } else {
-            seconds = value * player.duration();
+            seconds = value * this.duration();
         }
-        pos = player.position();
+
+        pos = this.position();
+
         distance = Math.abs(seconds - pos);
-        if (distance < 0.1 || seekResult || !value || player._forceSeekTries > 10) {
-            player._forceSeekComplete();
+        if (distance < 0.1 || seekResult || !value || this._forceSeekTries > 10) {
+            this._forceSeekComplete();
         }
 
     };
+    AbstractPlayer.prototype.setIntervalObj = function (o, t, f, a) {
+        return setInterval(function() {
+            f.apply(o,a);
+        }, t);
+    };
     AbstractPlayer.prototype._forceSeekComplete = function () {
-        clearTimeout(this._forceSeekIntervalId);
+        clearInterval(this._forceSeekIntervalId);
         this._forceSeekIntervalId = null;
         this._forceSeekTries = 0;
     };

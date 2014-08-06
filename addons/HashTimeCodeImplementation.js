@@ -37,7 +37,12 @@ define('dr-media-hash-implementation', function () {
             if (window.location.hash != hash) {
                 self.ignoreNextHashchange = true;
             }
-            window.location.replace(hash);
+            
+            if ((navigator.userAgent.indexOf('Android') != -1)) {
+                document.location = hash;
+            } else {
+                window.location.replace(hash);
+            }
         }
 
         function hashChangeHandler () {
