@@ -52,12 +52,21 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
     };
 
     Html5AudioPlayer.prototype._getOndemandHttpStreams= function (quality) {
-        var streams = this.links().map(function (s) {
-            return { uri: s.uri, kbps: s.bitrateKbps, linkType: s.linkType };
-        });
+        var links = this.links();
+        var streams = [];
+        for (var ii = 0; ii < links.length; ii++) {
+            var link = links[ii];
+            streams.push({ uri: link.uri, kbps: link.bitrateKbps, linkType: link.linkType });
+        }
         streams.sort(function (a,b) { return Math.abs(quality - a.kbps) - Math.abs(quality - b.kbps); });
 
-        var sortedStreams = streams.filter(function(s) { return s.linkType.toLowerCase() === 'hls'; });
+        var sortedStreams = [];
+        for (var i = 0; i < streams.length; i++) {
+            var s = streams[i];
+            if (s.linkType.toLowerCase() === 'hls') {
+                sortedStreams.push(s);
+            }
+        }
 
         // If a HLS server was found we should use this
         if (sortedStreams.length > 0) {
@@ -70,12 +79,28 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
             console.log('selected bitrate: ' + sortedStreams[0].bitrate + '(' + sortedStreams[0].uri + ')');
         } else {
             // We land here if no HLS servers were found. Use all servers in list, except HDS
-            sortedStreams = streams.filter(function(s) { return s.linkType.toLowerCase() !== 'hds'; });
+            sortedStreams = [];
+            for (var j = 0; j < streams.length; j++) {
+                var os = streams[j];
+                if (os.linkType.toLowerCase() !== 'hds') {
+                    sortedStreams.push(os);
+                }
+            }
         }
 
-        return sortedStreams
-            .map(function (s) { return s; })
-            .filter(function (s) { return s.uri.match(/^http:/i); });
+        var result = [];
+        for (var k = 0; k < sortedStreams.length; k++) {
+            var rs = sortedStreams[k];
+            if (rs.uri.match(/^http:/i)) {
+                result.push(rs);
+            }
+        }
+
+        return result;
+
+        // return sortedStreams
+            // .map(function (s) { return s; })
+            // .filter(function (s) { return s.uri.match(/^http:/i); });
     };
 
     Html5AudioPlayer.prototype._getLiveHttpStreams= function (quality) {
