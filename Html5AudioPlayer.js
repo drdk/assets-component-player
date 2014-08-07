@@ -1,7 +1,7 @@
 /* jshint devel: true */
 /* global define: true, MediaError: true */
 
-define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'], function (MediaClass, AudioPlayer) {
+define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player', 'dr-widget-media-dom-helper'], function (MediaClass, AudioPlayer, DomHelper) {
 
     'use strict';
 
@@ -35,12 +35,18 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
         var container = this.options.element;
         var sources = this.getHttpStreams(this.options.appData.defaultQuality);
 
-        this.audioElement = new Element('audio', {
+        this.audioElement = DomHelper.newElement('audio', {
             hidden: true,
             preload: 'metadata'
-        }).adopt(sources.map(function (s) { return new Element('source', { src: s.uri }); }));
+        });
 
-        this.audioElement.inject(container, 'top');
+        for (var i = 0; i < sources.length; i++) {
+            var s = sources[i];
+            this.audioElement.appendChild(DomHelper.newElement('source', { src: s.uri }));
+        }
+
+        container.appendChild(this.audioElement);
+        // this.audioElement.inject(container, 'top');
 
         this.initializeEvents();
     };
@@ -126,12 +132,18 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
 
         var sources = this.getHttpStreams(this.options.appData.defaultQuality);
 
-        this.audioElement.getElement('source').destroy();
+        while(this.audioElement.firstChild) {
+            this.audioElement.removeChild(this.audioElement.firstChild);
+        }
         
-        this.audioElement.adopt(sources.map(function (s) { return new Element('source', { src: s.uri }); }));
-        //this.play();
+        for (var i = 0; i < sources.length; i++) {
+            var s = sources[i];
+            this.audioElement.appendChild(DomHelper.newElement('source', { src: s.uri }));
+        }
 
-        if (this.targetTimeCode) this.seek(this.targetTimeCode);
+        if (this.targetTimeCode) {
+            this.seek(this.targetTimeCode);
+        }
     };
 
     // TODO: candidate for merge with videoplayer
