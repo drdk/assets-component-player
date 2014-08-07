@@ -28,7 +28,9 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
         }
 
 
-        self.model.addEvent('durationChange', onDurationChange);
+        if(self.model.options.videoData.videoType !== "live"){
+            self.model.addEvent('durationChange', onDurationChange);
+        }
         self.model.addEvent('afterSeek', update);
         self.model.addEvent('progressChange', update);
         self.model.addEvent('durationChange', initializeEvents);
