@@ -85,7 +85,7 @@ define('dr-widget-media-dom-helper', [], function () {
 		Browser: {
 			Platform: {
 				ios: ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false ),
-				android: ( navigator.userAgent.match(/android/g) ? true : false )
+				android: ( navigator.userAgent.match(/android/i) ? true : false )
 			},
 			ie8: navigator.userAgent.toLowerCase().match(/msie 8/) ? true : false
 		}
