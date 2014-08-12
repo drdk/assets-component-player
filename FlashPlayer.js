@@ -70,13 +70,13 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
             if (!this.getChannel())
                 return;
             for (link in this.getChannel().servers) {
-                if(link.linkType.toLowerCase() == 'hls' && link.qualities.length > 0 && link.qualities[0].streams.length > 0) {
+                if(link.linkType && link.linkType.toLowerCase() == 'hls' && link.qualities.length > 0 && link.qualities[0].streams.length > 0) {
                     HLSpath = link.server + '/' + link.qualities[0].streams[0];
                 }
             }
         } else {
             for (link in links) {
-                if(link.linkType.toLowerCase() == 'hls') {
+                if(link.linkType && link.linkType.toLowerCase() == 'hls') {
                     HLSpath = link.uri;
                 }                
             }
