@@ -198,7 +198,6 @@ define('dr-media-class', [], function () {
             }
         };
         request.send();
-        request = null;
     };
 
     MediaClass.inheritance = function (Child, Parent) {
