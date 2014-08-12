@@ -65,7 +65,8 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
 
     VideoPlayer.prototype.updateElementHeight = function () {
         if (this.options.appData.maintainContainerAspect) {
-            this.options.element.style.height = (this.options.element.offsetWidth / 16 * 9) + this.options.appData.controlsHeight;
+            var style = 'height: ' + (this.options.element.offsetWidth / 16 * 9) + this.options.appData.controlsHeight + 'px';
+            this.options.element.style.cssText += '; ' + style;
         }
     };
 
