@@ -29,7 +29,7 @@ define('dr-media-player-factory', [
     }
 
     function canControlVolume() {
-        if (DomHelper.Browser.Platform.name === 'android') { return false; }
+        if (DomHelper.Browser.Platform.android) { return false; }
         var a = document.createElement('audio');
         a.volume = 0.9;
         return (a.volume !== 1);
