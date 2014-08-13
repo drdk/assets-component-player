@@ -105,35 +105,33 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
 
     Html5AudioPlayer.prototype._getLiveHttpStreams= function (quality) {
         var servers = this.getChannel().servers;
-
-        var streams = servers.map(function (s) {
-            var qualities = s.qualities.map(function (q) {
-                return q.streams.map(function (n) {
-                    return { uri: s.server.replace(/\/+$/, '') + '/' + n, kbps: q.kbps, linkType: s.linkType };
-                });
-            }).flatten();
-
-            // only get streams of matching quality
+        var hlsStreams = [];
+        var notHdsStreams = [];
+        for (var i = 0; i < servers.length; i++) {
+            var s = servers[i];
+            var qualities = [];
+            for (var j = 0; j < s.qualities.length; j++) {
+                var q = s.qualities[j];
+                for (var k = 0; k < q.streams.length; k++) {
+                    var n = q.streams[k];
+                    qualities.push({ uri: s.server.replace(/\/+$/, '') + '/' + n, kbps: q.kbps, linkType: s.linkType });
+                }
+            }
             qualities.sort(function (a,b) { return Math.abs(quality - a.kbps) - Math.abs(quality - b.kbps); });
-            return qualities[0];
-        }).filter(function (s) { return s.linkType.toLowerCase() === 'hls'; });
-        
-        // If no HLS servers were found, use all other except HDS
-        if (streams.length === 0) {
-            streams = servers.map(function (s) {
-                var qualities = s.qualities.map(function (q) {
-                    return q.streams.map(function (n) {
-                        return { uri: s.server.replace(/\/+$/, '') + '/' + n, kbps: q.kbps, linkType: s.linkType };
-                    });
-                }).flatten();
-
-                // only get streams of matching quality
-                qualities.sort(function (a,b) { return Math.abs(quality - a.kbps) - Math.abs(quality - b.kbps); });
-                return qualities[0];
-            }).filter(function (s) { return s.uri.match(/^http:/i) && s.linkType.toLowerCase() !== 'hds'; });
+            var qs = qualities[0];
+            if (qs.linkType.toLowerCase() === 'hls') {
+                hlsStreams.push(qs);
+            } 
+            if (qs.uri.match(/^http:/i) && qs.linkType.toLowerCase() !== 'hds') {
+                notHdsStreams.push(qs);
+            }
         }
-        
-        return streams;
+        // If no HLS servers were found, use all other except HDS
+        if (hlsStreams.length === 0) {
+            return notHdsStreams;
+        } else {
+            return hlsStreams;
+        }
     };
 
     Html5AudioPlayer.prototype.getHttpStreams = function (quality) {
