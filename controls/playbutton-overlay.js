@@ -15,6 +15,8 @@ define('audio-control-play-button-overlay', ['dr-widget-media-dom-helper'], func
             'class': 'pressPlay'
         });
 
+        self.model.options.element.appendChild(self.element);
+
         function onPlay () {
             self.element.style.display = 'none';
         }
