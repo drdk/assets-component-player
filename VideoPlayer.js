@@ -29,7 +29,6 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
                     plugin_not_found: 'En nødvendig komponent kunne ikke hentes.<br/>Læs om driftstatus og kontakt til DR på <a href="/tv/feedback">brugerhenvendelsessiden</a>.',
                     defaultMsg: 'Der er desværre sket en fejl. Vi kigger på sagen, så prøv igen senere.'
                 },
-                controlsHeight: 0,
                 isFullscreen: false,
                 maintainContainerAspect: true,
                 popupEnabled: false,
@@ -51,23 +50,20 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
             this.hashTimeCodeInstance = new HashTimeCodeImplementation(this);
         }
 
-        if (window) {
-            var supportsOrientationChange = 'onorientationchange' in window,
-            orientationEvent = supportsOrientationChange ? 'orientationchange' : 'resize';
-            if (options.platform == 'ios' || options.platform == 'android') {
-                window.addEventListener(orientationEvent, this.updateElementHeight.bind(this));
-            }
-        }
+        // if (window) {
+        //     var supportsOrientationChange = 'onorientationchange' in window,
+        //     orientationEvent = supportsOrientationChange ? 'orientationchange' : 'resize';
+        //     if (options.platform == 'ios' || options.platform == 'android') {
+        //         window.addEventListener(orientationEvent, this.updateElementHeight.bind(this));
+        //     }
+        // }
 
     }
 
     MediaClass.inheritance(VideoPlayer, AbstractPlayer);
 
     VideoPlayer.prototype.updateElementHeight = function () {
-        if (this.options.appData.maintainContainerAspect) {
-            var style = 'height: ' + (this.options.element.offsetWidth / 16 * 9) + this.options.appData.controlsHeight + 'px';
-            this.options.element.style.cssText += '; ' + style;
-        }
+        console.error('updateElementHeight is depricated');
     };
 
     VideoPlayer.prototype.buildPreview = function () {
@@ -98,9 +94,6 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
                 player.options.appData.autoPlay = true;
                 player.build();
             });
-
-            this.options.appData.controlsHeight = 32;
-            this.updateElementHeight();
         };
 
         switch (this.options.videoData.videoType) {
