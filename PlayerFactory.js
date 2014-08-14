@@ -23,6 +23,18 @@ define('dr-media-player-factory', [
         return FlashObject.getFlashMajorVersion() > 9;
     }
 
+    function hasRequiredFlashForVideo() {
+        return FlashObject.getFlashMajorVersion() > 10 || (FlashObject.getFlashMajorVersion() === 10 && FlashObject.getFlashMinorVersion() >= 2);
+    }
+
+    function canPlayHLS() {
+        if (DomHelper.Browser.safari || DomHelper.Browser.Platform.ios || DomHelper.Browser.Platform.android) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     function canPlayMp3() {
         var a = document.createElement('audio');
         return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
@@ -35,11 +47,38 @@ define('dr-media-player-factory', [
         return (a.volume !== 1);
     }
 
+    function buildHtml5VideoPlayer(options) {
+        var getQuerystring = AbstractPlayer.prototype.getQuerystring;
+
+        options.platform = 'all';
+        options.appData.linkType = 'ios';
+
+         if (getQuerystring('forceios') == 'true') {
+                options.appData.linkType = 'Ios';  
+                DomHelper.Browser.Platform.name = 'Ios'; 
+                options.platform = 'ios';
+            }
+            if (getQuerystring('forceandroid') == 'true') {
+                options.appData.linkType = 'Android';
+                DomHelper.Browser.Platform.name = 'Android';   
+                options.platform = 'android';
+            }
+
+        if (window.navigator.userAgent.match(/iPad/i)) {
+            options.appData.defaultQuality = 1000;
+        }
+
+        var player = new Html5Player(options);
+        var sola = new SolaImplementation(player);
+        var springStreams = new SpringstreamsImplementation(player);
+
+        return player;
+    }
+
     var PlayerFactory = {
         getPlayer: function (options) {
-            
-            var player, gemius, psdbUtilities, sola, springStreams;
             var getQuerystring = AbstractPlayer.prototype.getQuerystring;
+            var player, gemius, psdbUtilities, sola, springStreams;
 
             if (options.type && options.type === 'audio') {
 
@@ -66,30 +105,16 @@ define('dr-media-player-factory', [
             } else {
 
                 if (DomHelper.Browser.Platform.ios || DomHelper.Browser.Platform.android || (getQuerystring('forceandroid') == 'true') || (getQuerystring('forceios') == 'true') ) {
-                    options.platform = 'all';
-                    options.appData.linkType = 'ios';
-
-                     if (getQuerystring('forceios') == 'true') {
-                            options.appData.linkType = 'Ios';  
-                            DomHelper.Browser.Platform.name = 'Ios'; 
-                            options.platform = 'ios';
-                        }
-                        if (getQuerystring('forceandroid') == 'true') {
-                            options.appData.linkType = 'Android';
-                            DomHelper.Browser.Platform.name = 'Android';   
-                            options.platform = 'android';
-                        }
-
-                    if (window.navigator.userAgent.match(/iPad/i)) {
-                        options.appData.defaultQuality = 1000;
-                    }
-
-                    player = new Html5Player(options);
-                    sola = new SolaImplementation(player);
-                    springStreams = new SpringstreamsImplementation(player);
+                    player = buildHtml5VideoPlayer(options);
                 } else {
-
-                    player = new FlashPlayer(options);
+                    if (hasRequiredFlashForVideo()) {
+                        player = new FlashPlayer(options);
+                    } else if (canPlayHLS()) {
+                        player = buildHtml5VideoPlayer(options);
+                    } else {
+                        // We build this, only to have it display the "obsolete flash version" error message
+                        player = new FlashPlayer(options);
+                    }
                 }
             }
             
