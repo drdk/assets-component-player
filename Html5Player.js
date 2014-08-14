@@ -128,11 +128,9 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
 
         this.options.element.innerHTML = '';
         
-        //Planck: We don't need this wrapper for the HTML5 player
-        //var wrap = DomHelper.newElement('div', {'class':'image-wrap ratio-16-9 video-wrap'});
-        //wrap.appendChild(this.videoElement);
-        //this.options.element.appendChild(wrap);
-        this.options.element.appendChild(this.videoElement);
+        var wrap = DomHelper.newElement('div', {'class':'image-wrap ratio-16-9 video-wrap'});
+        wrap.appendChild(this.videoElement);
+        this.options.element.appendChild(wrap);
 
         this.initializeEvents();
         this.buildAccessabilityControls();
