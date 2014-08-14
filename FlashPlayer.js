@@ -182,8 +182,6 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
             window.addthis.addEventListener('addthis.menu.open', onHtmlModalOpen);
             window.addthis.addEventListener('addthis.menu.close', onHtmlModalClose);
         }
-        this.options.appData.controlsHeight = 32;
-        this.updateElementHeight();
         this.buildAccessabilityControls();
     };
     FlashPlayer.prototype.swiffRemote = function () {

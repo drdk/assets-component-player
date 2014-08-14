@@ -34,7 +34,6 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
 
     Html5Player.prototype.buildPreview = function () {
         //override AbstractPlayer.buildPreview:
-        this.updateElementHeight();
         this.build();
     };
     
