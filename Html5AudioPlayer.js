@@ -121,6 +121,14 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
             var qs = qualities[0];
             if (qs.linkType.toLowerCase() === 'hls') {
                 hlsStreams.push(qs);
+
+                var item = this.findClosestQuality([s], quality);
+
+                this.setBitratesAvailable(this.getBitratesFromLiveStream(item));
+
+                var selectedStream = this.getStreamByBitrate(quality);
+
+                return [selectedStream];
             } 
             if (qs.uri.match(/^http:/i) && qs.linkType.toLowerCase() !== 'hds') {
                 notHdsStreams.push(qs);
