@@ -74,12 +74,19 @@ define('dr-media-flash-object', ['swfobject2', 'dr-widget-media-dom-helper'], fu
 
     FlashObject.getFlashMajorVersion = function() {
         var fullVersion = FlashObject.getFlashFullVersion();
-        return fullVersion.split(',')[0];
+
+        var majorVersionStr = fullVersion.split(',')[0];
+
+        if (majorVersionStr)
+            return parseInt(majorVersionStr);
+
+        return 0;
     };
     FlashObject.getFlashMinorVersion = function() {
         var fullVersion = FlashObject.getFlashFullVersion();
+
         if (fullVersion.split(',').length > 1) {
-            return fullVersion.split(',')[1];
+            return parseInt(fullVersion.split(',')[1]);
         }
         return '0';
     };
@@ -105,7 +112,10 @@ define('dr-media-flash-object', ['swfobject2', 'dr-widget-media-dom-helper'], fu
                 if(navigator.mimeTypes['application/x-shockwave-flash'].enabledPlugin){
                     return (navigator.plugins['Shockwave Flash 2.0'] || navigator.plugins['Shockwave Flash']).description.replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
                 }
-            } catch(error) { console.error('Unable to detect flash player version'); }
+            } catch(error) {
+                console.log('Unable to detect flash player version');
+                return '0,0,0'
+            }
         }
 
         return '0,0,0';
