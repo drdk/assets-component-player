@@ -170,7 +170,9 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
         AudioPlayer.prototype.setNewBitrate.call(this, bitrate);
         this.flashStreamInitalized = false;
         this.play();
-        if (this.targetTimeCode) this.seek(this.targetTimeCode);
+        if (this.targetTimeCode) {
+            this.seek(this.targetTimeCode);
+        }
     };
     FlashAudioPlayer.prototype.updateOptions = function (options) {
         //this.pause(); // stop current stream
@@ -242,6 +244,16 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
             return true;
         }
         return false;
+    };
+    FlashAudioPlayer.prototype._forceSeek = function (value) {
+        var seekResult;
+        
+        this._forceSeekTries ++;
+        seekResult = this._seek(value);
+
+        if (seekResult || !value || this._forceSeekTries > 10) {
+            this._forceSeekComplete();
+        }
     };
 
     return FlashAudioPlayer;
