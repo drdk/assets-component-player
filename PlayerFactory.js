@@ -84,7 +84,10 @@ define('dr-media-player-factory', [
 
                 options.appData.volumeControls = canControlVolume();
 
-                if (DomHelper.Browser.Platform.ios || getQuerystring('forceios') == 'true') {
+                if (DomHelper.Browser.Platform.android) {
+                    options.appData.linkType = "Android";
+                    options.platform = DomHelper.Browser.Platform.name;
+                } if (DomHelper.Browser.Platform.ios || getQuerystring('forceios') == 'true') {
                     //enable HLS streams for iPhone/iPad
                     options.appData.linkType = 'Ios';
                     options.platform = DomHelper.Browser.Platform.name;
