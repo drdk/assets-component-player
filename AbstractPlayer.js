@@ -364,18 +364,27 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
             return null;
         }
 
-        var resources = this.programcardResult.Assets.filter(function (item) {
-            return item.Kind === "VideoResource" || item.Kind === "AudioResource";
-        });
+        var resources = [];
+        for (var i = 0; i < this.programcardResult.Assets.length; i++) {
+            var item = this.programcardResult.Assets[i];
+            if (item.Kind === "VideoResource" || item.Kind === "AudioResource") {
+                resources.push(item);
+            }
+        }
 
         if (!resources || resources.length === 0) {
             console.log('No valid resources found: ' + resources);
             return null;
         }
 
-        var matchingTypeAssets = this.programcardResult.Assets.filter(function (item) {
-            return (item.Kind === "VideoResource" || item.Kind === "AudioResource") && item.Target === self.options.appData.assetType;
-        });
+        var matchingTypeAssets = [];
+        for (var j = 0; j < this.programcardResult.Assets.length; j++) {
+            var item = this.programcardResult.Assets[j];
+            if ((item.Kind === "VideoResource" || item.Kind === "AudioResource") && item.Target === self.options.appData.assetType) {
+                matchingTypeAssets.push(item);
+            }
+
+        }
 
         if (matchingTypeAssets && matchingTypeAssets.length > 0) {
             return matchingTypeAssets[0];
