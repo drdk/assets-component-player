@@ -345,7 +345,7 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
             return '';
         }
         // use original image, if defined
-        if (this.originalPosterImage !== null) {
+        if (this.originalPosterImage) {
             return this.originalPosterImage;
         } else {
             return this.options.appData.urls.defaultImage || '';
