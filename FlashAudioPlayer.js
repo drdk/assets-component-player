@@ -5,18 +5,20 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
     'use strict';
 
     function FlashAudioPlayer (options) {
-        
-        AudioPlayer.call(this, options);
-        this.setOptions({
-            'appData': {
-                'errorMessages': {
-                    'obsolete_flash_player': 'Du skal have <a href="http://get.adobe.com/flashplayer/">Adobe Flash Player 10 eller nyere</a> installeret for at høre dette.'
-                }
-            }
-        });
+        console.log('FlashAudioPlayer constructor');
         if (options) {
             this.setOptions(options);
         }
+
+        this.setOptions({
+            appData: {
+                errorMessages: {
+                    obsolete_flash_player: 'Du skal have <a href="http://get.adobe.com/flashplayer/">Adobe Flash Player 10 eller nyere</a> installeret for at høre dette.'
+                }
+            }
+        });
+        
+        AudioPlayer.call(this, options);
 
         this.flashStreamInitalized = false;
         
@@ -30,14 +32,11 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
         }
         this.eventCatcherId = 'eventCatcher_' + this.mediaPlayerId.toString();
         window.DR.NetRadio[this.eventCatcherId] = this.eventCatcher.bind(this); //TODO: bind
-
-        console.log('FlashAudioPlayer constructor');
     }
 
     MediaClass.inheritance(FlashAudioPlayer, AudioPlayer);
 
     FlashAudioPlayer.prototype.build = function () {
-        console.log('FlashAudioPlayer.build');
         if (FlashObject.getFlashMajorVersion() < 10) {
             this.displayError('obsolete_flash_player');
             return;
@@ -146,7 +145,7 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
 
             case 'mediaError':
                 if (event.error && event.error.detail)
-                    console.log(event.error.detail);
+                    console.log('error: ' + event.error.detail);
 
                 this.displayError('defaultMsg');
                 break;
@@ -190,13 +189,9 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
         }
     };
     FlashAudioPlayer.prototype.play = function () {
-        console.log('FlashAudioPlayer.play flashStreamInitalized: ' + this.flashStreamInitalized);
-
         if (!this.flashStreamInitalized) {
             this._ensureStream(function () {
-                console.log('FlashAudioPlayer.play getting stream');
                 var stream = this.getStream(this.options.appData.defaultQuality);
-                console.log('FlashAudioPlayer.play ' + stream);
 
                 if (!stream) {
                     console.log('invalid stream: ' + stream + ' ::: ABORTING!');

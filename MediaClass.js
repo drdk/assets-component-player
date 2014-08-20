@@ -182,6 +182,12 @@ define('dr-media-class', [], function () {
         }
     };
     MediaClass.prototype.setOptions = function(options) {
+        if (!this.options) {
+            console.log('MediaClass.prototype.setOptions() -> creating new options object');
+
+            this.options = {};
+        }
+
         mergeObject(this.options, options);
     };
     MediaClass.prototype.json = function(url, successHandler, errorHandler, scope) {

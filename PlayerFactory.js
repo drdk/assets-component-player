@@ -101,9 +101,16 @@ define('dr-media-player-factory', [
                 } else if (canPlayMp3()) {
                     player = new Html5AudioPlayer(options);
                     sola = new SolaImplementation(player);
+                } else if (!hasFlash()) {
+                    // initialize flash player. Will result in a "flash required" error message
+                    console.log('flash not installed');
+                    player = new FlashAudioPlayer(options);
                 } else {
-                    // TODO: ???
+                    console.log('fallback to html5 player. hasFlash(): ' + hasFlash());
+                    // initialize html5 player. Will result in an error message since audio playback is probably not supported.
+                    player = new Html5AudioPlayer(options);
                 }
+
                 psdbUtilities = new PsdbUtilities(player);
             } else {
 
