@@ -23,8 +23,6 @@ define('dr-media-psdb-utilities', function () {
         function onPlay () {
             self.player.removeEvent('play', onPlay);
             registerView();
-
-            self.player.fireEvent('play');
         }
 
         self.player.addEvent('play', onPlay);
