@@ -495,14 +495,6 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
         this.options.element.innerHTML = ''; //IE friendly disposing of flash player
     };
     AbstractPlayer.prototype.logError = function (errorCode) {
-        if (this.options.logging && this.options.logging.errorLogUrl !== null) {
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open('GET',this.options.logging.errorLogUrl, true);
-            xmlhttp.setRequestHeader('Cache-Control', 'no-cache');
-            xmlhttp.setRequestHeader('Accept', '*/*');
-            xmlhttp.setRequestHeader('Server', 'geo.dr.dk');
-            xmlhttp.send('error=' + errorCode + '&url=' + escape(document.location));
-        }
     };
     AbstractPlayer.prototype.displayError = function (errorCode) {
         /*jshint devel:true */
