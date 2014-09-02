@@ -58,10 +58,13 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
         }
         function initializeEvents () {
             if (!self.isEventsInitialized) {
-                DomHelper.on(self.element, (self.model.isTouch ? 'touchstart' : 'mousedown'), startDrag);
-                DomHelper.on(self.element, 'mousemove', handleToolTipEvents);
-                DomHelper.on(self.element, 'mouseover', handleToolTipEvents);
-                DomHelper.on(self.element, 'mouseout', handleToolTipEvents);
+                if(self.model.options.videoData.videoType !== "live"){
+                    DomHelper.on(self.element, (self.model.isTouch ? 'touchstart' : 'mousedown'), startDrag);
+                    DomHelper.on(self.element, 'mousemove', handleToolTipEvents);
+                    DomHelper.on(self.element, 'mouseover', handleToolTipEvents);
+                    DomHelper.on(self.element, 'mouseout', handleToolTipEvents);
+                }
+
                 self.isEventsInitialized = true;
             }
         }
