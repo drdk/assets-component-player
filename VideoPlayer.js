@@ -4,7 +4,7 @@
 /**
  * TODO: Build accessability controls
  **/
-define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', 'video-control-accessability-controls', 'dr-widget-media-dom-helper', 'dr-media-hash-implementation'], function (MediaClass, AbstractPlayer, AccessabilityControls, DomHelper, HashTimeCodeImplementation) {
+define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', 'video-control-accessability-controls', 'dr-widget-media-dom-helper', 'dr-media-hash-implementation', 'dr-error-messages'], function (MediaClass, AbstractPlayer, AccessabilityControls, DomHelper, HashTimeCodeImplementation, DrErrorMessages) {
     'use strict';
 
     function VideoPlayer (options) {
@@ -17,18 +17,6 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
         this.setOptions({
             mediaType: 'video',
             appData: {
-                errorMessages: {
-                    header: 'Fejlmeddelelse',
-                    header_access_denied_od: 'DR TV On Demand',
-                    header_access_denied_live: 'DR TV LIVE-udsendelse',
-                    access_denied_od: 'Af rettighedsmæssige årsager kan vi ikke afspille denne udsendelse. Sidder du ved en computer med en udenlandsk ip-adresse, kan det være grunden til at du ikke kan se programmet.',
-                    access_denied_live: 'Af rettighedsmæssige årsager kan vi ikke afspille denne live kanal i øjeblikket. Det skyldes enten at<ul><li>- Man kan ikke se DR’s livekanaler fra udlandet, da DR sender mange programmer, der af rettighedsmæssige grunde ikke må vises uden for Danmark. Sidder du ved en computer med en udenlandsk ip-adresse, kan det være grunden til at du ikke kan se programmet.</li></ul>eller<ul><li>- Ved nogle udsendelser har DR ikke rettigheder til at vise indholdet på dr.dk på grund af ældre rettighedsaftaler, der ikke inkluderer tilladelse til streaming.</li></ul>',
-                    not_found: 'Programmet du søger findes desværre ikke.',
-                    connection_failed: 'Der er desværre sket en fejl. Læs om driftstatus og kontakt til DR på <a href="/tv/feedback">brugerhenvendelsessiden</a>.',
-                    timeout: 'DR beklager at udsendelsen ikke afspilles. Vi undersøger sagen, og anbefaler at der forsøges igen senere.',
-                    plugin_not_found: 'En nødvendig komponent kunne ikke hentes.<br/>Læs om driftstatus og kontakt til DR på <a href="/tv/feedback">brugerhenvendelsessiden</a>.',
-                    defaultMsg: 'Der er desværre sket en fejl. Vi kigger på sagen, så prøv igen senere.'
-                },
                 isFullscreen: false,
                 maintainContainerAspect: true,
                 popupEnabled: false,
@@ -128,7 +116,6 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
         var accessabilityControls = new AccessabilityControls(this);
     };
     VideoPlayer.prototype.displayError = function (errorCode, info, logOutput, errorDetails) {
-        
         this.logOutput = logOutput;
         var container, paragraph, floater;
 
@@ -137,21 +124,21 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
 
         this.clearContent();
 
-        var headerText = this.options.appData.errorMessages.header;
+        var headerText = DrErrorMessages.getMediaErrorHeader();
 
         if (errorCode === 'access_denied') {
             errorCode = this.options.videoData.videoType === 'live' ? 'access_denied_live' : 'access_denied_od';
 
-            headerText = this.options.appData.errorMessages['header_' + errorCode];
+            headerText = DrErrorMessages.getMediaErrorHeader(errorCode);
         }
 
         var header = DomHelper.newElement('h3', {
             text: headerText
         });
 
-        var paragraphText = this.options.appData.errorMessages[errorCode];
+        var paragraphText = DrErrorMessages.getMediaErrorMessage('video', errorCode)
         if (paragraphText === null || paragraphText.length === 0) {
-            paragraphText = this.options.appData.errorMessages.defaultMsg;
+            paragraphText = DrErrorMessages.getMediaErrorMessage('video');
         }
         paragraph = DomHelper.newElement('p');
         paragraph.innerHTML = paragraphText;

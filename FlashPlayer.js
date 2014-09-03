@@ -13,9 +13,6 @@ define('dr-media-flash-video-player', ['dr-media-class', 'dr-media-video-player'
 
         this.setOptions({
             'appData': {
-                'errorMessages': {
-                    'obsolete_flash_player': 'Du skal have <a href="http://get.adobe.com/flashplayer/">Adobe Flash Player 10.2 eller nyere</a> installeret for at se denne video.'
-                },
                 bufferSettings: {
                     dynamicStreamBufferTime: 3,
                     staticStreamBufferTime: 3

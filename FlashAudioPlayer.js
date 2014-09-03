@@ -9,14 +9,6 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
         if (options) {
             this.setOptions(options);
         }
-
-        this.setOptions({
-            appData: {
-                errorMessages: {
-                    obsolete_flash_player: 'Du skal have <a href="http://get.adobe.com/flashplayer/">Adobe Flash Player 10 eller nyere</a> installeret for at høre dette.'
-                }
-            }
-        });
         
         AudioPlayer.call(this, options);
 

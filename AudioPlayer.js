@@ -4,8 +4,8 @@
 define('dr-media-audio-player',
 ['dr-media-class', 'dr-media-abstract-player', 'dr-widget-media-dom-helper',
     'audio-control-error-message', 'audio-control-settings-button', 'audio-control-play-button-overlay', 'audio-control-play-button',
-    'audio-control-progressbar', 'audio-control-volumeselector', 'audio-control-skip-buttons', 'dr-media-hash-implementation'],
-function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl, HashTimeCodeImplementation) {
+    'audio-control-progressbar', 'audio-control-volumeselector', 'audio-control-skip-buttons', 'dr-media-hash-implementation', 'dr-error-messages'],
+function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl, HashTimeCodeImplementation, DrErrorMessages) {
     'use strict';
 
     /*
@@ -34,13 +34,6 @@ function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsBu
                 defaultQuality: -1,
                 gemius: {
                     identifier: 'ApianyLnm8kTV5nad0MB0cTYzQCZuM9wIVf5SZ5x.rH.n7<'
-                },
-                errorMessages: {
-                    access_denied: 'Denne lydfil er af ophavsretsmæssige årsager beskyttet mod visning udenfor Danmark. Hvis du befinder dig i Danmark og mener du har fået denne besked ved en fejl, kontakt os da på brugerhenvendelsessiden',
-                    not_found: 'Programmet du søger findes desværre ikke.',
-                    connection_failed: 'Der er desværre sket en fejl. Læs om driftstatus og kontakt til DR på brugerhenvendelsessiden',
-                    timeout: 'Afspilleren har været inaktiv for længe. Genindlæs siden, så kan du se videoen igen.',
-                    defaultMsg: 'Der er desværre sket en fejl. Vi kigger på sagen, så prøv igen senere!'
                 },
                 urls: {
                     liveStreams: '/mu-online/api/1.0/channel/all-active-dr-radio-channels',
@@ -330,8 +323,11 @@ function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsBu
         // no-op, audioplayer has no preview
     };
     AudioPlayer.prototype.displayError = function (errorCode, errorDescription) {
-        var msg = this.options.appData.errorMessages[errorCode];
+        AbstractPlayer.prototype.displayError.call(this, arguments);
+
+        var msg = DrErrorMessages.getMediaErrorMessage('audio', errorCode);
         this.options.element.adopt(new ErrorMessageControl(msg, errorDescription));
+        
         /*jshint devel:true*/
         if (window.console && console.log) { console.log(errorDescription); }
     };
