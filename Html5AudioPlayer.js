@@ -171,6 +171,7 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
             var s = sources[i];
             this.audioElement.appendChild(DomHelper.newElement('source', { src: s.uri }));
         }
+        this.audioElement.load();
 
         if (this.targetTimeCode) {
             this.seek(this.targetTimeCode);
