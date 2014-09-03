@@ -2,10 +2,10 @@
 /* global define: true, require: true */
 
 define('dr-media-audio-player',
-['dr-media-class', 'dr-media-abstract-player', 'dr-lazyloader', 'dr-widget-media-dom-helper',
+['dr-media-class', 'dr-media-abstract-player', 'dr-widget-media-dom-helper',
     'audio-control-error-message', 'audio-control-settings-button', 'audio-control-play-button-overlay', 'audio-control-play-button',
     'audio-control-progressbar', 'audio-control-volumeselector', 'audio-control-skip-buttons', 'dr-media-hash-implementation'],
-function (MediaClass, AbstractPlayer, LazyLoader, DomHelper, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl, HashTimeCodeImplementation) {
+function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsButton, PlayButtonOverlayControl, PlayButtonControl, ProgressBarControl, VolumeSelectorControl, SkipButtonsControl, HashTimeCodeImplementation) {
     'use strict';
 
     /*
