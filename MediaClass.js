@@ -158,12 +158,24 @@ define('dr-media-class', [], function () {
         if (!this.listeners[eventType]) {
             this.listeners[eventType] = [];
         }
+
         this.listeners[eventType].push({eh:eventHandler, s:scope});
     };
     MediaClass.prototype.fireEvent = function (eventType, payload) {
         if (this.listeners[eventType]) {
-            for (var i=0; i < this.listeners[eventType].length; i++) {
-                var handler = this.listeners[eventType][i];
+
+            /** 
+             * Some event handlers remove their event listener, which fucks up a default for-loop.
+             * Because of this we move the listeners to a new object, which we then traverse
+             */
+            var eventListeners = [];
+            var len = this.listeners[eventType].length;
+
+            for (var i=0; i < len; i++) {
+                eventListeners.push(this.listeners[eventType][i])
+            }
+            for (var i=0; i < eventListeners.length; i++) {
+                var handler = eventListeners[i];
                 handler.eh.call(handler.s, payload);
             }
         }
