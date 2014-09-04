@@ -82,6 +82,10 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
     };
 
     Html5Player.prototype.postBuild = function () {
+        if (this.isAssetEncrypted() && !this.isEncryptionSupported()) {
+            this.displayError('encryption_not_supported');
+            return;
+        }
         var src = this.getStream(this.options.appData.defaultQuality), poster;
         if (src === null || src.length === 0) {
             // MU will return a program card with no resource links if the user is not in DK
@@ -140,6 +144,10 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
             this.videoElement.setAttribute('autoplay', 'autoplay');
             setTimeout(this.play.bind(this), 100); //ES5 bind is ok here, since IE8 will never initialize Html5Player
         }
+    };
+
+    Html5Player.prototype.isEncryptionSupported = function() {
+        return DomHelper.Browser.Platform.ios === true;
     };
 
     Html5Player.prototype.handleGeoResponse = function(isInDenmark) {

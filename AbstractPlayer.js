@@ -392,6 +392,15 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
 
         return resources[0];
     };
+
+    AbstractPlayer.prototype.isAssetEncrypted = function() {
+        var asset = this.getMediaAsset();
+
+        if (!asset) return false;
+
+        return asset.Encrypted === true;
+    };
+
     AbstractPlayer.prototype.mapLinks = function(assetData) {
         if (!assetData) {
             console.log('assetData not valid: ' + assetData);
