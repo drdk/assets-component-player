@@ -27,9 +27,11 @@ define('dr-media-html5-video-player', ['dr-media-video-player', 'dr-media-class'
     MediaClass.inheritance(Html5Player, VideoPlayer);
     
     Html5Player.prototype.updateOptions = function (options) {
-        this.options.appData.autoPlay = true;
         VideoPlayer.prototype.updateOptions.call(this, options);
-        this.build();
+        this.ensureResource(function () {
+            this.changeContent();
+            this.build();
+        }, this);
     };
 
     Html5Player.prototype.buildPreview = function () {
