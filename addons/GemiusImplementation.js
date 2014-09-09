@@ -26,6 +26,7 @@
         self.isBuffering = false;
         self.isIgnoringBuffer = false;
         self.lastEvent = null;
+        self.streamId = null;
         /**
          * Instance of an AbstractPlayer. IE. Html5Player or FlashPlayer
          * @type {AbstractPlayer}
@@ -72,10 +73,13 @@
                 } else if (!self.player.options.videoData.materialIdentifier && self.player.hasResource() && self.player.productionNumber()) {
                     self.player.options.videoData.materialIdentifier = self.player.productionNumber();
                 }
+                
                 treeId = [];
+                self.streamId = self.player.options.appData.gemius.drIdentifier + self.player.options.videoData.materialIdentifier;
+
                 gemiusStream.newStream(
                     self.player.options.appData.gemius.playerId,
-                    self.player.options.appData.gemius.drIdentifier + self.player.options.videoData.materialIdentifier,
+                    self.streamId,
                     totalTime,
                     customPackage,
                     [],
@@ -206,11 +210,29 @@
             if (self.newStreamRegistered) {
                 gemiusStream.closeStream(
                     self.player.options.appData.gemius.playerId,
-                    self.player.options.appData.gemius.drIdentifier + self.player.options.videoData.materialIdentifier,
+                    self.streamId,
                     self.player.position()
                 );
                 self.newStreamRegistered = false;
             }
+        }
+
+        function onChangeChannel() {
+            self.player.options.videoData.materialIdentifier = 'unknown';
+
+            closeStream();
+        }
+        
+        function onChangeContent() {
+            self.player.options.videoData.materialIdentifier = 'unknown';
+
+            closeStream();
+        }
+        
+        function onClearContent() {
+            self.player.options.videoData.materialIdentifier = 'unknown';
+
+            closeStream();
         }
 
         self.player.addEvent('play', onPlay);
@@ -221,12 +243,11 @@
         self.player.addEvent('beforeSeek', onBeforeSeek);
         self.player.addEvent('afterSeek', onAfterSeek);
         self.player.addEvent('complete', onComplete);
-        self.player.addEvent('changeChannel', closeStream);
-        self.player.addEvent('changeContent', closeStream);
-        self.player.addEvent('clearContent', closeStream);
+        self.player.addEvent('changeChannel', onChangeChannel);
+        self.player.addEvent('changeContent', onChangeContent);
+        self.player.addEvent('clearContent', onClearContent);
 
     };
-
 
     return GemiusImplementation;
 });
