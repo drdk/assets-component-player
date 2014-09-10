@@ -107,6 +107,7 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
         var servers = this.getChannel().servers;
         var hlsStreams = [];
         var notHdsStreams = [];
+        
         for (var i = 0; i < servers.length; i++) {
             var s = servers[i];
             var qualities = [];
@@ -117,9 +118,10 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
                     qualities.push({ uri: s.server.replace(/\/+$/, '') + '/' + n, kbps: q.kbps, linkType: s.linkType });
                 }
             }
+
             qualities.sort(function (a,b) { return Math.abs(quality - a.kbps) - Math.abs(quality - b.kbps); });
             var qs = qualities[0];
-            if (qs.linkType.toLowerCase() === 'hls') {
+            if (qs.linkType.toLowerCase() === 'hls' && this.deviceSupportsHLS()) {
                 hlsStreams.push(qs);
 
                 var item = this.findClosestQuality([s], quality);
@@ -140,6 +142,10 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
         } else {
             return hlsStreams;
         }
+    };
+
+    Html5AudioPlayer.prototype.deviceSupportsHLS = function() {
+        return this.options.appData.linkType.toLowerCase() === 'android' || this.options.appData.linkType.toLowerCase() === 'ios';
     };
 
     Html5AudioPlayer.prototype.getHttpStreams = function (quality) {
