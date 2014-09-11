@@ -1,0 +1,266 @@
+[class*=dr-widget-carousel] {
+	border-top: 1px solid #CECECE;
+	position: relative;
+	overflow: hidden;
+	padding: 0;
+
+	.carousel-body {
+		position: relative;
+	}
+
+    .carousel-content-wrapper {
+        -moz-transition: 0.3s margin-left ease-in-out;
+        -webkit-transition: 0.3s margin-left ease-in-out;
+        -o-transition: 0.3s margin-left ease-in-out;
+        transition: 0.3s margin-left ease-in-out;
+    }
+
+	.button {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		z-index: 10;
+		width: 30px;
+		background-color: @grey-90;
+		cursor: pointer;
+
+		&.next {
+			right: 0;
+		}
+
+		&.previous {
+			left: 0;
+		}
+
+		&.disabled {
+			cursor: default;
+		}
+	}
+
+	[class*="dr-icon-arrow"] {
+		&:before {
+			position: absolute;
+			top: 50%;
+			font-size: 36px;
+			line-height: 100%;
+			margin-top: -18px;
+			text-indent: -3px;
+			color: @grey-50;
+		}
+
+		&:hover:before {
+			color: black;
+		}
+
+		&[class*="disabled"]:before {
+			color: white;
+		}
+	}
+
+	.pager {
+		.font-sans-serif;
+		color: @grey-50;
+		position: absolute;
+		top: -28px;
+		right: 20px;
+	}
+
+	.pageLength:before {
+		content: "/";
+		margin: 0 5px;
+	}
+
+	&[class*="-articles"] {
+		background-color: white;
+
+		.carousel-content-wrapper {
+			padding: 10px 40px;
+		}
+
+		// Default width - shows 5 articles
+		article {
+			overflow: hidden;
+			width: 152px;
+			background: none;
+			padding-top: 10px;
+
+			.image-wrap {
+				img {
+					width: 100%;
+					height: auto;
+				}
+			}
+
+			.metainfo {
+				display: block;
+				margin-top: 3px;
+			}
+
+			&.pseudo {
+				padding-bottom: 80%;
+			}
+
+		}
+
+		.no-image {
+			.box-sizing(border-box);
+			margin-top: 10px;
+			padding: 15px;
+			background-color: @grey-90;
+			min-height: 110px;
+		}
+
+		// If left floated image - shows 3 articles
+		&.image-1,
+		&.image-2 {
+
+			article {
+				width: 255px;
+			}
+
+			.no-image {
+				margin-top: 0;
+				padding: 10px 0 0;
+				background-color: transparent;
+				min-height: 100%;
+
+				h3 {
+					font-size: 14px;
+					line-height: 16px;
+					margin-bottom: 0;
+				}
+			}
+		}
+
+		&.image-2 .image-wrap ~ h3,
+		&.image-2 .image-wrap ~ .metainfo {
+			padding-left: 33.33333333%;
+		}
+
+		&.image-1 .image-wrap ~ h3,
+		&.image-1 .image-wrap ~ .metainfo {
+			padding-left: 25%;
+		}
+
+		&[class*="display"][class*="-3"] {
+
+			article {
+				width: 268px;
+			}
+
+			.no-image {
+				min-height: 170px;
+			}
+
+			&.image-1,
+			&.image-2 {
+				.no-image {
+					min-height: 100%;
+				}
+			}
+		}
+	}
+
+	&[class*="dr-widget-carousel-slideshow"] {
+		border: none;
+        padding-bottom: 10px;
+        background: url(../../img/_source/border.gif) repeat-x 0 100%;
+        .clearfix;
+
+        &.no-ctrlgrp {
+        	padding-bottom: 0;
+
+        	.carousel-body {
+        		padding: 20px 50px;
+        		padding-bottom: 10px;
+			}
+		}
+
+        .carousel-content-wrapper {
+        	margin-bottom: 20px;
+            background-color: @grey-95;
+            .box-shadow(0 0 10px rgba(0,0,0,0.2));
+
+            > * {
+                height: 100%;
+                overflow: hidden;
+                position: relative;
+                margin: 0;
+            }
+
+            .image-wrap {
+
+                &.landscape img {
+                    width: 100%;
+                }
+                &.portrait img {
+                    height: 100%;
+                }
+
+                img {
+                    float: none;
+                    margin: auto;
+
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+
+                    width: auto;
+                    height: auto;
+                    max-height: 100%;
+                    max-width: 100%;
+
+                    .box-shadow(0 0 10px rgba(0,0,0,0.2));
+                }
+            }
+        }
+
+		figcaption {
+			display: none;
+		}
+
+		.figcaption {
+            font-size: 14px;
+            color: @grey-50;
+			.font-sans-serif;
+		}
+
+		.controls {
+            float: right;
+            color: @grey-50;
+
+            .figcaption {
+				float: left;
+				width: 70%;
+            }
+
+			.button {
+				background-color: transparent;
+                display: inline;
+                position: relative;
+			}
+
+			.pager {
+				position: static;
+			}
+
+            .pageIndex {
+                color: black;
+            }
+
+			[class*="dr-icon"][class*="disabled"]:before {
+				color: #000;
+			}
+
+			[class*="dr-icon-arrow-left"]:before,
+			[class*="dr-icon-arrow-right"]:before {
+                position: relative;
+				font-size: 21px;
+                margin: -2px 0 -1px 3px;
+			}
+		}
+
+	}
+}
