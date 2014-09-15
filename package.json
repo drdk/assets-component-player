@@ -10,5 +10,9 @@
   "license": "(c) 2014 the Danish Broadcasting Corporation. All rights reserved.",
   "dependencies": {
     "bootstrap": "git://github.com/drdk/bootstrap.git"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/drdk/assets-component-player"
   }
 }
