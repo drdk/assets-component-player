@@ -26,3 +26,7 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+dist/*.js
+dist/*.js.map
+dist/*.css
