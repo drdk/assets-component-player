@@ -342,14 +342,14 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
                     return item.Uri;
                 }
             }
-            return '';
         }
+        
         // use original image, if defined
         if (this.originalPosterImage) {
             return this.originalPosterImage;
-        } else {
-            return this.options.appData.urls.defaultImage || '';
         }
+
+        return this.options.appData.urls.defaultImage || '';
     };
     AbstractPlayer.prototype.getMediaAsset = function() {
         var self = this;
