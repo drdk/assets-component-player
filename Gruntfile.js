@@ -80,7 +80,7 @@ module.exports = function(grunt) {
 				path = concatFiles[index];
 				concatFiles[index] = file.slice(0, file.lastIndexOf('/')) + '/' + path;
 			}
-			config['uglify'].files[outputName] = concatFiles;
+			config.uglify.files[outputName] = concatFiles;
 		});
 	})();
 

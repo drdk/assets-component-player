@@ -1,13 +1,13 @@
+/* jshint devel: true */
+/* global define: true */
+
 define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (DomHelper) {
 
-    /*jshint mootools:true*/
     'use strict';
 
     var ProgressBar = function (model) {
 
-        var self = this,
-            isDragging = false,
-            isEventsInitialized = false;
+        var self = this;
 
         self.model = model;
         self.element = DomHelper.newElement('div', {'class': 'progressbar'});
@@ -23,12 +23,12 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
         self.element.appendChild(textDiv);
         self.element.appendChild(meter);
 
-        if (self.model.options.videoData.videoType === "live") {
+        if (self.model.options.videoData.videoType === 'live') {
             DomHelper.addClass(self.element, 'live');
         }
 
 
-        if(self.model.options.videoData.videoType !== "live"){
+        if(self.model.options.videoData.videoType !== 'live'){
             self.model.addEvent('durationChange', onDurationChange);
         }
         self.model.addEvent('afterSeek', update);
@@ -46,7 +46,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
         function update () {
             if (!self.isDragging) {
                 var p = isFinite(self.model.progress()) ? self.model.progress() : 0;
-                if(self.model.options.videoData.videoType !== "live"){
+                if(self.model.options.videoData.videoType !== 'live'){
                     if (labelStart.textContent) {
                         labelStart.textContent = self.model.timeCodeConverter.secondsToTimeCode(self.model.position());
                     } else {
@@ -58,7 +58,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
         }
         function initializeEvents () {
             if (!self.isEventsInitialized) {
-                if(self.model.options.videoData.videoType !== "live"){
+                if(self.model.options.videoData.videoType !== 'live'){
                     DomHelper.on(self.element, (self.model.isTouch ? 'touchstart' : 'mousedown'), startDrag);
                     DomHelper.on(self.element, 'mousemove', handleToolTipEvents);
                     DomHelper.on(self.element, 'mouseover', handleToolTipEvents);
@@ -69,8 +69,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
             }
         }
         function startDrag (event) {
-             var e = event || window.event,
-                t = e.target || e.srcElement;
+             var e = event || window.event;
             if(e.preventDefault) {
                 e.preventDefault();
             } else {
@@ -86,8 +85,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
             }
         }
         function drag (event) {
-            var e = event || window.event,
-                t = e.target || e.srcElement;
+            var e = event || window.event;
             if(e.preventDefault) {
                 e.preventDefault();
             } else {
@@ -107,8 +105,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
             self._dragPosition = progress;
         }
         function stopDrag (event) {
-            var e = event || window.event,
-                t = e.target || e.srcElement;
+            var e = event || window.event;
             if(e.preventDefault) {
                 e.preventDefault();
             } else {
@@ -142,8 +139,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
             }
         }
         function handleToolTipEvents (event) {
-            var e = event || window.event,
-                t = e.target || e.srcElement;
+            var e = event || window.event;
             if(e.preventDefault) {
                 e.preventDefault();
             } else {
@@ -194,7 +190,7 @@ define('audio-control-progressbar', ['dr-widget-media-dom-helper'], function (Do
         }
 
         return self.element;
-    }
+    };
 
     return ProgressBar;
 });

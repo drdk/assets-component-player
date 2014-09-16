@@ -1,5 +1,5 @@
 /* jshint devel:true */
-/* global define: true, escape: true, __flash__argumentsToXML: true, ActiveXObject: true */
+/* global define: true, escape: true, __flash__argumentsToXML: true, ActiveXObject: true, swfobject: true */
 
 /** 
  * Replacement for mootool's Swiff class. 
@@ -113,7 +113,7 @@ define('dr-media-flash-object', ['swfobject2', 'dr-widget-media-dom-helper'], fu
                     return (navigator.plugins['Shockwave Flash 2.0'] || navigator.plugins['Shockwave Flash']).description.replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
                 }
             } catch(error) {
-                return '0,0,0'
+                return '0,0,0';
             }
         }
 

@@ -29,7 +29,7 @@ define('dr-media-hash-implementation', function () {
                 if (settings.length > 1) {
                     settings.shift();
 
-                    var settingStr = settings.join(',')
+                    var settingStr = settings.join(',');
                     hash += ',' + settingStr;
                 }
             }

@@ -1,5 +1,5 @@
 /* jshint devel: true */
-/* global define: true, escape: true */
+/* global define: true */
 
 define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
     'use strict';
@@ -355,19 +355,19 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
         var self = this;
 
         if (!this.programcardResult) {
-            console.log('No programcardResult found!')
+            console.log('No programcardResult found!');
             return null;
         }
 
         if (!this.programcardResult.Assets) {
-            console.log('No assets found on programcard')
+            console.log('No assets found on programcard');
             return null;
         }
 
         var resources = [];
         for (var i = 0; i < this.programcardResult.Assets.length; i++) {
             var item = this.programcardResult.Assets[i];
-            if (item.Kind === "VideoResource" || item.Kind === "AudioResource") {
+            if (item.Kind === 'VideoResource' || item.Kind === 'AudioResource') {
                 resources.push(item);
             }
         }
@@ -379,9 +379,9 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
 
         var matchingTypeAssets = [];
         for (var j = 0; j < this.programcardResult.Assets.length; j++) {
-            var item = this.programcardResult.Assets[j];
-            if ((item.Kind === "VideoResource" || item.Kind === "AudioResource") && item.Target === self.options.appData.assetType) {
-                matchingTypeAssets.push(item);
+            var matchItem = this.programcardResult.Assets[j];
+            if ((matchItem.Kind === 'VideoResource' || matchItem.Kind === 'AudioResource') && matchItem.Target === self.options.appData.assetType) {
+                matchingTypeAssets.push(matchItem);
             }
 
         }
@@ -414,13 +414,13 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
 
         return assetData.Links.map(function (item) {
             return {
-                "uri": item.Uri,
-                "linkType": item.Target,
-                "fileType": item.FileFormat,
-                "bitrateKbps": item.Bitrate,
-                "width": item.Width,
-                "height": item.Height
-            }
+                uri: item.Uri,
+                linkType: item.Target,
+                fileType: item.FileFormat,
+                bitrateKbps: item.Bitrate,
+                width: item.Width,
+                height: item.Height
+            };
         });
     };
     
@@ -503,7 +503,7 @@ define('dr-media-abstract-player', ['dr-media-class'], function (MediaClass) {
 
         this.options.element.innerHTML = ''; //IE friendly disposing of flash player
     };
-    AbstractPlayer.prototype.logError = function (errorCode) {
+    AbstractPlayer.prototype.logError = function (/*errorCode*/) {
     };
     AbstractPlayer.prototype.displayError = function (errorCode) {
         /*jshint devel:true */

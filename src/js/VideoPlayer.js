@@ -96,7 +96,7 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
     VideoPlayer.prototype.onPlay = function() {
         AbstractPlayer.prototype.onPlay.call(this);
 
-        if (!this.firstPlay === true) {
+        if (!this.firstPlay) {
             return;
         }
 
@@ -113,7 +113,7 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
         }, this)[0];
     };
     VideoPlayer.prototype.buildAccessabilityControls = function () {
-        var accessabilityControls = new AccessabilityControls(this);
+        this.accessabilityControls = new AccessabilityControls(this);
     };
     VideoPlayer.prototype.displayError = function (errorCode, info, logOutput, errorDetails) {
         this.logOutput = logOutput;
@@ -136,7 +136,7 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
             text: headerText
         });
 
-        var paragraphText = DrErrorMessages.getMediaErrorMessage('video', errorCode)
+        var paragraphText = DrErrorMessages.getMediaErrorMessage('video', errorCode);
         if (paragraphText === null || paragraphText.length === 0) {
             paragraphText = DrErrorMessages.getMediaErrorMessage('video');
         }
@@ -186,7 +186,7 @@ define('dr-media-video-player', ['dr-media-class', 'dr-media-abstract-player', '
             return false;
         }
     };
-    VideoPlayer.prototype.buildErrorDetails = function (errorDetails, info, errorCode) { };
+    VideoPlayer.prototype.buildErrorDetails = function (/*errorDetails, info, errorCode*/) { };
 
 
     return VideoPlayer;

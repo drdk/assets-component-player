@@ -1,3 +1,6 @@
+/* jshint devel: true */
+/* global define: true */
+
 define('video-control-accessability-controls', ['dr-widget-media-dom-helper'], function (DomHelper) {
 
 	'use strict';
@@ -38,7 +41,7 @@ define('video-control-accessability-controls', ['dr-widget-media-dom-helper'], f
 
 			}
 		}
-	}
+	};
 
 	return AccessabilityControls;
 

@@ -172,10 +172,10 @@ define('dr-media-class', [], function () {
             var len = this.listeners[eventType].length;
 
             for (var i=0; i < len; i++) {
-                eventListeners.push(this.listeners[eventType][i])
+                eventListeners.push(this.listeners[eventType][i]);
             }
-            for (var i=0; i < eventListeners.length; i++) {
-                var handler = eventListeners[i];
+            for (var j=0; j < eventListeners.length; j++) {
+                var handler = eventListeners[j];
                 handler.eh.call(handler.s, payload);
             }
         }

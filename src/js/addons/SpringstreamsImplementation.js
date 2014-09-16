@@ -18,13 +18,10 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
 
         function trackPlayEvent () {
             var options = self.player.options;
-            var videoElement = self.player.videoElement;
-
+            
             var date, time, channelId;
             var broadcastName = getBroadcastName();
             var streamId = getStreamId();
-            var series = options.videoData.programSerieSlug;
-            var filename = videoElement.currentSrc;
             var videoType = options.videoData.videoType == 'live' ? 'live' : 'OD';
 
             if (videoType === 'OD') {
@@ -54,7 +51,7 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
         }
 
         function getBroadcastName() {
-            return typeof(self.player.resourceSlug() !== "undefined") && self.player.resourceSlug() !== '' ? self.player.resourceSlug() : 'NULL';
+            return typeof(self.player.resourceSlug() !== 'undefined') && self.player.resourceSlug() !== '' ? self.player.resourceSlug() : 'NULL';
         }
 
         function getStreamId() {
@@ -63,7 +60,7 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
             if (options.videoData.videoType === 'live') {
                 return options.videoData.channelId;
             } else {
-                var urn = typeof(self.player.urn()) !== "undefined" ? self.player.urn() : self.player.productionNumber();
+                var urn = typeof(self.player.urn()) !== 'undefined' ? self.player.urn() : self.player.productionNumber();
                 urn = urn.split(':').join('_');
                 return urn;
             }
@@ -79,7 +76,7 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
 
         function getODBroadcastTime() {
             if (self.player.programcardResult) {
-                var time = self.player.programcardResult.PrimaryAssetStartPublish.split('T')[1].split('Z')[0]
+                var time = self.player.programcardResult.PrimaryAssetStartPublish.split('T')[1].split('Z')[0];
                 if (time)
                     time = time.split(':').join('.');
                 
@@ -92,12 +89,12 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
         function getODChannelId() {
             var pc = self.player.programcardResult;
             var channels = getChannelList();
-            if (pc && typeof(pc.PrimaryChannel) !== "undefined") {
+            if (pc && typeof(pc.PrimaryChannel) !== 'undefined') {
                 var channelNameArr = pc.PrimaryChannel.split('/');
                 var channelSourceName = channelNameArr[channelNameArr.length-1].toLowerCase();
-                return typeof(channels[channelSourceName]) !== "undefined" ? channels[channelSourceName] : channels['fallback'];
+                return typeof(channels[channelSourceName]) !== 'undefined' ? channels[channelSourceName] : channels.fallback;
             }
-            return channels['fallback'];
+            return channels.fallback;
         }
 
         function getLiveChannelId() {
@@ -105,7 +102,7 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
             var channelId = self.player.options.videoData.channelId;
             channelId = channelId.replace('-', '');
 
-            return typeof(channels[channelId]) !== "undefined" ? channels[channelId] : channels['fallback'];
+            return typeof(channels[channelId]) !== 'undefined' ? channels[channelId] : channels.fallback;
         }
 
         function getLiveBroadcastTime() {
@@ -113,7 +110,7 @@ define('dr-media-springstreams-implementation', ['springstreams'], function () {
                 if (dateObj !== null && dateObj !== undefined) {
                     var time = dateObj.split('T')[1].split('Z')[0];
                     if (time)
-                        time = time.split(':').join('.')
+                        time = time.split(':').join('.');
 
                     return time;
                 }

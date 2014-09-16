@@ -1,5 +1,5 @@
 /* jshint devel: true */
-/* global define: true, require: true */
+/* global define: true */
 
 define('dr-media-audio-player',
 ['dr-media-class', 'dr-media-abstract-player', 'dr-widget-media-dom-helper',
@@ -198,23 +198,23 @@ function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsBu
     };
     AudioPlayer.prototype.convertToInternalResource = function(link) {
         var replaceable = [
-            "/all/clear/streaming/",
-            "/all/clear/download/",
-            "/all/token/streaming/",
-            "/all/token/download/",
-            "/dk/clear/streaming/",
-            "/dk/clear/download/",
-            "/dk/token/streaming/",
-            "/dk/token/download/"
+            '/all/clear/streaming/',
+            '/all/clear/download/',
+            '/all/token/streaming/',
+            '/all/token/download/',
+            '/dk/clear/streaming/',
+            '/dk/clear/download/',
+            '/dk/token/streaming/',
+            '/dk/token/download/'
         ];
         
         for (var i=0, tot=replaceable.length; i < tot; i++) {
             var item = replaceable[i];
 
-            link = link.replace(item, "/dr/clear/download/");
+            link = link.replace(item, '/dr/clear/download/');
         }
 
-        link = link.replace("/z/all/clear/streaming/", "/z/dr/clear/download/");
+        link = link.replace('/z/all/clear/streaming/', '/z/dr/clear/download/');
 
         return link;
     };
@@ -317,7 +317,7 @@ function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsBu
             endTimeStamp = parseInt(element.getAttribute('data-end'));
             nowTimeStamp = parseInt(element.getAttribute('data-now'));
             initialized = new Date().getTime();
-        }
+        };
     };
     AudioPlayer.prototype.buildPreview = function () {
         // no-op, audioplayer has no preview

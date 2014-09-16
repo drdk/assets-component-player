@@ -72,8 +72,8 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
         if (sortedStreams.length > 0) {
             console.log('quality: ' + quality);
             this.setBitratesAvailable(this.getBitratesFromODStream(sortedStreams[0]));
-            for (var i=0; i < this.bitratesAvailable.length; i++) {
-                console.log('bitrate ' + this.bitratesAvailable[i].bitrate + ': ' + this.bitratesAvailable[i].uri);
+            for (var m=0; m < this.bitratesAvailable.length; m++) {
+                console.log('bitrate ' + this.bitratesAvailable[m].bitrate + ': ' + this.bitratesAvailable[m].uri);
             }
             sortedStreams = [this.getStreamByBitrate(quality)];
             console.log('selected bitrate: ' + sortedStreams[0].bitrate + '(' + sortedStreams[0].uri + ')');
@@ -107,6 +107,7 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
         var servers = this.getChannel().servers;
         var hlsStreams = [];
         var notHdsStreams = [];
+        var sorter = function (a,b) { return Math.abs(quality - a.kbps) - Math.abs(quality - b.kbps); };
         
         for (var i = 0; i < servers.length; i++) {
             var s = servers[i];
@@ -119,7 +120,7 @@ define('dr-media-html5-audio-player', ['dr-media-class', 'dr-media-audio-player'
                 }
             }
 
-            qualities.sort(function (a,b) { return Math.abs(quality - a.kbps) - Math.abs(quality - b.kbps); });
+            qualities.sort(sorter);
             var qs = qualities[0];
             if (qs.linkType.toLowerCase() === 'hls' && this.deviceSupportsHLS()) {
                 hlsStreams.push(qs);

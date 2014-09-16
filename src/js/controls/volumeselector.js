@@ -1,3 +1,6 @@
+/* jshint devel: true */
+/* global define: true */
+
 define('audio-control-volumeselector', ['dr-widget-media-dom-helper'], function (DomHelper) {
 
     /*jshint mootools:true*/
@@ -15,7 +18,7 @@ define('audio-control-volumeselector', ['dr-widget-media-dom-helper'], function 
         for (var i = 0; i < (steps+1); i++) {
             var name = 'volume_' + self.model.mediaPlayerId,
                 label = DomHelper.newElement('label', { 'for': name + '_' + i, 'text': i * 20 + '% lydstyrke' }),
-                input = DomHelper.newElement('input', {type: 'radio', name: name, 'title': i * 20 + '% lydstyrke',  id: name + '_' + i })
+                input = DomHelper.newElement('input', {type: 'radio', name: name, 'title': i * 20 + '% lydstyrke',  id: name + '_' + i });
             if (i===0) {
                 DomHelper.addClass(label, 'dr-icon-audio-medium');
             }
