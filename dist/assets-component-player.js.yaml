@@ -1,4 +1,5 @@
 files:
+    - ../src/js/dr-error-messages.js
     - ../src/js/utils/DomHelper.js
     - ../src/js/utils/FlashObject.js
     - ../src/js/controls/errormessage.js
