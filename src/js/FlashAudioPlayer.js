@@ -1,19 +1,26 @@
 /* jshint devel: true */
 /* global define: true */
 
-define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player', 'dr-media-flash-object'], function (MediaClass, AudioPlayer, FlashObject) {
+define('dr-media-flash-audio-player', ['dr-widget-media-dom-helper', 'dr-media-class', 'dr-media-audio-player', 'dr-media-flash-object'], function (DomHelper, MediaClass, AudioPlayer, FlashObject) {
     'use strict';
 
     function FlashAudioPlayer (options) {
         console.log('FlashAudioPlayer constructor');
-        if (options) {
-            this.setOptions(options);
-        }
+
+        
+
+        
+
         
         AudioPlayer.call(this, options);
 
         this.flashStreamInitalized = false;
+
+        this.options.swfUrl = '/assets/swf/DRInvisibleAudioPlayer.swf';
         
+        if (options) {
+            this.setOptions(options);
+        }
 
         //register global eventCatcher for flash callbacks:
         if (!window.DR) {
@@ -51,15 +58,14 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
             return qs[1];
     };
     FlashAudioPlayer.prototype.postBuild = function () {
-            var swiffContainer = new Element('div', { 'class':'DRInvisibleAudioPlayer',
+            var swiffContainer = DomHelper.newElement('div', { 'class':'DRInvisibleAudioPlayer',
                 styles: { position: 'absolute' }
             });
 
-            this.options.element.adopt(swiffContainer);
+            this.options.element.appendChild(swiffContainer);
 
-            var swfUrl = '/assets/swf/DRInvisibleAudioPlayer.swf';
             
-            this.swiff = new FlashObject(swfUrl, { //TODO: Swiff
+            this.swiff = new FlashObject(this.options.swfUrl, { 
                 container: swiffContainer,
                 height: '100%',
                 width: '100%',
@@ -77,7 +83,7 @@ define('dr-media-flash-audio-player', ['dr-media-class', 'dr-media-audio-player'
             // this.swiff.object.set('tabindex', '-1');
     };
     FlashAudioPlayer.prototype.eventCatcher = function (event) {
-        //console.log('FlashAudioPlayer.eventCatcher:' + event.type + ' ' + event.playState);
+        // console.log('FlashAudioPlayer.eventCatcher:' + event.type + ' ' + event.playState);
         switch (event.type) {
 
             case 'versionEvent':
