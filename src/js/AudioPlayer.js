@@ -141,7 +141,7 @@ function (MediaClass, AbstractPlayer, DomHelper, ErrorMessageControl, SettingsBu
         document.cookie = 'audio-player-bitrate=' + encodeURIComponent(JSON.stringify(data)) + ';expires=' + expires.toUTCString() + ';path=/;domain=.dr.dk';
     };
     AudioPlayer.prototype.ready = function () {
-        this.options.element.removeClass('loading');
+        DomHelper.removeClass(this.options.element, 'loading');
         if (this.options.appData.autoPlay) {
             this.play();
         }

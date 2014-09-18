@@ -59,10 +59,10 @@ define('dr-media-flash-object', ['swfobject2', 'dr-widget-media-dom-helper'], fu
         self.objectElement = swfobject.createSWF(attributes, params, replace.id);
 
         self.remote = function (fn) {
-            if (__flash__argumentsToXML) {
-                return self.toElement().CallFunction('<invoke name="' + fn + '" returntype="javascript">' + __flash__argumentsToXML(arguments, 1) + '</invoke>');
+            if (window.hasOwnProperty('__flash__argumentsToXML')) {
+                return self.toElement().CallFunction('<invoke name="' + fn + '" returntype="javascript">' + window.__flash__argumentsToXML(arguments, 1) + '</invoke>');
             } else {
-                console.error('__flash__argumentsToXML is not defined!');
+                console.error('__flash__argumentsToXML is not defined!', fn);
             }
         };
 
