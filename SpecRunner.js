@@ -52,7 +52,11 @@ require.config({
 require(['jasmine-boot'], function (jasmine) {
 
     var specs = [
-        'spec/GemiusimplementationSpec'
+        'spec/addons/PsdbUtillitiesSpec',
+        'spec/addons/HashTimeCodeImplementationSpec',
+        'spec/MediaClassSpec',
+        'spec/utils/DomHelperSpec',
+        'spec/addons/GemiusimplementationSpec'
     ];
     
     require(specs, function (spec) {

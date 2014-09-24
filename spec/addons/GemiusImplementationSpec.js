@@ -2,7 +2,380 @@ define(['dr-media-player-factory', 'jasmine-ajax'], function (PlayerFactory, jas
 
 	describe('GemiusImplementation', function () {
 
+		describe('video', function () {
+
+			describe('ondemand', function () {
+
+				var player;
+
+				beforeEach(function () {
+
+					spyOn(gemiusStream, 'event');
+					spyOn(gemiusStream, 'newStream');
+					spyOn(gemiusStream, 'closeStream');
+
+					window.player = player = PlayerFactory.getPlayer({
+						'element': document.getElementById('test-player'),
+						'videoData': {
+							'broadCastDate': '2014-09-17T18:00:00Z',
+							'durationInMilliseconds': 3463960,
+							'episodeSlug': 'den-store-bagedyst-4-8-2',
+							'materialIdentifier': 'den-store-bagedyst-4-8-2',
+							'productionNumber': '00951411040',
+							'programSerieSlug': 'den-store-bagedyst',
+							'programmeName': 'Den Store Bagedyst (4:8)',
+							'resource': 'http://www.dr.dk/mu/programcard/expanded/den-store-bagedyst-4-8-2',
+							'urnId': 'urn:dr:mu:programcard:540e3bf76187a2165c204ca1',
+							'videoType': 'ondemand'
+						},
+						'appData': {
+							'autoPlay': true,
+							'gemius': {
+								'channelName': 'TV',
+								'drIdentifier': '019_drdk-',
+								'hitcollector': 'http://sdk.hit.gemius.pl',
+								'identifier': 'p9AwR.N.S86s_NjaJKdww7b.fdp8ky90ZnrKpgLHOUn.s7',
+								'playerId': 'global-assets-player_900129'
+							}
+						},
+						'enableHashTimeCode': false,
+						'type': 'video'
+					});
+
+					originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+					jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+
+				});
+
+				afterEach(function() {
+					player.options.element.innerHTML = "";
+					player = null;
+					jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+				});
+
+				it('should initialize new gemius stream', function (done) {
+					player.addEvent('play', function () {
+						expect(gemiusStream.newStream.calls.count()).toEqual(1);
+						done();
+					});
+				});
+
+				it('should send play event', function (done) {
+					player.addEvent('play', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'playing');
+						expect(gemiusStream.event.calls.count()).toEqual(1);
+						done();
+					});
+				});
+
+				it('should send paused event', function (done) {
+					player.addEvent('pause', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'paused');
+						// expect(gemiusStream.event.calls.argsFor(0)[3]).toEqual('playing');
+						// expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('paused');
+						done();
+					});
+					player.addEvent('play', function () {
+						player.pause();
+					});
+				});
+
+				it('should send seekingStarted event', function (done) {
+					player.addEvent('beforeSeek', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							0,
+							'seekingStarted');
+						// expect(gemiusStream.event.calls.argsFor(0)[3]).toEqual('playing');
+						// expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('seekingStarted');
+						done();
+					});
+					player.addEvent('play', function () {
+						player.seek('20:00');
+					});
+				});
+
+				it('should send playing event after seeking', function (done) {
+					player.addEvent('afterSeek', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							1200,
+							'playing');
+						// expect(gemiusStream.event.calls.argsFor(0)[3]).toEqual('playing');
+						// expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('seekingStarted');
+						// expect(gemiusStream.event.calls.argsFor(2)[3]).toEqual('playing');
+						done();
+					});
+					player.addEvent('play', function () {
+						player.seek('20:00');
+					});
+				});
+
+				it('should send complete event and close stream after playback', function (done) {
+					player.addEvent('complete', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'complete');
+						expect(gemiusStream.closeStream).toHaveBeenCalled();
+						done();
+					});
+					function p() {
+						player.seek('57:00');
+						// player.removeEvent('play', p); //remove event handler or cause infinite seek loop
+					}
+					player.addEvent('durationChange', p);
+				});
+
+				it('should stop gemius stream if content is cleared', function (done) {
+					player.addEvent('clearContent', function () {
+						expect(gemiusStream.closeStream).toHaveBeenCalled();
+						done();
+					});
+					player.addEvent('play', function () {
+						player.clearContent();
+					});
+				});
+
+			});
+
+			describe('live', function () {
+
+				var player;
+
+				beforeEach(function () {
+
+					spyOn(gemiusStream, 'event');
+					spyOn(gemiusStream, 'newStream');
+					spyOn(gemiusStream, 'closeStream');
+
+					window.player = player = PlayerFactory.getPlayer({
+						'element': document.getElementById('test-player'),
+						'videoData': {
+							'videoType': 'live',
+							'channelId': 'dr1',
+							'materialIdentifier': 'dr1'
+						},
+						'appData': {
+							'autoPlay': true,
+							'gemius': {
+								'channelName': 'TV',
+								'drIdentifier': '019_drdk-',
+								'hitcollector': 'http://sdk.hit.gemius.pl',
+								'identifier': 'p9AwR.N.S86s_NjaJKdww7b.fdp8ky90ZnrKpgLHOUn.s7',
+								'playerId': 'global-assets-player_493696'
+							}
+						},
+						'enableHashTimeCode': false,
+						'type': 'video'
+					});
+
+					originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+					jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+				});
+
+				afterEach(function() {
+					player.options.element.innerHTML = "";
+					player = null;
+					jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+				});
+
+				it('should initialize new gemius stream', function (done) {
+					player.addEvent('play', function () {
+						expect(gemiusStream.newStream.calls.count()).toEqual(1);
+						done();
+					});
+				});
+
+				it('should send play event', function (done) {
+					player.addEvent('play', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'playing');
+						expect(gemiusStream.event.calls.count()).toEqual(1);
+						done();
+					});
+				});
+
+				it('should send stopped event', function (done) {
+					player.addEvent('pause', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'stopped');
+						expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('stopped');
+						done();
+					});
+					player.addEvent('play', function () {
+						player.stop();
+					});
+				});
+
+				it('should stop gemius stream if content is cleared', function (done) {
+					player.addEvent('clearContent', function () {
+						expect(gemiusStream.closeStream).toHaveBeenCalled();
+						done();
+					});
+					player.addEvent('play', function () {
+						player.clearContent();
+					});
+				});
+
+			});
+
+		});
+
+
 		describe('audio', function () {
+
+			describe('ondemand', function () {
+
+				var player;
+
+				beforeEach(function () {
+
+					spyOn(gemiusStream, 'event');
+					spyOn(gemiusStream, 'newStream');
+					spyOn(gemiusStream, 'closeStream');
+
+					window.player = player = PlayerFactory.getPlayer({
+						'element': document.getElementById('test-player'),
+						'videoData': {
+							'episodeurn':'urn%3adr%3amu%3aprogramcard%3a5410e5516187a21370ac68dc',
+							'resource': 'http://www.dr.dk/mu/programcard/expanded/p1-morgen-819',
+							'videoType': 'ondemand',
+							'channelId': null
+						},
+						'appData': {
+							'autoPlay': true,
+							'gemius': {
+								'channelName': 'drdk'
+							}
+						},
+						'enableHashTimeCode': false,
+						'type': 'audio',
+						'swfUrl': 'lib/DRInvisibleAudioPlayer.swf'
+					});
+
+					originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+					jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
+				});
+
+				afterEach(function() {
+					player.options.element.innerHTML = "";
+					player = null;
+					jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+				});
+
+				it('should initialize new gemius stream', function (done) {
+					player.addEvent('play', function () {
+						expect(gemiusStream.newStream.calls.count()).toEqual(1);
+						done();
+					});
+				});
+
+				it('should send play event', function (done) {
+					player.addEvent('play', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'playing');
+						expect(gemiusStream.event.calls.count()).toEqual(1);
+						done();
+					});
+				});
+
+				it('should send paused event', function (done) {
+					player.addEvent('pause', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'paused');
+						expect(gemiusStream.event.calls.argsFor(0)[3]).toEqual('playing');
+						expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('paused');
+						done();
+					});
+					player.addEvent('play', function () {
+						player.pause();
+					});
+				});
+
+				it('should send seekingStarted event', function (done) {
+					player.addEvent('beforeSeek', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							0,
+							'seekingStarted');
+						expect(gemiusStream.event.calls.argsFor(0)[3]).toEqual('playing');
+						expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('seekingStarted');
+						done();
+					});
+					player.addEvent('play', function () {
+						player.seek('20:00');
+					});
+				});
+
+				it('should send playing event after seeking', function (done) {
+					player.addEvent('afterSeek', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							1200,
+							'playing');
+						expect(gemiusStream.event.calls.argsFor(0)[3]).toEqual('playing');
+						expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('seekingStarted');
+						expect(gemiusStream.event.calls.argsFor(2)[3]).toEqual('playing');
+						done();
+					});
+					player.addEvent('play', function () {
+						player.seek('20:00');
+					});
+				});
+
+				it('should send complete event and close stream after playback', function (done) {
+					player.addEvent('complete', function () {
+						expect(gemiusStream.event).toHaveBeenCalledWith(
+							player.options.appData.gemius.playerId,
+							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
+							jasmine.any(Number),
+							'complete');
+						expect(gemiusStream.closeStream).toHaveBeenCalled();
+						done();
+					});
+					function p() {
+						player.seek('2:54:58');
+						player.removeEvent('play', p); //remove event handler or cause infinite seek loop
+					}
+					player.addEvent('play', p);
+				});
+
+				it('should stop gemius stream if content is cleared', function (done) {
+					player.addEvent('clearContent', function () {
+						expect(gemiusStream.closeStream).toHaveBeenCalled();
+						done();
+					});
+					player.addEvent('play', function () {
+						player.clearContent();
+					});
+				});
+			});
 
 			describe('live', function () {
 
@@ -17,9 +390,10 @@ define(['dr-media-player-factory', 'jasmine-ajax'], function (PlayerFactory, jas
 					// });
 
 					spyOn(gemiusStream, 'event');
+					spyOn(gemiusStream, 'newStream');
+					spyOn(gemiusStream, 'closeStream');
 
 					window.player = player = PlayerFactory.getPlayer({
-						'type': 'video',
 						'element': document.getElementById('test-player'),
 						'videoData': {
 							'videoType': 'live',
@@ -44,40 +418,50 @@ define(['dr-media-player-factory', 'jasmine-ajax'], function (PlayerFactory, jas
 				afterEach(function() {
 					player.options.element.innerHTML = "";
 					player = null;
-					
 					jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
 				});
 
+				it('should initialize new gemius stream', function (done) {
+					player.addEvent('play', function () {
+						expect(gemiusStream.newStream.calls.count()).toEqual(1);
+						done();
+					});
+				});
 
 				it('should send play event', function (done) {
-
 					player.addEvent('play', function () {
-
 						expect(gemiusStream.event).toHaveBeenCalledWith(
 							player.options.appData.gemius.playerId,
 							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
 							jasmine.any(Number),
 							'playing');
-
+						expect(gemiusStream.event.calls.count()).toEqual(1);
 						done();
 					});
 				});
 
 				it('should send stopped event', function (done) {
-
 					player.addEvent('pause', function () {
-
 						expect(gemiusStream.event).toHaveBeenCalledWith(
 							player.options.appData.gemius.playerId,
 							player.options.appData.gemius.drIdentifier + player.options.videoData.materialIdentifier,
 							jasmine.any(Number),
 							'stopped');
-
+						expect(gemiusStream.event.calls.argsFor(1)[3]).toEqual('stopped');
 						done();
 					});
-
 					player.addEvent('play', function () {
 						player.pause();
+					});
+				});
+
+				it('should stop gemius stream if content is cleared', function (done) {
+					player.addEvent('clearContent', function () {
+						expect(gemiusStream.closeStream).toHaveBeenCalled();
+						done();
+					});
+					player.addEvent('play', function () {
+						player.clearContent();
 					});
 				});
 
