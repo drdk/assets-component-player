@@ -1,5 +1,4 @@
 require.config({
-    urlArgs: 'cb=' + Math.random(),
     paths: {
         'jasmine': 'lib/jasmine-2.0.3/jasmine',
         'jasmine-html': 'lib/jasmine-2.0.3/jasmine-html',
