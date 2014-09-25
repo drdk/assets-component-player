@@ -17,6 +17,7 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 
 			it('should add an event listener', function (done) {
 				var el = DomHelper.newElement('div');
+				element.appendChild(el);
 				DomHelper.on(el, 'click', function (e) {
 					expect(e.target || e.srcElement).toEqual(el);
 					expect(e).not.toEqual(null);
@@ -27,6 +28,7 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 
 			it('should remove an event listener', function (done) {
 				var el = DomHelper.newElement('div');
+				element.appendChild(el);
 				var ok = true;
 				function handler1 () {
 					ok = false;
@@ -43,6 +45,7 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 
 			it('should trigger multiple event listeners', function (done) {
 				var el = DomHelper.newElement('div');
+				element.appendChild(el);
 				var num = 0;
 				function handler1 () {
 					num++;
@@ -137,7 +140,8 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 				element.appendChild(el);
 				expect(element.innerHTML).toEqual('<div class="test"></div>');
 				DomHelper.removeClass(el, 'test');
-				expect(element.innerHTML).toEqual('<div class=""></div>');
+				expect(DomHelper.hasClass(element, 'test')).toEqual(false);
+				// expect(element.innerHTML).toEqual('<div class=""></div>');
 			});
 
 			it('should remove one of many classes', function () {
