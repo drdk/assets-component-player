@@ -10,7 +10,7 @@ define('audio-control-play-button', ['dr-widget-media-dom-helper'], function (Do
 		self.model = model;
 		self.element = DomHelper.newElement('button', {
 			'text':'Play',
-			'class':'dr-icon-play-large'
+			'class':playStateClass
 		});
 
 		function onClick (event) {
