@@ -87,7 +87,7 @@
                     self.player.options.appData.gemius.hitcollector,
                     treeId
                 );
-            }.bind(self);
+            };
 
             if (self.player.options.videoData.videoType === 'ondemand') {
                 self.player.ensureResource(newStreamWithResource);
