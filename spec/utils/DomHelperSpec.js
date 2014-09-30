@@ -19,7 +19,6 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 				var el = DomHelper.newElement('div');
 				element.appendChild(el);
 				DomHelper.on(el, 'click', function (e) {
-					expect(e.target || e.srcElement).toEqual(el);
 					expect(e).not.toEqual(null);
 					done();
 				});
@@ -49,11 +48,17 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 				var num = 0;
 				function handler1 () {
 					num++;
+					if (num > 1) {
+						expect(num).toEqual(2);
+						done();
+					}
 				}
 				function handler2 () {
 					num++;
-					expect(num).toEqual(2);
-					done();
+					if (num > 1) {
+						expect(num).toEqual(2);
+						done();
+					}
 				}
 				DomHelper.on(el, 'click', handler1);
 				DomHelper.on(el, 'click', handler2);
@@ -67,25 +72,25 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 			it('should create new element', function () {
 				var el = DomHelper.newElement('div');
 				element.appendChild(el);
-				expect(element.innerHTML).toEqual('<div></div>');
+				expect(element.tagName.toLowerCase()).toEqual('div');
 			});
 
 			it('should create new element with attributes', function () {
 				var el = DomHelper.newElement('div', {'data-test':'test'});
 				element.appendChild(el);
-				expect(element.innerHTML).toEqual('<div data-test="test"></div>');
+				expect(el.getAttribute('data-test')).toEqual('test');
 			});
 
 			it('should create new element with class attribute', function () {
 				var el = DomHelper.newElement('div', {'class':'test'});
 				element.appendChild(el);
-				expect(element.innerHTML).toEqual('<div class="test"></div>');
+				expect(el.className).toEqual('test');
 			});
 
 			it('should create new element with text', function () {
 				var el = DomHelper.newElement('div', {'text':'test'});
 				element.appendChild(el);
-				expect(element.innerHTML).toEqual('<div>test</div>');
+				expect(el.textContent || el.innerText).toEqual('test');
 			});
 
 		});
@@ -96,22 +101,23 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 				var el = DomHelper.newElement('div');
 				DomHelper.addClass(el, 'test');
 				element.appendChild(el);
-				expect(element.innerHTML).toEqual('<div class="test"></div>');
+				expect(el.className.replace(' ', '')).toEqual('test');
 			});
 
 			it('should add class to element after insertion', function () {
 				var el = DomHelper.newElement('div');
 				element.appendChild(el);
 				DomHelper.addClass(el, 'test');
-				expect(element.innerHTML).toEqual('<div class="test"></div>');
+				expect(el.className.replace(' ', '')).toEqual('test');
 			});
 
 			it('should add multiple classes to element', function () {
 				var el = DomHelper.newElement('div');
 				element.appendChild(el);
-				DomHelper.addClass(el, 'test');
+				DomHelper.addClass(el, 'test1');
 				DomHelper.addClass(el, 'test2');
-				expect(element.innerHTML).toEqual('<div class="test test2"></div>');
+				expect(el.className.indexOf('test1')).not.toEqual(-1);
+				expect(el.className.indexOf('test2')).not.toEqual(-1);
 			});
 
 		});
@@ -138,20 +144,21 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 				var el = DomHelper.newElement('div');
 				DomHelper.addClass(el, 'test');
 				element.appendChild(el);
-				expect(element.innerHTML).toEqual('<div class="test"></div>');
+				expect(DomHelper.hasClass(el, 'test')).toEqual(true);
 				DomHelper.removeClass(el, 'test');
-				expect(DomHelper.hasClass(element, 'test')).toEqual(false);
-				// expect(element.innerHTML).toEqual('<div class=""></div>');
+				expect(DomHelper.hasClass(el, 'test')).toEqual(false);
 			});
 
 			it('should remove one of many classes', function () {
 				var el = DomHelper.newElement('div', {
-					'class':'test test2'
+					'class':'test1 test2'
 				});
 				element.appendChild(el);
-				expect(element.innerHTML).toEqual('<div class="test test2"></div>');
+				expect(DomHelper.hasClass(el, 'test2')).toEqual(true);
+				expect(DomHelper.hasClass(el, 'test1')).toEqual(true);
 				DomHelper.removeClass(el, 'test2');
-				expect(element.innerHTML).toEqual('<div class="test"></div>');
+				expect(DomHelper.hasClass(el, 'test2')).toEqual(false);
+				expect(DomHelper.hasClass(el, 'test1')).toEqual(true);
 			});
 
 		});

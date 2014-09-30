@@ -43,10 +43,18 @@ define(['dr-media-hash-implementation', 'dr-media-class'], function (HashTimeCod
 			function hashchangeHandler() {
 				expect(fakePlayer.seek).toHaveBeenCalledWith('20:00');
 				expect(fakePlayer.play).toHaveBeenCalled();
-				window.removeEventListener('hashchange', hashchangeHandler);
+				if ('removeEventListener' in window) {
+					window.removeEventListener('hashchange', hashchangeHandler);
+				} else {
+					window.detachEvent('onhashchange', hashchangeHandler);
+				}
 				done();
 			}
-			window.addEventListener('hashchange', hashchangeHandler);
+			if ('addEventListener' in window) {
+				window.addEventListener('hashchange', hashchangeHandler);
+			} else {
+				window.attachEvent('onhashchange', hashchangeHandler);
+			}
 			document.location.hash = '#!/20:00';
 		});
 
