@@ -5,6 +5,7 @@ require.config({
         'jasmine-ajax': 'lib/jasmine-2.0.3/mock-ajax',
         'jasmine-boot': 'lib/jasmine-2.0.3/boot',
         'audio-control-play-button': 'dist/assets-component-player',
+        'audio-control-volumeselector': 'dist/assets-component-player',
         'dr-media-player-factory': 'dist/assets-component-player',
         'dr-media-gemius-implementation': 'dist/assets-component-player',
         'dr-media-gemius-implementation-test': 'dist/assets-component-player',
@@ -52,6 +53,7 @@ require.config({
 require(['jasmine-boot'], function (jasmine) {
 
     var specs = [
+        'spec/controls/VolumeSelectorSpec',
         'spec/controls/PlayButtonSpec',
         'spec/addons/PsdbUtillitiesSpec',
         'spec/addons/GemiusimplementationSpec',
