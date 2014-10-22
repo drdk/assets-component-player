@@ -127,7 +127,7 @@ define(['dr-widget-media-dom-helper', 'jasmine-ajax'], function (DomHelper, jasm
 			it('should return true if element has class', function () {
 				var el = DomHelper.newElement('div');
 				DomHelper.addClass(el, 'test');
-				expect(DomHelper.hasClass('test')).toEqual(true);
+				expect(DomHelper.hasClass(el, 'test')).toEqual(true);
 			});
 
 			it('should return false if element does not have the class', function () {
